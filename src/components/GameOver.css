@@ -1,0 +1,66 @@
+.game-over {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.game-over__content {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 24px;
+  padding: 48px 64px;
+  text-align: center;
+}
+
+.game-over__title {
+  font-size: 64px;
+  margin-bottom: 8px;
+}
+
+.game-over__title--win {
+  color: var(--color-gold);
+  text-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+}
+
+.game-over__title--lose {
+  color: var(--color-attack);
+}
+
+.game-over__subtitle {
+  font-size: 24px;
+  color: var(--color-text-dim);
+  margin-bottom: 32px;
+}
+
+.game-over__stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-bottom: 40px;
+}
+
+.game-over__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.game-over__stat-label {
+  font-size: 14px;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+}
+
+.game-over__stat-value {
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--color-text);
+}
+
+.game-over__play-again {
+  background: var(--color-primary);
+  color: white;
+  padding: 16px 48px;
+  font-size: 20px;
+  border-radius: 12px;
+}

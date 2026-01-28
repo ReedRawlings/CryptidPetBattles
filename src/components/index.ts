@@ -1,0 +1,8 @@
+export { Game } from './Game';
+export { GameHeader } from './GameHeader';
+export { Shop } from './Shop';
+export { Team } from './Team';
+export { PetCard } from './PetCard';
+export { FoodCard } from './FoodCard';
+export { BattleResult } from './BattleResult';
+export { GameOver } from './GameOver';

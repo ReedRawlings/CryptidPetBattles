@@ -1,0 +1,40 @@
+.game-header {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 16px 24px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.game-header__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.game-header__label {
+  font-size: 12px;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.game-header__value {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.game-header__stat--gold .game-header__value {
+  color: var(--color-gold);
+}
+
+.game-header__stat--lives .game-header__value {
+  font-size: 20px;
+}
+
+.game-header__stat--wins .game-header__value {
+  color: var(--color-health);
+}
