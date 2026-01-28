@@ -1,0 +1,79 @@
+.shop {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.shop__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.shop__header h2 {
+  font-size: 24px;
+  color: var(--color-gold);
+}
+
+.shop__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.shop__roll-btn {
+  background: var(--color-primary);
+  color: white;
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.shop__roll-btn:disabled {
+  background: var(--color-secondary);
+}
+
+.shop__section {
+  margin-bottom: 16px;
+}
+
+.shop__section h3 {
+  font-size: 14px;
+  color: var(--color-text-dim);
+  margin-bottom: 12px;
+}
+
+.shop__items {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.shop__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.shop__freeze-btn {
+  background: var(--color-secondary);
+  color: var(--color-text);
+  padding: 4px 12px;
+  font-size: 11px;
+  border-radius: 4px;
+}
+
+.shop__freeze-btn--active {
+  background: #00bcd4;
+}
+
+.shop__hint {
+  text-align: center;
+  color: var(--color-gold);
+  font-size: 14px;
+  padding: 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 8px;
+  margin-top: 16px;
+}

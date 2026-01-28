@@ -1,0 +1,36 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app__header {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, transparent 100%);
+}
+
+.app__title {
+  font-size: 36px;
+  font-weight: bold;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.app__main {
+  flex: 1;
+  padding: 0 20px 40px;
+}
+
+@media (max-width: 768px) {
+  .app__title {
+    font-size: 28px;
+  }
+
+  .app__main {
+    padding: 0 10px 20px;
+  }
+}

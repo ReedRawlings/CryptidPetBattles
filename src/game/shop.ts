@@ -1,0 +1,327 @@
+import { Pet, PetTemplate, Food, Shop, TIER_SCHEDULE, GAME_CONSTANTS } from '../types';
+import { getAvailablePets } from '../data/pets';
+import { getAvailableFoods } from '../data/foods';
+
+// Generate a unique ID
+function generateId(): string {
+  return `pet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Get tier configuration for a given turn
+export function getTierConfig(turn: number) {
+  return TIER_SCHEDULE.find(
+    (config) => turn >= config.turns[0] && turn <= config.turns[1]
+  ) || TIER_SCHEDULE[TIER_SCHEDULE.length - 1];
+}
+
+// Create a pet instance from a template
+export function createPetFromTemplate(template: PetTemplate, position: number): Pet {
+  return {
+    id: generateId(),
+    templateId: template.id,
+    name: template.name,
+    tier: template.tier,
+    level: 1,
+    experience: 0,
+    baseAttack: template.baseAttack,
+    baseHealth: template.baseHealth,
+    currentAttack: template.baseAttack,
+    currentHealth: template.baseHealth,
+    maxHealth: template.baseHealth,
+    ability: { ...template.ability },
+    battlesParticipated: 0,
+    foodSlot: null,
+    position,
+    emoji: template.emoji,
+  };
+}
+
+// Generate a random shop based on turn
+export function generateShop(turn: number): Shop {
+  const config = getTierConfig(turn);
+  const availablePets = getAvailablePets(config.availableTiers);
+  const availableFoods = getAvailableFoods(config.availableTiers);
+
+  // Generate pet slots
+  const pets: (PetTemplate | null)[] = [];
+  for (let i = 0; i < config.petSlots; i++) {
+    if (availablePets.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availablePets.length);
+      pets.push(availablePets[randomIndex]);
+    } else {
+      pets.push(null);
+    }
+  }
+
+  // Generate food slots
+  const foods: (Food | null)[] = [];
+  for (let i = 0; i < config.foodSlots; i++) {
+    if (availableFoods.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableFoods.length);
+      foods.push(availableFoods[randomIndex]);
+    } else {
+      foods.push(null);
+    }
+  }
+
+  return {
+    pets,
+    foods,
+    frozen: new Array(config.petSlots + config.foodSlots).fill(false),
+  };
+}
+
+// Roll the shop (costs 1 gold)
+export function rollShop(shop: Shop, turn: number): Shop {
+  const config = getTierConfig(turn);
+  const availablePets = getAvailablePets(config.availableTiers);
+  const availableFoods = getAvailableFoods(config.availableTiers);
+
+  // Re-roll non-frozen pets
+  const newPets = shop.pets.map((pet, index) => {
+    if (shop.frozen[index]) {
+      return pet;
+    }
+    if (availablePets.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availablePets.length);
+      return availablePets[randomIndex];
+    }
+    return null;
+  });
+
+  // Re-roll non-frozen foods
+  const newFoods = shop.foods.map((food, index) => {
+    const frozenIndex = shop.pets.length + index;
+    if (shop.frozen[frozenIndex]) {
+      return food;
+    }
+    if (availableFoods.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableFoods.length);
+      return availableFoods[randomIndex];
+    }
+    return null;
+  });
+
+  return {
+    pets: newPets,
+    foods: newFoods,
+    frozen: shop.frozen,
+  };
+}
+
+// Buy a pet from the shop
+export function buyPet(
+  shop: Shop,
+  shopIndex: number,
+  team: (Pet | null)[],
+  teamIndex: number
+): { success: boolean; pet: Pet | null; updatedShop: Shop; updatedTeam: (Pet | null)[] } {
+  const template = shop.pets[shopIndex];
+
+  if (!template) {
+    return { success: false, pet: null, updatedShop: shop, updatedTeam: team };
+  }
+
+  // Check if team slot is available
+  if (team[teamIndex] !== null) {
+    // Try to combine if same pet
+    const existingPet = team[teamIndex]!;
+    if (existingPet.templateId === template.id && existingPet.level < 3) {
+      // Combine pets (give XP)
+      const updatedTeam = [...team];
+      const combinedPet = { ...existingPet };
+      combinedPet.experience += 1;
+
+      // Check for level up
+      if (combinedPet.experience >= GAME_CONSTANTS.XP_TO_LEVEL_3 && combinedPet.level < 3) {
+        combinedPet.level = 3;
+        combinedPet.currentAttack += 2;
+        combinedPet.currentHealth += 2;
+        combinedPet.maxHealth += 2;
+      } else if (combinedPet.experience >= GAME_CONSTANTS.XP_TO_LEVEL_2 && combinedPet.level < 2) {
+        combinedPet.level = 2;
+        combinedPet.currentAttack += 1;
+        combinedPet.currentHealth += 1;
+        combinedPet.maxHealth += 1;
+      }
+
+      updatedTeam[teamIndex] = combinedPet;
+
+      // Remove from shop
+      const updatedShop = {
+        ...shop,
+        pets: shop.pets.map((p, i) => (i === shopIndex ? null : p)),
+      };
+
+      return { success: true, pet: combinedPet, updatedShop, updatedTeam };
+    }
+    return { success: false, pet: null, updatedShop: shop, updatedTeam: team };
+  }
+
+  // Create new pet
+  const newPet = createPetFromTemplate(template, teamIndex);
+
+  // Update team
+  const updatedTeam = [...team];
+  updatedTeam[teamIndex] = newPet;
+
+  // Remove from shop
+  const updatedShop = {
+    ...shop,
+    pets: shop.pets.map((p, i) => (i === shopIndex ? null : p)),
+  };
+
+  return { success: true, pet: newPet, updatedShop, updatedTeam };
+}
+
+// Sell a pet from the team
+export function sellPet(
+  team: (Pet | null)[],
+  teamIndex: number
+): { success: boolean; goldGained: number; updatedTeam: (Pet | null)[] } {
+  const pet = team[teamIndex];
+
+  if (!pet) {
+    return { success: false, goldGained: 0, updatedTeam: team };
+  }
+
+  const updatedTeam = [...team];
+  updatedTeam[teamIndex] = null;
+
+  // Level affects sell value
+  const goldGained = GAME_CONSTANTS.PET_SELL_VALUE * pet.level;
+
+  return { success: true, goldGained, updatedTeam };
+}
+
+// Apply food to a pet
+export function applyFood(
+  shop: Shop,
+  foodIndex: number,
+  team: (Pet | null)[],
+  teamIndex: number
+): { success: boolean; updatedShop: Shop; updatedTeam: (Pet | null)[] } {
+  const food = shop.foods[foodIndex];
+  const pet = team[teamIndex];
+
+  if (!food || !pet) {
+    return { success: false, updatedShop: shop, updatedTeam: team };
+  }
+
+  const updatedTeam = [...team];
+  const updatedPet = { ...pet };
+
+  // Apply food effects
+  updatedPet.currentAttack = Math.min(
+    updatedPet.currentAttack + food.attackValue,
+    GAME_CONSTANTS.MAX_STAT
+  );
+  updatedPet.currentHealth = Math.min(
+    updatedPet.currentHealth + food.healthValue,
+    GAME_CONSTANTS.MAX_STAT
+  );
+  updatedPet.maxHealth = Math.min(
+    updatedPet.maxHealth + food.healthValue,
+    GAME_CONSTANTS.MAX_STAT
+  );
+
+  updatedTeam[teamIndex] = updatedPet;
+
+  // Remove food from shop
+  const updatedShop = {
+    ...shop,
+    foods: shop.foods.map((f, i) => (i === foodIndex ? null : f)),
+  };
+
+  return { success: true, updatedShop, updatedTeam };
+}
+
+// Swap positions of two pets
+export function swapPets(
+  team: (Pet | null)[],
+  indexA: number,
+  indexB: number
+): (Pet | null)[] {
+  const updatedTeam = [...team];
+  const temp = updatedTeam[indexA];
+  updatedTeam[indexA] = updatedTeam[indexB];
+  updatedTeam[indexB] = temp;
+
+  // Update positions
+  if (updatedTeam[indexA]) {
+    updatedTeam[indexA] = { ...updatedTeam[indexA]!, position: indexA };
+  }
+  if (updatedTeam[indexB]) {
+    updatedTeam[indexB] = { ...updatedTeam[indexB]!, position: indexB };
+  }
+
+  return updatedTeam;
+}
+
+// Combine two pets of the same type
+export function combinePets(
+  team: (Pet | null)[],
+  sourceIndex: number,
+  targetIndex: number
+): { success: boolean; updatedTeam: (Pet | null)[]; leveledUp: boolean } {
+  const source = team[sourceIndex];
+  const target = team[targetIndex];
+
+  if (!source || !target) {
+    return { success: false, updatedTeam: team, leveledUp: false };
+  }
+
+  // Must be same type
+  if (source.templateId !== target.templateId) {
+    return { success: false, updatedTeam: team, leveledUp: false };
+  }
+
+  // Target can't already be max level
+  if (target.level >= 3) {
+    return { success: false, updatedTeam: team, leveledUp: false };
+  }
+
+  const updatedTeam = [...team];
+  const combinedPet = { ...target };
+
+  // Add XP (each pet gives 1 XP, plus the pet's existing XP)
+  combinedPet.experience += 1 + source.experience;
+
+  // Take higher stats
+  combinedPet.currentAttack = Math.max(source.currentAttack, target.currentAttack);
+  combinedPet.currentHealth = Math.max(source.currentHealth, target.currentHealth);
+  combinedPet.maxHealth = Math.max(source.maxHealth, target.maxHealth);
+
+  let leveledUp = false;
+
+  // Check for level up
+  if (combinedPet.experience >= GAME_CONSTANTS.XP_TO_LEVEL_3 && combinedPet.level < 3) {
+    combinedPet.level = 3;
+    combinedPet.currentAttack += 2;
+    combinedPet.currentHealth += 2;
+    combinedPet.maxHealth += 2;
+    leveledUp = true;
+  } else if (combinedPet.experience >= GAME_CONSTANTS.XP_TO_LEVEL_2 && combinedPet.level < 2) {
+    combinedPet.level = 2;
+    combinedPet.currentAttack += 1;
+    combinedPet.currentHealth += 1;
+    combinedPet.maxHealth += 1;
+    leveledUp = true;
+  }
+
+  updatedTeam[targetIndex] = combinedPet;
+  updatedTeam[sourceIndex] = null;
+
+  return { success: true, updatedTeam, leveledUp };
+}
+
+// Toggle freeze on a shop slot
+export function toggleFreeze(shop: Shop, index: number): Shop {
+  const updatedFrozen = [...shop.frozen];
+  updatedFrozen[index] = !updatedFrozen[index];
+
+  return {
+    ...shop,
+    frozen: updatedFrozen,
+  };
+}

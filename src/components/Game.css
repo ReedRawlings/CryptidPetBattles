@@ -1,0 +1,35 @@
+.game {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.game__content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.game__actions {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.game__end-turn-btn {
+  background: linear-gradient(135deg, var(--color-primary), #ff6b6b);
+  color: white;
+  padding: 16px 48px;
+  font-size: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(233, 69, 96, 0.4);
+}
+
+.game__end-turn-btn:hover:not(:disabled) {
+  box-shadow: 0 6px 30px rgba(233, 69, 96, 0.6);
+}
+
+.game__end-turn-btn:disabled {
+  background: var(--color-secondary);
+  box-shadow: none;
+}

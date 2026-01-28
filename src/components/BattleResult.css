@@ -1,0 +1,118 @@
+.battle-result {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.battle-result__header {
+  margin-bottom: 24px;
+}
+
+.battle-result__title {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.battle-result__title--win {
+  color: var(--color-health);
+}
+
+.battle-result__title--lose {
+  color: var(--color-attack);
+}
+
+.battle-result__title--draw {
+  color: var(--color-gold);
+}
+
+.battle-result__opponent {
+  font-size: 18px;
+  color: var(--color-text-dim);
+}
+
+.battle-result__teams {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 24px;
+}
+
+.battle-result__team {
+  flex: 1;
+}
+
+.battle-result__team h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--color-text-dim);
+}
+
+.battle-result__pets {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.battle-result__pet-slot {
+  position: relative;
+}
+
+.battle-result__pet {
+  position: relative;
+}
+
+.battle-result__pet--fainted {
+  opacity: 0.5;
+}
+
+.battle-result__fainted-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--color-attack);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.battle-result__empty-slot {
+  width: 80px;
+  height: 100px;
+  border: 2px dashed var(--color-text-dim);
+  border-radius: 12px;
+  opacity: 0.3;
+}
+
+.battle-result__surviving {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--color-text-dim);
+}
+
+.battle-result__vs {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--color-gold);
+}
+
+.battle-result__damage {
+  color: var(--color-attack);
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+.battle-result__continue-btn {
+  background: var(--color-primary);
+  color: white;
+  padding: 16px 48px;
+  font-size: 18px;
+  border-radius: 8px;
+}
