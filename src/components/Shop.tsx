@@ -1,24 +1,27 @@
-import { useState } from 'react';
 import { useGame } from '../game';
 import { PetCard } from './PetCard';
 import { FoodCard } from './FoodCard';
 import { GAME_CONSTANTS } from '../types';
 import './Shop.css';
 
-export function Shop() {
+interface ShopProps {
+  selectedShopPet: number | null;
+  selectedFood: number | null;
+  onPetSelect: (index: number | null) => void;
+  onFoodSelect: (index: number | null) => void;
+}
+
+export function Shop({ selectedShopPet, selectedFood, onPetSelect, onFoodSelect }: ShopProps) {
   const { state, rollShop, toggleFreeze } = useGame();
   const { shop, player } = state;
-
-  const [selectedShopPet, setSelectedShopPet] = useState<number | null>(null);
-  const [selectedFood, setSelectedFood] = useState<number | null>(null);
 
   const handlePetClick = (index: number) => {
     if (shop.pets[index]) {
       if (selectedShopPet === index) {
-        setSelectedShopPet(null);
+        onPetSelect(null);
       } else {
-        setSelectedShopPet(index);
-        setSelectedFood(null);
+        onPetSelect(index);
+        onFoodSelect(null);
       }
     }
   };
@@ -26,10 +29,10 @@ export function Shop() {
   const handleFoodClick = (index: number) => {
     if (shop.foods[index]) {
       if (selectedFood === index) {
-        setSelectedFood(null);
+        onFoodSelect(null);
       } else {
-        setSelectedFood(index);
-        setSelectedShopPet(null);
+        onFoodSelect(index);
+        onPetSelect(null);
       }
     }
   };

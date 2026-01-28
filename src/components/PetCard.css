@@ -44,6 +44,25 @@
   background: rgba(233, 69, 96, 0.1);
 }
 
+.pet-card--highlighted {
+  border-color: var(--color-gold);
+  background: rgba(255, 215, 0, 0.15);
+  animation: slot-pulse 1s ease-in-out infinite;
+}
+
+.pet-card--highlighted .pet-card__empty-text {
+  color: var(--color-gold);
+}
+
+@keyframes slot-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+  }
+}
+
 .pet-card__empty-text {
   font-size: 32px;
   color: var(--color-text-dim);
