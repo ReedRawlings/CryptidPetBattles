@@ -33,3 +33,24 @@
   background: var(--color-secondary);
   box-shadow: none;
 }
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .game {
+    padding: 10px;
+  }
+
+  .game__content {
+    gap: 12px;
+  }
+
+  .game__actions {
+    padding: 12px;
+  }
+
+  .game__end-turn-btn {
+    padding: 12px 24px;
+    font-size: 16px;
+    width: 100%;
+  }
+}

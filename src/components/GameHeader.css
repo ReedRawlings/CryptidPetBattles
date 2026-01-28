@@ -38,3 +38,25 @@
 .game-header__stat--wins .game-header__value {
   color: var(--color-health);
 }
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .game-header {
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+
+  .game-header__label {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .game-header__value {
+    font-size: 18px;
+  }
+
+  .game-header__stat--lives .game-header__value {
+    font-size: 14px;
+  }
+}

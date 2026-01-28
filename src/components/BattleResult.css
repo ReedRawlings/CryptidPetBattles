@@ -116,3 +116,47 @@
   font-size: 18px;
   border-radius: 8px;
 }
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .battle-result {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .battle-result__title {
+    font-size: 32px;
+  }
+
+  .battle-result__opponent {
+    font-size: 14px;
+  }
+
+  .battle-result__teams {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .battle-result__vs {
+    font-size: 18px;
+  }
+
+  .battle-result__pets {
+    gap: 4px;
+  }
+
+  .battle-result__empty-slot {
+    width: 56px;
+    height: 72px;
+  }
+
+  .battle-result__damage {
+    font-size: 14px;
+  }
+
+  .battle-result__continue-btn {
+    padding: 12px 32px;
+    font-size: 16px;
+    width: 100%;
+  }
+}
