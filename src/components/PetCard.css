@@ -44,6 +44,25 @@
   background: rgba(233, 69, 96, 0.1);
 }
 
+.pet-card--highlighted {
+  border-color: var(--color-gold);
+  background: rgba(255, 215, 0, 0.15);
+  animation: slot-pulse 1s ease-in-out infinite;
+}
+
+.pet-card--highlighted .pet-card__empty-text {
+  color: var(--color-gold);
+}
+
+@keyframes slot-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+  }
+}
+
 .pet-card__empty-text {
   font-size: 32px;
   color: var(--color-text-dim);
@@ -139,4 +158,83 @@
   color: var(--color-text-dim);
   margin-top: 4px;
   text-transform: capitalize;
+}
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .pet-card {
+    padding: 6px;
+    border-radius: 8px;
+  }
+
+  .pet-card--small {
+    width: 56px;
+    height: 72px;
+    padding: 4px;
+  }
+
+  .pet-card--medium {
+    width: 64px;
+    height: 84px;
+  }
+
+  .pet-card--large {
+    width: 64px;
+    height: 84px;
+  }
+
+  .pet-card__emoji {
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+
+  .pet-card--small .pet-card__emoji {
+    font-size: 16px;
+  }
+
+  .pet-card--large .pet-card__emoji {
+    font-size: 24px;
+  }
+
+  .pet-card__name {
+    font-size: 9px;
+    margin-bottom: 2px;
+  }
+
+  .pet-card--small .pet-card__name {
+    font-size: 8px;
+  }
+
+  .pet-card__stats {
+    font-size: 11px;
+    gap: 2px;
+  }
+
+  .pet-card__ability-hint {
+    font-size: 7px;
+    margin-top: 2px;
+  }
+
+  .pet-card__empty-text {
+    font-size: 20px;
+  }
+
+  .pet-card__level,
+  .pet-card__frozen-badge {
+    font-size: 8px;
+    padding: 1px 4px;
+    top: -4px;
+  }
+
+  .pet-card__level {
+    left: -4px;
+  }
+
+  .pet-card__frozen-badge {
+    right: -4px;
+  }
+
+  .pet-card:hover {
+    transform: translateY(-2px);
+  }
 }

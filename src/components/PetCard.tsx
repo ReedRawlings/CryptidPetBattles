@@ -10,6 +10,7 @@ interface PetCardProps {
   onDrop?: () => void;
   selected?: boolean;
   empty?: boolean;
+  highlighted?: boolean;
   showStats?: boolean;
   frozen?: boolean;
   size?: 'small' | 'medium' | 'large';
@@ -23,6 +24,7 @@ export function PetCard({
   onDrop,
   selected = false,
   empty = false,
+  highlighted = false,
   showStats = true,
   frozen = false,
   size = 'medium',
@@ -30,7 +32,7 @@ export function PetCard({
   if (!pet && empty) {
     return (
       <div
-        className={`pet-card pet-card--empty pet-card--${size}`}
+        className={`pet-card pet-card--empty pet-card--${size} ${highlighted ? 'pet-card--highlighted' : ''}`}
         onClick={onClick}
         onDragOver={onDragOver}
         onDrop={onDrop}

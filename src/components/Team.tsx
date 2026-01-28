@@ -7,9 +7,10 @@ import './Team.css';
 interface TeamProps {
   onSlotClick?: (index: number) => void;
   isInteractive?: boolean;
+  highlightEmpty?: boolean;
 }
 
-export function Team({ onSlotClick, isInteractive = true }: TeamProps) {
+export function Team({ onSlotClick, isInteractive = true, highlightEmpty = false }: TeamProps) {
   const { state, sellPet, swapPets, combinePets } = useGame();
   const { player } = state;
 
@@ -91,6 +92,7 @@ export function Team({ onSlotClick, isInteractive = true }: TeamProps) {
               onDrop={() => handleDrop(index)}
               selected={selectedPet === index}
               empty={!pet}
+              highlighted={highlightEmpty && !pet}
               size="large"
             />
             {pet && isInteractive && (
