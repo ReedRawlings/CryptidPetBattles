@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { GameState, Player, Pet, BattleResult, GameMode } from '../models/types';
 import { createPlayer, startNewTurn, loseLife, addWin, isEliminated, hasWonGame, updateMmr, clonePlayer, getActivePets } from '../models/Player';
-import { incrementBattlesParticipated, resetBattleStats } from '../models/Pet';
+import { incrementBattlesParticipated, resetBattleStats, createPet } from '../models/Pet';
 import { createShop, rollShop, buyPet, buyFood, sellPet, toggleFreeze } from './ShopSystem';
+import { getPetsUpToTier, getMaxTierForTurn } from '../data/pets';
 import { resolveBattle, calculateDamageTaken } from './BattleSystem';
 
 /**
@@ -196,9 +197,6 @@ function findOpponent(player: Player): Player | null {
   aiOpponent.currentTurn = player.currentTurn;
 
   // Generate a random team appropriate for the turn
-  const { getPetsUpToTier, getMaxTierForTurn } = require('../data/pets');
-  const { createPet } = require('../models/Pet');
-
   const maxTier = getMaxTierForTurn(player.currentTurn);
   const availablePets = getPetsUpToTier(maxTier);
 
