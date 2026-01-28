@@ -108,13 +108,24 @@ export function Shop() {
         </div>
       </div>
 
-      {(selectedShopPet !== null || selectedFood !== null) && (
-        <div className="shop__hint">
-          {selectedShopPet !== null
-            ? 'Click a team slot to place this pet'
-            : 'Click a pet on your team to feed'}
-        </div>
-      )}
+      <div className={`shop__hint ${selectedShopPet !== null || selectedFood !== null ? 'shop__hint--active' : ''}`}>
+        {selectedShopPet !== null ? (
+          <>
+            <span className="shop__hint-icon">👆</span>
+            <span>Tap an empty team slot below to buy this pet</span>
+          </>
+        ) : selectedFood !== null ? (
+          <>
+            <span className="shop__hint-icon">👆</span>
+            <span>Tap a pet on your team to feed</span>
+          </>
+        ) : (
+          <>
+            <span className="shop__hint-icon">💡</span>
+            <span>Tap a pet to select it, then tap a team slot to buy</span>
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -58,3 +58,31 @@
   color: var(--color-text-dim);
   line-height: 1.3;
 }
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .team {
+    padding: 12px;
+  }
+
+  .team__slots {
+    gap: 6px;
+  }
+
+  .team__slot {
+    gap: 4px;
+  }
+
+  .team__sell-btn {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+
+  .team__pet-info {
+    max-width: 70px;
+  }
+
+  .team__ability-text {
+    font-size: 9px;
+  }
+}
