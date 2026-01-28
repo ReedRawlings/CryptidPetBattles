@@ -1,9 +1,22 @@
 {
   "version": 2,
-  "buildCommand": "cd client && npm install && npm run build",
-  "outputDirectory": "client/dist",
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/index.ts" },
-    { "source": "/health", "destination": "/api/index.ts" }
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index.ts" },
+    { "src": "/health", "dest": "/api/index.ts" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/client/dist/index.html" }
   ]
 }
