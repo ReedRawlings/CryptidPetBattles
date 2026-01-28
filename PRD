@@ -1,0 +1,335 @@
+# Product Requirements Document
+## Battle Pets Arena
+
+| Property | Value |
+|----------|-------|
+| Version | 1.0 |
+| Date | January 27, 2026 |
+| Status | Draft |
+| Genre | Auto Battler / Strategy |
+| Platform | Web (Desktop & Mobile) |
+
+---
+
+## 1. Executive Summary
+
+Battle Pets Arena is a free-to-play online auto battler where players build teams of pets with unique abilities to compete against other players or AI opponents. The game features asynchronous multiplayer matchmaking, allowing players to hop in for quick matches at any time.
+
+---
+
+## 2. Game Overview
+
+### 2.1 Core Loop
+
+The game alternates between two phases:
+
+1. **Shop Phase:** Players spend gold to buy pets, purchase food items, roll the shop, and arrange their team. Players have 10 gold per turn.
+2. **Battle Phase:** Teams fight automatically. The rightmost pet attacks the opponent's leftmost pet. Combat continues until one team is eliminated.
+
+### 2.2 Win Condition
+
+- **Arena Mode:** Win 10 battles before losing all lives (start with 5 lives)
+- **Versus Mode:** Be the last player standing in an 8-player lobby
+
+### 2.3 Team Composition
+
+- Maximum 5 pets per team
+- Position matters: pets attack from right to left
+- Combine 3 identical pets to level up (max level 3)
+
+---
+
+## 3. Pet System
+
+### 3.1 Pet Attributes
+
+| Attribute | Description |
+|-----------|-------------|
+| Attack (ATK) | Damage dealt when attacking. Capped at 50. |
+| Health (HP) | Hit points. Pet faints when HP reaches 0. Capped at 50. |
+| Tier | Rarity tier (1-6). Higher tiers unlock every 2 turns. |
+| Level | 1-3. Higher levels increase ability power. |
+| Experience | 0-6. Gained by combining pets. 2 XP to Lvl 2, 6 XP to Lvl 3. |
+| Ability | Unique effect with specific trigger and action. |
+
+### 3.2 Tier Unlock Schedule
+
+| Turn | Tiers Available | Shop Slots |
+|------|-----------------|------------|
+| 1-2 | Tier 1 | 3 pets, 1 food |
+| 3-4 | Tiers 1-2 | 3 pets, 2 food |
+| 5-6 | Tiers 1-3 | 4 pets, 2 food |
+| 7-8 | Tiers 1-4 | 4 pets, 2 food |
+| 9-10 | Tiers 1-5 | 5 pets, 3 food |
+| 11+ | Tiers 1-6 | 5 pets, 3 food |
+
+---
+
+## 4. Ability System
+
+### 4.1 Ability Triggers
+
+Abilities are activated by specific triggers during shop or battle phases.
+
+#### Shop Phase Triggers
+
+| Trigger | When It Fires |
+|---------|---------------|
+| `onBuy` | When this pet is purchased from the shop |
+| `onSell` | When this pet is sold |
+| `onLevelUp` | When this pet gains a level |
+| `onFoodEaten` | When this pet consumes food |
+| `startOfTurn` | At the beginning of each shop phase |
+| `endOfTurn` | When player ends their shop phase |
+
+#### Battle Phase Triggers
+
+| Trigger | When It Fires |
+|---------|---------------|
+| `startOfBattle` | Before any attacks occur |
+| `beforeAttack` | Just before this pet attacks |
+| `onAttack` | When this pet performs an attack |
+| `afterAttack` | Immediately after attacking |
+| `onHurt` | When this pet takes damage |
+| `onFaint` | When this pet's HP reaches 0 |
+| `onFriendFaint` | When an allied pet faints |
+| `onEnemyFaint` | When an enemy pet faints |
+| `onKill` | When this pet's damage causes an enemy to faint |
+| `onSummon` | When a new pet is summoned during battle |
+
+---
+
+## 5. Core Abilities
+
+The following abilities form the initial ability set for the game. Each ability has a unique archetype that encourages different playstyles.
+
+### 5.1 Berserker
+
+| Property | Value |
+|----------|-------|
+| Trigger | `onAttack` |
+| Effect | Gain +1 ATK (temporary, lasts until end of battle) |
+| Target | Self |
+| Scaling | Level 1: +1 ATK \| Level 2: +2 ATK \| Level 3: +3 ATK |
+| Archetype | Scaling Attacker |
+
+**Design Intent:** Berserker rewards survival. The longer it stays alive, the more dangerous it becomes. Best positioned in the back so it can build up attack stacks before reaching the front line. Synergizes with pets that provide shields or healing.
+
+**Implementation Notes:** The ATK bonus is temporary and tracked per-battle. Reset the bonus at the start of each new battle. Store `attackCount` on the pet instance during combat.
+
+### 5.2 Echo
+
+| Property | Value |
+|----------|-------|
+| Trigger | `startOfBattle` |
+| Effect | Deal 3 damage to a random enemy. Repeats for each battle this pet has participated in. |
+| Target | Random enemy |
+| Scaling | Level 1: 3 damage \| Level 2: 4 damage \| Level 3: 5 damage per echo |
+| Archetype | Snowball / Veteran |
+
+**Design Intent:** Echo is a long-term investment. Early purchase yields massive late-game value. A pet bought on Turn 1 that survives to Turn 10 would deal 10×3=30 damage at battle start (Level 1). Creates interesting decisions around protecting this pet vs. selling for stronger options.
+
+**Implementation Notes:** Track `battlesParticipated` as a persistent counter on the pet. Increment after each battle phase (win or lose). This counter persists across shop phases and is part of the pet's saved state.
+
+### 5.3 Pure
+
+| Property | Value |
+|----------|-------|
+| Trigger | `onFaint` |
+| Effect | Heal all surviving allies for 3 HP |
+| Target | All friendly pets currently in battle |
+| Scaling | Level 1: 3 HP \| Level 2: 5 HP \| Level 3: 7 HP |
+| Archetype | Sacrifice / Support |
+
+**Design Intent:** Pure rewards deliberate sacrifice. Position it to die at a strategic moment when allies are damaged. Creates counter-play against chip damage strategies and sniper abilities. Can save a run when combined with high-HP tanks.
+
+**Implementation Notes:** Healing cannot exceed max HP (50). Trigger after the pet is removed from battle but before the next attack resolves. Does not heal pets that faint simultaneously with this pet.
+
+---
+
+## 6. Starter Pet Roster
+
+Initial launch includes 15 pets across 5 tiers. Each tier introduces more powerful abilities and higher base stats.
+
+| Tier | Name | Stats | Ability |
+|------|------|-------|---------|
+| 1 | Puppy | 2/3 | `onFriendSummoned`: Gain +1/+1 |
+| 1 | Crab | 2/2 | `onHurt`: Deal 1 damage to attacker |
+| 1 | Bee | 2/1 | `onFaint`: Summon a 1/1 Honeybee |
+| 2 | Wolf | 3/3 | `startOfBattle`: Give adjacent allies +1 ATK |
+| 2 | Turtle | 2/4 | `onFaint`: Give pet behind +2 armor (reduce damage by 2) |
+| 2 | Crow | 3/2 | `onEnemyFaint`: Permanently gain +1 ATK |
+| 3 | Berserker | 3/4 | `onAttack`: Gain +1 ATK for this battle |
+| 3 | Echo | 2/5 | `startOfBattle`: Deal 3 damage × battles participated |
+| 3 | Golem | 2/6 | Passive: Takes 2 less damage from all attacks (min 1) |
+| 4 | Pure | 3/4 | `onFaint`: Heal all allies for 3 HP |
+| 4 | Vampire | 4/4 | `onKill`: Heal for the killed enemy's ATK |
+| 4 | Snake | 5/3 | `onFriendAttack`: Deal 3 damage to random enemy |
+| 5 | Dragon | 6/6 | `startOfBattle`: Deal 5 damage to ALL enemies |
+| 5 | Phoenix | 5/5 | Reborn: Revive once with 1 HP after fainting |
+| 5 | Hydra | 4/8 | `onFaint`: Summon two 2/4 Hydra Heads |
+
+---
+
+## 7. Data Models
+
+### 7.1 Pet Schema
+
+```json
+{
+  "id": "string",
+  "templateId": "string",
+  "name": "string",
+  "tier": "number (1-6)",
+  "level": "number (1-3)",
+  "experience": "number (0-6)",
+  "baseAttack": "number",
+  "baseHealth": "number",
+  "currentAttack": "number",
+  "currentHealth": "number",
+  "foodSlot": "Food | null",
+  "battlesParticipated": "number",
+  "ability": {
+    "trigger": "string",
+    "effect": "string",
+    "value": "number",
+    "target": "string"
+  }
+}
+```
+
+### 7.2 Player Schema
+
+```json
+{
+  "id": "string",
+  "username": "string",
+  "team": "Pet[5]",
+  "gold": "number",
+  "lives": "number",
+  "wins": "number",
+  "currentTurn": "number",
+  "mmr": "number"
+}
+```
+
+### 7.3 Battle Event Schema
+
+```json
+{
+  "type": "string",
+  "source": "string",
+  "target": "string | null",
+  "value": "number",
+  "timestamp": "number"
+}
+```
+
+---
+
+## 8. Battle Resolution Algorithm
+
+Battles are resolved deterministically using the following algorithm:
+
+1. **Clone both teams** to avoid mutating original state
+2. **Trigger `startOfBattle`** abilities for all pets (highest ATK first)
+3. **Combat loop** - While both teams have living pets:
+   - a. Select attackers: Player's rightmost pet vs. Opponent's leftmost pet
+   - b. Trigger `beforeAttack` abilities
+   - c. Apply damage simultaneously (both pets deal their ATK to each other)
+   - d. Trigger `onAttack` and `onHurt` abilities
+   - e. Check for faints (HP <= 0), trigger `onFaint` abilities
+   - f. Remove fainted pets, shift remaining pets forward
+4. **Determine winner:** Team with surviving pets wins. Both empty = draw.
+
+---
+
+## 9. Multiplayer Architecture
+
+### 9.1 Asynchronous Mode (Arena)
+
+- Players take turns at their own pace (no timer)
+- Supabase stores team snapshots after each shop phase
+- Matchmaking pairs players by wins/losses and turn number
+- Battles resolved via Vercel Edge Functions, results stored in Supabase
+
+### 9.2 Synchronous Mode (Versus)
+
+- 8 players in a lobby
+- 45-second turn timer for shop phase
+- All players battle simultaneously each round
+- Supabase Realtime channels for state sync and presence
+
+### 9.3 Matchmaking Queue
+
+```
+Queue Structure (Supabase PostgreSQL Table):
+- Table: "matchmaking_queue"
+- Columns: player_id, mmr, turn_number, mode, created_at
+- Index: On (mode, mmr) for efficient range queries
+
+Matching Algorithm:
+1. Player joins queue via Supabase insert
+2. Supabase Edge Function runs every 5 seconds (via pg_cron):
+   - Query players grouped by mode, ordered by MMR
+   - Pair adjacent players within 200 MMR range
+   - Create match records, notify via Supabase Realtime
+3. Match timeout: 30 seconds (expand MMR range if no match)
+4. Players subscribe to Realtime channel for instant match notifications
+```
+
+---
+
+## 10. API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/game/start` | Start a new game session |
+| GET | `/api/shop` | Get current shop contents |
+| POST | `/api/shop/buy` | Purchase a pet or food item |
+| POST | `/api/shop/roll` | Roll the shop (costs 1 gold) |
+| POST | `/api/team/arrange` | Update team positions |
+| POST | `/api/team/sell` | Sell a pet from team |
+| POST | `/api/battle/ready` | End shop phase, enter matchmaking |
+| GET | `/api/battle/result` | Get battle result and replay events |
+| Realtime | `game:{game_id}` | Supabase Realtime channel for versus mode |
+| Realtime | `matchmaking:{player_id}` | Supabase Realtime channel for match notifications |
+
+---
+
+## 11. Technical Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React + TypeScript, Canvas/WebGL for battle animations |
+| Backend | Vercel Serverless Functions (Edge Runtime) |
+| Real-time | Supabase Realtime (WebSocket channels) |
+| Database | Supabase PostgreSQL + Supabase Edge Functions |
+| Authentication | Supabase Auth (supports OAuth: Google, Discord, etc.) |
+| Hosting | Vercel (frontend + API) + Supabase (database + realtime) |
+
+---
+
+## 12. Future Considerations
+
+- **Additional Abilities:** Expand roster to 50+ pets with new archetypes
+- **Trait/Synergy System:** Add pet tags (Beast, Mech, Undead) with team-wide bonuses
+- **Ranked Seasons:** Competitive ladder with seasonal rewards
+- **Custom Games:** Allow players to create private lobbies with custom rules
+- **Battle Pass:** Cosmetic progression system for pet skins
+- **Replay System:** Save and share memorable battles
+
+---
+
+## Appendix: Glossary
+
+| Term | Definition |
+|------|------------|
+| ATK | Attack stat. Damage dealt when a pet attacks. |
+| HP | Health points. Pet faints when this reaches 0. |
+| Faint | When a pet's HP reaches 0 and it is removed from battle. |
+| Summon | Adding a new pet to the team during battle (via ability). |
+| Trigger | The event that causes an ability to activate. |
+| Buff | Temporary or permanent stat increase. |
+| MMR | Matchmaking Rating. Hidden skill score for pairing players. |
+| Snapshot | Saved state of a player's team used for async battles. |
