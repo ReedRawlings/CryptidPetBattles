@@ -1,0 +1,117 @@
+.shop-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shop-slot.empty {
+  width: 150px;
+  height: 220px;
+  border: 2px dashed #333;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+}
+
+.shop-slot.frozen {
+  position: relative;
+}
+
+.shop-slot.frozen::after {
+  content: 'FROZEN';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  background: rgba(100, 200, 255, 0.9);
+  color: #1a1a2e;
+  padding: 5px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.food-card {
+  width: 150px;
+  height: 160px;
+  background: linear-gradient(180deg, #3a4a3a 0%, #1a2a1a 100%);
+  border: 2px solid #4ecdc4;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.food-name {
+  font-weight: bold;
+  color: #4ecdc4;
+  font-size: 1rem;
+}
+
+.food-desc {
+  color: #888;
+  font-size: 0.8rem;
+  flex: 1;
+}
+
+.food-effect {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 5px 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.shop-slot-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.buy-button {
+  flex: 1;
+  padding: 8px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  background: #ffd700;
+  color: #1a1a2e;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.buy-button:hover:not(:disabled) {
+  background: #ffed4a;
+  transform: translateY(-2px);
+}
+
+.buy-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.freeze-button {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  border: 1px solid #4a90d9;
+  border-radius: 6px;
+  background: transparent;
+  color: #4a90d9;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.freeze-button:hover {
+  background: rgba(74, 144, 217, 0.2);
+}
+
+.freeze-button.active {
+  background: #4a90d9;
+  color: white;
+}

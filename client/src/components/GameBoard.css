@@ -1,0 +1,212 @@
+.game-board {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.player-name {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.player-stats {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.resources {
+  display: flex;
+  gap: 20px;
+  font-size: 1.1rem;
+}
+
+.gold {
+  color: #ffd700;
+}
+
+.lives {
+  letter-spacing: 2px;
+}
+
+.shop-section,
+.team-section {
+  margin-bottom: 30px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.team-hint {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.roll-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background: #4a90d9;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.roll-button:hover:not(:disabled) {
+  background: #5da0e9;
+  transform: translateY(-2px);
+}
+
+.roll-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.shop-slots {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.team-slots {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.team-slot {
+  position: relative;
+  cursor: grab;
+}
+
+.team-slot:active {
+  cursor: grabbing;
+}
+
+.team-slot.selectable {
+  cursor: pointer;
+}
+
+.team-slot.selectable:hover {
+  transform: scale(1.05);
+}
+
+.empty-slot {
+  width: 150px;
+  height: 180px;
+  border: 2px dashed #333;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #444;
+  font-size: 1rem;
+}
+
+.position-label {
+  text-align: center;
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  height: 20px;
+}
+
+.battle-section {
+  text-align: center;
+  padding: 30px 0;
+}
+
+.battle-button {
+  padding: 20px 60px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.battle-button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+}
+
+.battle-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.battle-hint {
+  color: #666;
+  margin-top: 10px;
+}
+
+.food-selection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 100px;
+  z-index: 100;
+  cursor: pointer;
+}
+
+.food-selection-message {
+  background: #ffd700;
+  color: #1a1a2e;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+  .game-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .shop-slots,
+  .team-slots {
+    justify-content: center;
+  }
+
+  .team-slot {
+    flex: 0 0 auto;
+  }
+}
