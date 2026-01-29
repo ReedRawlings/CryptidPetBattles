@@ -12,9 +12,15 @@ Battle Pets Arena is an auto battler web game built with React 19 + TypeScript +
 npm run dev       # Start development server with hot reload
 npm run build     # TypeScript compile + Vite production build
 npm run preview   # Preview production build locally
+npm run start     # Alias for preview
 ```
 
 No test framework is currently configured.
+
+### Dependencies
+- React 19 + React DOM
+- Vite 7 with React plugin
+- TypeScript 5
 
 ## Architecture
 
@@ -32,6 +38,21 @@ No test framework is currently configured.
 ### Data Files
 - `src/data/pets.ts` - 15 pets across 5 tiers with unique abilities, plus summoned pet templates
 - `src/data/foods.ts` - 8 food items across 5 tiers with stat bonuses
+
+### UI Components (`src/components/`)
+- `Game.tsx` - Main game container managing phase transitions
+- `Shop.tsx` - Shop phase UI for buying pets and food
+- `Team.tsx` - Player team display with drag-and-drop reordering
+- `BattleView.tsx` - Battle animation and combat display
+- `BattleResult.tsx` - Post-battle outcome screen
+- `GameHeader.tsx` - Top bar showing wins, lives, gold, and turn
+- `PetCard.tsx` / `FoodCard.tsx` - Individual card components
+- `GameOver.tsx` - Win/loss end screen
+
+### Styles
+- Each component has a co-located `.css` file
+- `src/styles/pixel-ui.css` - Shared pixel art UI theme styles
+- `src/index.css` - Global base styles
 
 ### Game Flow
 1. Shop phase: 10 gold/turn, buy pets (3g), roll shop (1g), apply food (3g)
