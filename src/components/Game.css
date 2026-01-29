@@ -7,13 +7,23 @@
 .game__content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
+}
+
+.game__team-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.game__team-row .team {
+  flex: 1;
 }
 
 .game__actions {
   display: flex;
   justify-content: center;
-  padding: 20px;
+  align-items: center;
 }
 
 /* End turn button uses pixel-btn--wide from pixel-ui.css */

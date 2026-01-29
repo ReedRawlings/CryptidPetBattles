@@ -1,9 +1,8 @@
 .team {
-  border-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragon9SlicesE.png') 24 fill / 24px / 0 round;
+  border-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragon9SlicesE.png') 16 fill / 32px / 0 round;
   background-color: transparent;
   image-rendering: pixelated;
-  padding: 32px;
-  margin-bottom: 20px;
+  padding: 16px 32px;
 }
 
 .team__header {

@@ -137,24 +137,25 @@ export function Game() {
           onFoodClick={handleFoodClick}
         />
 
-        <Team
-          selectedTeamPet={selectedTeamPet}
-          onSlotClick={handleTeamSlotClick}
-        />
+        <div className="game__team-row">
+          <Team
+            selectedTeamPet={selectedTeamPet}
+            onSlotClick={handleTeamSlotClick}
+          />
+          <div className="game__actions">
+            <button
+              className="pixel-btn pixel-btn--wide"
+              onClick={endTurn}
+              disabled={!hasPets}
+            >
+              {hasPets ? 'Battle!' : 'Buy a pet first!'}
+            </button>
+          </div>
+        </div>
 
         {getHintText() && (
           <div className="game__hint">{getHintText()}</div>
-        )}
-
-        <div className="game__actions">
-          <button
-            className="pixel-btn pixel-btn--wide"
-            onClick={endTurn}
-            disabled={!hasPets}
-          >
-            {hasPets ? 'Battle!' : 'Buy a pet first!'}
-          </button>
-        </div>
+        }}
       </div>
     </div>
   );

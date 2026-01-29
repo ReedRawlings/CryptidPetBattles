@@ -56,13 +56,8 @@ export function Team({ selectedTeamPet, onSlotClick, isInteractive = true }: Tea
 
   return (
     <div className="team">
-      <div className="team__header">
-        <h2>Your Team</h2>
-      </div>
-      <div className="team__slots-container">
-        <span className="team__position-label team__position-label--back">← Back</span>
-        <div className="team__slots">
-          {player.team.map((pet, index) => (
+      <div className="team__slots">
+        {player.team.map((pet, index) => (
           <div key={index} className="team__slot">
             <PetCard
               pet={pet}
@@ -87,8 +82,6 @@ export function Team({ selectedTeamPet, onSlotClick, isInteractive = true }: Tea
             )}
           </div>
         ))}
-        </div>
-        <span className="team__position-label team__position-label--front">Front →</span>
       </div>
     </div>
   );

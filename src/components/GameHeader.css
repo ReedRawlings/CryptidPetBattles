@@ -1,11 +1,11 @@
 .game-header {
   display: flex;
   justify-content: center;
-  gap: 32px;
-  padding: 16px 48px;
+  gap: 48px;
+  padding: 8px 64px;
   margin-bottom: 20px;
-  background-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragonHeaderA.png');
-  background-size: 288px 96px;
+  background-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragonHeaderB.png');
+  background-size: 384px 96px;
   background-position: center;
   background-repeat: no-repeat;
   image-rendering: pixelated;

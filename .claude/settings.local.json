@@ -10,7 +10,12 @@
       "Bash(npm install)",
       "Bash(./node_modules/.bin/tsc:*)",
       "Bash(npm run dev)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(magick identify:*)",
+      "Bash(powershell -command \"\\(New-Object System.Drawing.Bitmap ''C:\\\\Users\\\\ReedR\\\\CryptidPetBattles\\\\public\\\\tinyRPG_dragonRegaliaGUI_v1_0\\\\20240707dragon9SlicesE.png''\\).Size\")",
+      "Bash(powershell:*)",
+      "Bash(del \"\\\\?\\\\C:\\\\Users\\\\ReedR\\\\CryptidPetBattles\\\\nul\")",
+      "Bash(git add:*)"
     ]
   }
 }
