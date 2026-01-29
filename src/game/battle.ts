@@ -22,12 +22,15 @@ function getAbilityValue(pet: Pet): number {
   return pet.ability.baseValue;
 }
 
-// Create a summoned pet
-function createSummonedPet(templateId: string, position: number): Pet {
+// Create a summoned pet with optional stat scaling based on summoner level
+function createSummonedPet(templateId: string, position: number, statBonus: number = 0): Pet {
   const template = SUMMONED_TEMPLATES.find((t) => t.id === templateId);
   if (!template) {
     throw new Error(`Unknown summoned pet template: ${templateId}`);
   }
+
+  const attack = template.baseAttack + statBonus;
+  const health = template.baseHealth + statBonus;
 
   return {
     id: `${templateId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -36,11 +39,11 @@ function createSummonedPet(templateId: string, position: number): Pet {
     tier: template.tier,
     level: 1,
     experience: 0,
-    baseAttack: template.baseAttack,
-    baseHealth: template.baseHealth,
-    currentAttack: template.baseAttack,
-    currentHealth: template.baseHealth,
-    maxHealth: template.baseHealth,
+    baseAttack: attack,
+    baseHealth: health,
+    currentAttack: attack,
+    currentHealth: health,
+    maxHealth: health,
     ability: { ...template.ability },
     battlesParticipated: 0,
     foodSlot: null,
@@ -139,9 +142,9 @@ function triggerAbility(
           pet.tempAttackBonus = (pet.tempAttackBonus || 0) + value;
           addEvent(state, 'buff', pet.id, pet.id, value, `${pet.name} gains +${value} ATK temporarily`);
         } else {
-          // Permanent gain (Crow on enemy faint)
+          // Battle-only gain (Crow on enemy faint)
           pet.currentAttack = Math.min(pet.currentAttack + value, GAME_CONSTANTS.MAX_STAT);
-          addEvent(state, 'buff', pet.id, pet.id, value, `${pet.name} permanently gains +${value} ATK`);
+          addEvent(state, 'buff', pet.id, pet.id, value, `${pet.name} gains +${value} ATK`);
         }
       } else if (pet.ability.target === 'adjacentAllies') {
         // Wolf: buff adjacent allies
@@ -184,9 +187,9 @@ function triggerAbility(
             addEvent(state, 'heal', pet.id, ally.id, healAmount, `${ally.name} heals for ${healAmount} HP`);
           }
         });
-      } else if (pet.ability.target === 'self' && triggerSource) {
-        // Vampire: heal for killed enemy's ATK
-        const healAmount = Math.min(triggerSource.currentAttack, pet.maxHealth - pet.currentHealth);
+      } else if (pet.ability.target === 'self') {
+        // Vampire: heal flat amount on kill
+        const healAmount = Math.min(value, pet.maxHealth - pet.currentHealth);
         pet.currentHealth += healAmount;
         addEvent(state, 'heal', pet.id, pet.id, healAmount, `${pet.name} heals for ${healAmount} HP`);
       }
@@ -195,17 +198,28 @@ function triggerAbility(
     case 'summon': {
       // Bee or Hydra: summon pets
       const summonId = pet.templateId === 'bee' ? 'honeybee' : 'hydra-head';
-      const summonCount = pet.templateId === 'hydra' ? value : 1;
-      const petIndex = friendlyTeam.indexOf(pet);
+      // Bee: scaling controls summon count (1, 1, 2 at levels 1, 2, 3)
+      // Hydra: scaling controls summon count (2, 2, 3 at levels 1, 2, 3)
+      const summonCount = value;
+      // Bee: stats scale with level (1/1 at Lv1, 2/2 at Lv2, 3/3 at Lv3)
+      const statBonus = pet.templateId === 'bee' ? pet.level - 1 : 0;
 
-      for (let i = 0; i < summonCount && friendlyTeam.length < GAME_CONSTANTS.MAX_TEAM_SIZE; i++) {
-        const summoned = createSummonedPet(summonId, petIndex);
+      // Find position to summon at (where the dying pet is)
+      let petIndex = friendlyTeam.indexOf(pet);
+      if (petIndex === -1) petIndex = friendlyTeam.length;
+
+      for (let i = 0; i < summonCount; i++) {
+        // Count only ALIVE pets for team size check (dying pets will be removed)
+        const alivePetCount = friendlyTeam.filter(p => p.currentHealth > 0).length;
+        if (alivePetCount >= GAME_CONSTANTS.MAX_TEAM_SIZE) break;
+
+        const summoned = createSummonedPet(summonId, petIndex, statBonus);
         friendlyTeam.splice(petIndex, 0, summoned);
-        addEvent(state, 'summon', pet.id, summoned.id, 1, `${pet.name} summons ${summoned.name}`);
+        addEvent(state, 'summon', pet.id, summoned.id, 1, `${pet.name} summons ${summoned.currentAttack}/${summoned.currentHealth} ${summoned.name}`);
 
-        // Trigger onSummon for all pets
+        // Trigger onFriendSummoned for all ALIVE allies
         friendlyTeam.forEach((ally) => {
-          if (ally.ability.trigger === 'onFriendSummoned' && ally.id !== summoned.id) {
+          if (ally.ability.trigger === 'onFriendSummoned' && ally.id !== summoned.id && ally.currentHealth > 0) {
             // Puppy gains stats
             ally.currentAttack = Math.min(ally.currentAttack + getAbilityValue(ally), GAME_CONSTANTS.MAX_STAT);
             ally.currentHealth = Math.min(ally.currentHealth + getAbilityValue(ally), GAME_CONSTANTS.MAX_STAT);
@@ -226,11 +240,14 @@ function triggerAbility(
 
     case 'giveArmor': {
       // Turtle: give armor to pet behind
+      // For player team: higher index = front, so behind = petIndex - 1
+      // For opponent team: lower index = front, so behind = petIndex + 1
       const petIndex = friendlyTeam.indexOf(pet);
-      const petBehind = friendlyTeam[petIndex + 1];
-      if (petBehind) {
+      const behindIndex = isPlayerPet ? petIndex - 1 : petIndex + 1;
+      const petBehind = friendlyTeam[behindIndex];
+      if (petBehind && petBehind.currentHealth > 0) {
         petBehind.armor = (petBehind.armor || 0) + value;
-        addEvent(state, 'buff', pet.id, petBehind.id, value, `${petBehind.name} gains ${value} armor`);
+        addEvent(state, 'buff', pet.id, petBehind.id, value, `${petBehind.name} gains +${value} armor`);
       }
       break;
     }

@@ -1,7 +1,8 @@
 .shop {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 16px;
-  padding: 20px;
+  border-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragon9SlicesA.png') 48 fill / 48px / 0 round;
+  background-color: transparent;
+  image-rendering: pixelated;
+  padding: 48px;
   margin-bottom: 20px;
 }
 
@@ -59,21 +60,26 @@
 .shop__freeze-btn {
   background: var(--color-secondary);
   color: var(--color-text);
-  padding: 4px 12px;
-  font-size: 11px;
+  padding: 6px 14px;
+  font-size: 12px;
   border-radius: 4px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.shop__freeze-btn:active {
+  transform: scale(0.95);
 }
 
 .shop__freeze-btn--active {
   background: #00bcd4;
 }
 
-.shop__hint {
-  text-align: center;
-  color: var(--color-gold);
-  font-size: 14px;
-  padding: 12px;
-  background: rgba(255, 215, 0, 0.1);
-  border-radius: 8px;
-  margin-top: 16px;
+.shop__roll-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.shop__roll-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }

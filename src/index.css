@@ -1,3 +1,12 @@
+@import './styles/pixel-ui.css';
+
+@font-face {
+  font-family: 'Monogram';
+  src: url('/fonts/monogram.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -17,8 +26,13 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Monogram', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 32px;
   background-color: var(--color-bg);
+  background-image: url('/assets/background/GrasssBackground.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--color-text);
   min-height: 100vh;
 }
@@ -29,24 +43,62 @@ body {
 
 button {
   cursor: pointer;
+  font-family: inherit;
+}
+
+/* Pixel button styles */
+button.pixel-btn {
+  background-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240709dragonButtonA-Sheet.png');
+  background-color: transparent;
+  background-size: 400px 35px;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-button:hover {
-  transform: translateY(-2px);
-}
-
-button:active {
-  transform: translateY(0);
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  border-radius: 0;
+  width: 100px;
+  height: 35px;
+  padding: 0;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+  transition: none;
   transform: none;
+  font-size: 16px;
+}
+
+button.pixel-btn:hover {
+  background-position: -100px 0;
+  transform: none;
+}
+
+button.pixel-btn:active {
+  background-position: -200px 0;
+  transform: none;
+}
+
+button.pixel-btn:disabled {
+  background-position: -300px 0;
+  transform: none;
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* Wide pixel button */
+button.pixel-btn.pixel-btn--wide {
+  width: 200px;
+  height: 70px;
+  background-size: 800px 70px;
+  font-size: 24px;
+}
+
+button.pixel-btn.pixel-btn--wide:hover {
+  background-position: -200px 0;
+}
+
+button.pixel-btn.pixel-btn--wide:active {
+  background-position: -400px 0;
+}
+
+button.pixel-btn.pixel-btn--wide:disabled {
+  background-position: -600px 0;
 }

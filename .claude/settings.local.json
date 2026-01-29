@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__list_allowed_directories",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm install)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(npm run dev)",
+      "Bash(echo:*)"
+    ]
+  }
+}

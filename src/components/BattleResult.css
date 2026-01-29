@@ -51,6 +51,28 @@
   color: var(--color-text-dim);
 }
 
+.battle-result__pets-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.battle-result__position {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.battle-result__position--back {
+  color: var(--color-text-dim);
+}
+
+.battle-result__position--front {
+  color: var(--color-primary);
+}
+
 .battle-result__pets {
   display: flex;
   gap: 8px;

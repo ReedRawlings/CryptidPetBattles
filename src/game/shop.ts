@@ -36,38 +36,56 @@ export function createPetFromTemplate(template: PetTemplate, position: number): 
   };
 }
 
-// Generate a random shop based on turn
-export function generateShop(turn: number): Shop {
+// Generate a random shop based on turn, preserving frozen items from previous shop
+export function generateShop(turn: number, previousShop?: Shop): Shop {
   const config = getTierConfig(turn);
   const availablePets = getAvailablePets(config.availableTiers);
   const availableFoods = getAvailableFoods(config.availableTiers);
 
-  // Generate pet slots
+  // Generate pet slots, preserving frozen pets from previous shop
   const pets: (PetTemplate | null)[] = [];
+  const frozen: boolean[] = [];
+
   for (let i = 0; i < config.petSlots; i++) {
-    if (availablePets.length > 0) {
-      const randomIndex = Math.floor(Math.random() * availablePets.length);
-      pets.push(availablePets[randomIndex]);
+    // Check if this slot was frozen in the previous shop and had a pet
+    if (previousShop && previousShop.frozen[i] && previousShop.pets[i]) {
+      pets.push(previousShop.pets[i]);
+      frozen.push(true);
     } else {
-      pets.push(null);
+      if (availablePets.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availablePets.length);
+        pets.push(availablePets[randomIndex]);
+      } else {
+        pets.push(null);
+      }
+      frozen.push(false);
     }
   }
 
-  // Generate food slots
+  // Generate food slots, preserving frozen foods from previous shop
   const foods: (Food | null)[] = [];
   for (let i = 0; i < config.foodSlots; i++) {
-    if (availableFoods.length > 0) {
-      const randomIndex = Math.floor(Math.random() * availableFoods.length);
-      foods.push(availableFoods[randomIndex]);
+    const prevFrozenIndex = previousShop ? previousShop.pets.length + i : -1;
+
+    // Check if this slot was frozen in the previous shop and had food
+    if (previousShop && previousShop.frozen[prevFrozenIndex] && previousShop.foods[i]) {
+      foods.push(previousShop.foods[i]);
+      frozen.push(true);
     } else {
-      foods.push(null);
+      if (availableFoods.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableFoods.length);
+        foods.push(availableFoods[randomIndex]);
+      } else {
+        foods.push(null);
+      }
+      frozen.push(false);
     }
   }
 
   return {
     pets,
     foods,
-    frozen: new Array(config.petSlots + config.foodSlots).fill(false),
+    frozen,
   };
 }
 
@@ -147,10 +165,11 @@ export function buyPet(
 
       updatedTeam[teamIndex] = combinedPet;
 
-      // Remove from shop
+      // Remove from shop and clear frozen flag
       const updatedShop = {
         ...shop,
         pets: shop.pets.map((p, i) => (i === shopIndex ? null : p)),
+        frozen: shop.frozen.map((f, i) => (i === shopIndex ? false : f)),
       };
 
       return { success: true, pet: combinedPet, updatedShop, updatedTeam };
@@ -165,10 +184,11 @@ export function buyPet(
   const updatedTeam = [...team];
   updatedTeam[teamIndex] = newPet;
 
-  // Remove from shop
+  // Remove from shop and clear frozen flag
   const updatedShop = {
     ...shop,
     pets: shop.pets.map((p, i) => (i === shopIndex ? null : p)),
+    frozen: shop.frozen.map((f, i) => (i === shopIndex ? false : f)),
   };
 
   return { success: true, pet: newPet, updatedShop, updatedTeam };
@@ -227,10 +247,12 @@ export function applyFood(
 
   updatedTeam[teamIndex] = updatedPet;
 
-  // Remove food from shop
+  // Remove food from shop and clear frozen flag
+  const frozenIndex = shop.pets.length + foodIndex;
   const updatedShop = {
     ...shop,
     foods: shop.foods.map((f, i) => (i === foodIndex ? null : f)),
+    frozen: shop.frozen.map((f, i) => (i === frozenIndex ? false : f)),
   };
 
   return { success: true, updatedShop, updatedTeam };

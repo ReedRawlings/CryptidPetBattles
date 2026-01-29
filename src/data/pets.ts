@@ -46,8 +46,8 @@ export const PET_TEMPLATES: PetTemplate[] = [
       effect: 'summon',
       baseValue: 1,
       target: 'self',
-      description: 'On faint, summon a 1/1 Honeybee',
-      scaling: [1, 1, 2],
+      description: 'On faint, summon a Honeybee (stats scale with level)',
+      scaling: [1, 1, 2], // Summon count: 1, 1, 2. Stats: 1/1, 2/2, 3/3
     },
   },
   // Tier 2
@@ -95,7 +95,7 @@ export const PET_TEMPLATES: PetTemplate[] = [
       effect: 'gainAttack',
       baseValue: 1,
       target: 'self',
-      description: 'When an enemy faints, permanently gain +1 ATK',
+      description: 'When an enemy faints, gain +1 ATK this battle',
       scaling: [1, 2, 3],
     },
   },
@@ -175,10 +175,10 @@ export const PET_TEMPLATES: PetTemplate[] = [
     ability: {
       trigger: 'onKill',
       effect: 'heal',
-      baseValue: 0, // Heals for killed enemy's ATK
+      baseValue: 2,
       target: 'self',
-      description: "On kill, heal for the killed enemy's ATK",
-      scaling: [1, 1, 1], // Multiplier
+      description: 'On kill, heal +2 HP',
+      scaling: [2, 3, 4],
     },
   },
   {
@@ -211,7 +211,7 @@ export const PET_TEMPLATES: PetTemplate[] = [
       baseValue: 5,
       target: 'allEnemies',
       description: 'Start of battle: deal 5 damage to ALL enemies',
-      scaling: [5, 7, 10],
+      scaling: [4, 5, 6],
     },
   },
   {

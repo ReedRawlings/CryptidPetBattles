@@ -30,21 +30,25 @@ export function BattleResult() {
       <div className="battle-result__teams">
         <div className="battle-result__team">
           <h3>Your Team</h3>
-          <div className="battle-result__pets">
-            {player.team.map((pet, index) => (
-              <div key={index} className="battle-result__pet-slot">
-                {pet ? (
-                  <div className={`battle-result__pet ${playerTeamRemaining.some((p) => p.templateId === pet.templateId) ? '' : 'battle-result__pet--fainted'}`}>
-                    <PetCard pet={pet} size="small" showStats={true} />
-                    {!playerTeamRemaining.some((p) => p.templateId === pet.templateId) && (
-                      <div className="battle-result__fainted-overlay">Fainted</div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="battle-result__empty-slot" />
-                )}
-              </div>
-            ))}
+          <div className="battle-result__pets-wrapper">
+            <span className="battle-result__position battle-result__position--back">Back</span>
+            <div className="battle-result__pets">
+              {player.team.map((pet, index) => (
+                <div key={index} className="battle-result__pet-slot">
+                  {pet ? (
+                    <div className={`battle-result__pet ${playerTeamRemaining.some((p) => p.templateId === pet.templateId) ? '' : 'battle-result__pet--fainted'}`}>
+                      <PetCard pet={pet} size="small" showStats={true} />
+                      {!playerTeamRemaining.some((p) => p.templateId === pet.templateId) && (
+                        <div className="battle-result__fainted-overlay">Fainted</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="battle-result__empty-slot" />
+                  )}
+                </div>
+              ))}
+            </div>
+            <span className="battle-result__position battle-result__position--front">Front</span>
           </div>
           <p className="battle-result__surviving">
             {playerTeamRemaining.length} surviving
@@ -55,21 +59,25 @@ export function BattleResult() {
 
         <div className="battle-result__team">
           <h3>Opponent</h3>
-          <div className="battle-result__pets">
-            {currentOpponent.team.map((pet, index) => (
-              <div key={index} className="battle-result__pet-slot">
-                {pet ? (
-                  <div className={`battle-result__pet ${opponentTeamRemaining.some((p) => p.templateId === pet.templateId) ? '' : 'battle-result__pet--fainted'}`}>
-                    <PetCard pet={pet} size="small" showStats={true} />
-                    {!opponentTeamRemaining.some((p) => p.templateId === pet.templateId) && (
-                      <div className="battle-result__fainted-overlay">Fainted</div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="battle-result__empty-slot" />
-                )}
-              </div>
-            ))}
+          <div className="battle-result__pets-wrapper">
+            <span className="battle-result__position battle-result__position--front">Front</span>
+            <div className="battle-result__pets">
+              {currentOpponent.team.map((pet, index) => (
+                <div key={index} className="battle-result__pet-slot">
+                  {pet ? (
+                    <div className={`battle-result__pet ${opponentTeamRemaining.some((p) => p.templateId === pet.templateId) ? '' : 'battle-result__pet--fainted'}`}>
+                      <PetCard pet={pet} size="small" showStats={true} />
+                      {!opponentTeamRemaining.some((p) => p.templateId === pet.templateId) && (
+                        <div className="battle-result__fainted-overlay">Fainted</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="battle-result__empty-slot" />
+                  )}
+                </div>
+              ))}
+            </div>
+            <span className="battle-result__position battle-result__position--back">Back</span>
           </div>
           <p className="battle-result__surviving">
             {opponentTeamRemaining.length} surviving

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { GameState, Pet, BattleResult, GAME_CONSTANTS } from '../types';
+import { GameState, Pet, GAME_CONSTANTS } from '../types';
 import { generateShop, rollShop, buyPet, sellPet, applyFood, swapPets, combinePets, toggleFreeze } from './shop';
 import { resolveBattle, incrementBattlesParticipated } from './battle';
 import { generateOpponent } from './opponent';
@@ -16,7 +16,7 @@ type GameAction =
   | { type: 'TOGGLE_FREEZE'; shopIndex: number }
   | { type: 'END_TURN' }
   | { type: 'START_BATTLE' }
-  | { type: 'BATTLE_COMPLETE'; result: BattleResult }
+  | { type: 'COMPLETE_BATTLE' }
   | { type: 'NEXT_TURN' }
   | { type: 'RESET_GAME' };
 
@@ -194,9 +194,17 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
-        phase: 'result',
+        phase: 'battle',
         currentOpponent: opponent,
         lastBattleResult: battleResult,
+      };
+    }
+
+    case 'COMPLETE_BATTLE': {
+      // Transition from battle animation to result
+      return {
+        ...state,
+        phase: 'result',
       };
     }
 
@@ -231,7 +239,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         phase: 'shop',
-        shop: generateShop(newTurn),
+        shop: generateShop(newTurn, state.shop),
         currentOpponent: null,
         lastBattleResult: null,
         player: {
@@ -267,6 +275,7 @@ interface GameContextType {
   combinePets: (sourceIndex: number, targetIndex: number) => void;
   toggleFreeze: (shopIndex: number) => void;
   endTurn: () => void;
+  completeBattle: () => void;
   nextTurn: () => void;
   resetGame: () => void;
 }
@@ -289,6 +298,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     combinePets: (sourceIndex, targetIndex) => dispatch({ type: 'COMBINE_PETS', sourceIndex, targetIndex }),
     toggleFreeze: (shopIndex) => dispatch({ type: 'TOGGLE_FREEZE', shopIndex }),
     endTurn: () => dispatch({ type: 'END_TURN' }),
+    completeBattle: () => dispatch({ type: 'COMPLETE_BATTLE' }),
     nextTurn: () => dispatch({ type: 'NEXT_TURN' }),
     resetGame: () => dispatch({ type: 'RESET_GAME' }),
   };

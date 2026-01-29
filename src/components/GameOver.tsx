@@ -38,7 +38,7 @@ export function GameOver() {
           </div>
         </div>
 
-        <button className="game-over__play-again" onClick={resetGame}>
+        <button className="pixel-btn pixel-btn--wide" onClick={resetGame}>
           Play Again
         </button>
       </div>

@@ -4,5 +4,6 @@ export { Shop } from './Shop';
 export { Team } from './Team';
 export { PetCard } from './PetCard';
 export { FoodCard } from './FoodCard';
+export { BattleView } from './BattleView';
 export { BattleResult } from './BattleResult';
 export { GameOver } from './GameOver';

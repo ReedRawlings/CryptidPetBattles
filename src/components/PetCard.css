@@ -1,47 +1,58 @@
+/* Pet Card with Pixel Frame
+   dragonFilledFrame-Sheet.png: 128x32, 4 frames of 32x32
+   Frame 1 (0): Selected (orange glow)
+   Frame 2 (-100%): Hovered
+   Frame 3 (-200%): Normal/filled
+   Frame 4 (-300%): Empty
+*/
 .pet-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-light);
-  border-radius: 12px;
-  padding: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 2px solid transparent;
   position: relative;
   user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  /* Pixel frame background - normal filled state */
+  background-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240713dragonFilledFrame-Sheet.png');
+  background-size: 400% 100%;
+  background-position: -200% 0; /* Frame 3: Normal */
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  border: none;
+  padding: 16px;
 }
 
 .pet-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  background-position: -100% 0; /* Frame 2: Hovered */
 }
 
 .pet-card--small {
-  width: 80px;
-  height: 100px;
+  width: 64px;
+  height: 64px;
   padding: 8px;
 }
 
 .pet-card--medium {
-  width: 100px;
-  height: 130px;
+  width: 96px;
+  height: 96px;
+  padding: 12px;
 }
 
 .pet-card--large {
-  width: 120px;
-  height: 160px;
+  width: 128px;
+  height: 128px;
+  padding: 16px;
 }
 
 .pet-card--empty {
-  border: 2px dashed var(--color-text-dim);
-  background: transparent;
+  background-position: -300% 0; /* Frame 4: Empty */
 }
 
 .pet-card--empty:hover {
-  border-color: var(--color-primary);
-  background: rgba(233, 69, 96, 0.1);
+  background-position: -100% 0; /* Frame 2: Hovered */
 }
 
 .pet-card__empty-text {
@@ -50,19 +61,25 @@
 }
 
 .pet-card--selected {
-  border-color: var(--color-gold);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  background-position: 0 0; /* Frame 1: Selected */
+}
+
+.pet-card--selected:hover {
+  background-position: 0 0; /* Keep selected state on hover */
 }
 
 .pet-card--frozen {
-  border-color: #00bcd4;
-  background: linear-gradient(135deg, var(--color-bg-light), rgba(0, 188, 212, 0.2));
+  filter: hue-rotate(180deg) brightness(1.2);
+}
+
+.pet-card--dragging {
+  opacity: 0.5;
 }
 
 .pet-card__frozen-badge {
   position: absolute;
-  top: -8px;
-  right: -8px;
+  top: -4px;
+  right: -4px;
   background: #00bcd4;
   color: white;
   font-size: 10px;
@@ -70,13 +87,6 @@
   border-radius: 4px;
   font-weight: bold;
 }
-
-.pet-card--tier-1 { border-color: #9e9e9e; }
-.pet-card--tier-2 { border-color: #4caf50; }
-.pet-card--tier-3 { border-color: #2196f3; }
-.pet-card--tier-4 { border-color: #9c27b0; }
-.pet-card--tier-5 { border-color: #ff9800; }
-.pet-card--tier-6 { border-color: #f44336; }
 
 .pet-card__level {
   position: absolute;
@@ -134,9 +144,55 @@
   color: var(--color-text-dim);
 }
 
-.pet-card__ability-hint {
-  font-size: 9px;
-  color: var(--color-text-dim);
-  margin-top: 4px;
+/* Tooltip for ability description */
+.pet-card__tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid var(--color-gold);
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 160px;
+  max-width: 220px;
+  z-index: 100;
+  margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  animation: tooltip-appear 0.15s ease-out;
+}
+
+.pet-card__tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--color-gold);
+}
+
+.pet-card__tooltip-trigger {
+  font-size: 10px;
+  color: var(--color-gold);
   text-transform: capitalize;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pet-card__tooltip-desc {
+  font-size: 12px;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+@keyframes tooltip-appear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }

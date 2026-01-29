@@ -1,0 +1,60 @@
+/* Pixel Art UI Styles */
+/* Assets from tinyRPG_dragonRegaliaGUI_v1_0 */
+/* Button styles moved to index.css for proper specificity */
+
+/* Ensure pixel art stays crisp */
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ============================================
+   9-SLICE PANELS - Using dragon9SlicesA
+   144x144 image, 48x48 per slice
+   ============================================ */
+.pixel-panel {
+  border-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragon9SlicesA.png') 48 fill / 48px / 0 round;
+  background-color: transparent;
+  padding: 24px;
+  image-rendering: pixelated;
+}
+
+/* Alternative panel style B */
+.pixel-panel--b {
+  border-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragon9SlicesB.png') 24 fill / 24px / 0 round;
+}
+
+/* ============================================
+   HEADERS - Using dragonHeaderA
+   96x32
+   ============================================ */
+.pixel-header {
+  background-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragonHeaderA.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  min-width: 192px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* ============================================
+   BARS - Using dragonBarA for gold/stats display
+   77x13
+   ============================================ */
+.pixel-bar {
+  background-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240709dragonBarA.png');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  min-width: 154px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+}

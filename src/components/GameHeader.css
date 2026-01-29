@@ -2,10 +2,15 @@
   display: flex;
   justify-content: center;
   gap: 32px;
-  padding: 16px 24px;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 12px;
+  padding: 16px 48px;
   margin-bottom: 20px;
+  background-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragonHeaderA.png');
+  background-size: 288px 96px;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  min-height: 96px;
+  align-items: center;
 }
 
 .game-header__stat {

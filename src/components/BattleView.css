@@ -1,0 +1,336 @@
+.battle-view {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.battle-view__controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.battle-view__speed-btn,
+.battle-view__skip-btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  background: var(--color-secondary);
+  color: var(--color-text);
+}
+
+.battle-view__speed-btn:hover,
+.battle-view__skip-btn:hover {
+  background: var(--color-primary);
+}
+
+.battle-view__arena {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  min-height: 180px;
+}
+
+.battle-view__team {
+  flex: 1;
+}
+
+.battle-view__team h3 {
+  font-size: 14px;
+  color: var(--color-text-dim);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.battle-view__pets {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.battle-view__position {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+  white-space: nowrap;
+}
+
+.battle-view__position--front {
+  color: var(--color-primary);
+}
+
+.battle-view__pet-slot {
+  position: relative;
+  overflow: visible;
+}
+
+.battle-view__vs {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--color-gold);
+  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Battle Pet Styles */
+.battle-pet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  min-width: 70px;
+  transition: transform 0.2s ease;
+}
+
+.battle-pet__emoji {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.battle-pet__name {
+  font-size: 10px;
+  color: var(--color-text-dim);
+  text-align: center;
+  margin-top: 2px;
+}
+
+.battle-pet__stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: bold;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.battle-pet__stat--attack {
+  color: var(--color-attack);
+}
+
+.battle-pet__stat--health {
+  color: var(--color-health);
+}
+
+.battle-pet__stat--armor {
+  color: #64b5f6;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.battle-pet__stat-divider {
+  color: var(--color-text-dim);
+  margin: 0 2px;
+}
+
+/* Animation states */
+.battle-pet--attacking-right {
+  animation: attack-right 0.3s ease-in-out;
+}
+
+.battle-pet--attacking-left {
+  animation: attack-left 0.3s ease-in-out;
+}
+
+.battle-pet--fainted {
+  opacity: 0.4;
+  filter: grayscale(100%);
+}
+
+.battle-pet__fainted-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--color-attack);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  z-index: 5;
+}
+
+@keyframes attack-right {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(25px); }
+}
+
+@keyframes attack-left {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-25px); }
+}
+
+/* VFX Effects - Centered over emoji (Sprite-based) */
+.battle-pet__effect {
+  position: absolute;
+  pointer-events: none;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+/* Attack effect: 192x64 spritesheet, 3 frames (64x64 each) */
+.battle-pet__effect--attack {
+  width: 64px;
+  height: 64px;
+  margin-top: -15px;
+  background-image: url('/assets/vfx/light_atk_1-Sheet.png');
+  background-size: 192px 64px;
+  animation: sprite-attack 0.3s steps(3) forwards;
+}
+
+/* Buff effect: 1152x64 spritesheet, 18 frames (64x64 each) */
+.battle-pet__effect--buff {
+  width: 64px;
+  height: 64px;
+  margin-top: -15px;
+  background-image: url('/assets/vfx/AtkUp-Sheet.png');
+  background-size: 1152px 64px;
+  animation: sprite-buff 0.6s steps(18) forwards;
+}
+
+/* Scale up the sprites for visibility */
+.battle-pet__effect--attack,
+.battle-pet__effect--buff {
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+@keyframes sprite-attack {
+  from { background-position: 0 0; }
+  to { background-position: -192px 0; }
+}
+
+@keyframes sprite-buff {
+  from { background-position: 0 0; }
+  to { background-position: -1152px 0; }
+}
+
+/* Floating numbers */
+.battle-pet__number {
+  position: absolute;
+  font-weight: bold;
+  font-size: 18px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  z-index: 15;
+  animation: float-up 0.8s ease-out forwards;
+  white-space: nowrap;
+}
+
+.battle-pet__number--damage {
+  color: var(--color-attack);
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.battle-pet__number--buff {
+  color: var(--color-health);
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px);
+  }
+}
+
+/* Result */
+.battle-view__result {
+  text-align: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  animation: result-appear 0.5s ease;
+}
+
+@keyframes result-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.battle-view__result-text {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.battle-view__result-text--player {
+  color: var(--color-health);
+}
+
+.battle-view__result-text--opponent {
+  color: var(--color-attack);
+}
+
+.battle-view__result-text--draw {
+  color: var(--color-gold);
+}
+
+.battle-view__damage {
+  color: var(--color-attack);
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.battle-view__continue-btn {
+  background: var(--color-primary);
+  color: white;
+  padding: 14px 40px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.battle-view__continue-btn:hover {
+  background: #ff6b6b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .battle-view__arena {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .battle-view__vs {
+    font-size: 24px;
+  }
+
+  .battle-view__pets {
+    flex-wrap: wrap;
+  }
+
+  .battle-pet__emoji {
+    font-size: 36px;
+  }
+
+  .battle-pet__stats {
+    font-size: 12px;
+  }
+}
