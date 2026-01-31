@@ -46,6 +46,21 @@ Battle: `startOfBattle`, `beforeAttack`, `onAttack`, `afterAttack`, `onHurt`, `o
 
 `@` resolves to `src/` directory (configured in vite.config.ts and tsconfig.json).
 
+## Multiplayer (In Progress)
+
+Multiplayer code is complete but Supabase database needs setup. **See `NEXT_STEPS.md` for instructions.**
+
+### Multiplayer Architecture
+- `src/lib/supabase.ts` - Supabase client (needs `.env.local` credentials)
+- `src/contexts/AuthContext.tsx` - Authentication (email + Google OAuth)
+- `src/services/` - Game persistence, matchmaking, leaderboard
+- `supabase/migrations/001_initial_schema.sql` - Database schema to run
+
+### Setup Required
+1. Use Supabase MCP tools to create project and run migration
+2. Enable Google OAuth in Supabase dashboard
+3. Create `.env.local` with `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`
+
 ## Deployment
 
 Deployed to Vercel. Build output goes to `dist/`.

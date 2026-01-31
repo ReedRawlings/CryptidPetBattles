@@ -15,7 +15,25 @@
       "Bash(powershell -command \"\\(New-Object System.Drawing.Bitmap ''C:\\\\Users\\\\ReedR\\\\CryptidPetBattles\\\\public\\\\tinyRPG_dragonRegaliaGUI_v1_0\\\\20240707dragon9SlicesE.png''\\).Size\")",
       "Bash(powershell:*)",
       "Bash(del \"\\\\?\\\\C:\\\\Users\\\\ReedR\\\\CryptidPetBattles\\\\nul\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(claude mcp add:*)",
+      "Bash(npm install:*)",
+      "Bash(claude mcp list:*)",
+      "Bash(claude mcp get supabase)",
+      "WebSearch",
+      "WebFetch(domain:supabase.com)",
+      "Bash(claude mcp list-tools:*)",
+      "Bash(claude mcp tools:*)",
+      "Bash(claude mcp:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:github.com)",
+      "mcp__supabase__list_organizations",
+      "mcp__supabase__list_projects",
+      "mcp__supabase__apply_migration",
+      "mcp__supabase__get_project_url",
+      "mcp__supabase__get_publishable_keys",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__get_advisors"
     ]
   }
 }

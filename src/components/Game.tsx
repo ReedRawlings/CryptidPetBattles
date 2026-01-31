@@ -155,7 +155,7 @@ export function Game() {
 
         {getHintText() && (
           <div className="game__hint">{getHintText()}</div>
-        }}
+        )}
       </div>
     </div>
   );
