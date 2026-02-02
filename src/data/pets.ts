@@ -128,7 +128,7 @@ export const PET_TEMPLATES: PetTemplate[] = [
       effect: 'dealDamage',
       baseValue: 3,
       target: 'randomEnemy',
-      description: 'Start of battle: deal 3 damage × battles participated',
+      description: 'Start of battle: deal 3 damage × battles participated to random enemy',
       scaling: [3, 4, 5],
     },
   },
