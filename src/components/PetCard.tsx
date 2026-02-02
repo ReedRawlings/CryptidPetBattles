@@ -12,19 +12,24 @@ function getScaledAbilityValue(pet: Pet | PetTemplate, level: number): number {
 }
 
 // Generate dynamic description with scaled value
-function getDynamicDescription(pet: Pet | PetTemplate, level: number): string {
+function getDynamicDescription(pet: Pet | PetTemplate, level: number, battlesParticipated: number = 0): string {
   const baseValue = pet.ability.baseValue;
   const scaledValue = getScaledAbilityValue(pet, level);
 
-  if (baseValue === scaledValue) {
-    return pet.ability.description;
+  let description = pet.ability.description;
+
+  // Replace base value with scaled value
+  if (baseValue !== scaledValue) {
+    const regex = new RegExp(`\\b${baseValue}\\b`, 'g');
+    description = description.replace(regex, String(scaledValue));
   }
 
-  // Replace the base value number in the description with the scaled value
-  // Match standalone numbers (not part of other numbers)
-  const description = pet.ability.description;
-  const regex = new RegExp(`\\b${baseValue}\\b`, 'g');
-  return description.replace(regex, String(scaledValue));
+  // Echo: replace "battles participated" with actual count
+  if (pet.templateId === 'echo') {
+    description = description.replace('battles participated', `× ${battlesParticipated}`);
+  }
+
+  return description;
 }
 
 interface PetCardProps {
@@ -82,9 +87,6 @@ export function PetCard({
   const level = isPetInstance ? (pet as Pet).level : 1;
   const battlesParticipated = isPetInstance ? (pet as Pet).battlesParticipated : 0;
 
-  // Echo shows battle count since it multiplies damage
-  const isEcho = pet.templateId === 'echo';
-
   const classNames = [
     'pet-card',
     `pet-card--${size}`,
@@ -129,9 +131,6 @@ export function PetCard({
     >
       {frozen && <div className="pet-card__frozen-badge">Frozen</div>}
       {level > 1 && <div className="pet-card__level">Lv.{level}</div>}
-      {isEcho && battlesParticipated > 0 && (
-        <div className="pet-card__battle-count">×{battlesParticipated}</div>
-      )}
       <div className="pet-card__emoji">{pet.emoji || '?'}</div>
       <div className="pet-card__name">{pet.name}</div>
       {showStats && (
@@ -146,12 +145,7 @@ export function PetCard({
           <div className="pet-card__tooltip-trigger">
             {pet.ability.trigger === 'passive' ? 'Passive' : pet.ability.trigger}
           </div>
-          <div className="pet-card__tooltip-desc">{getDynamicDescription(pet, level)}</div>
-          {isEcho && (
-            <div className="pet-card__tooltip-calc">
-              = {getScaledAbilityValue(pet, level)} × {battlesParticipated} = {getScaledAbilityValue(pet, level) * battlesParticipated} dmg
-            </div>
-          )}
+          <div className="pet-card__tooltip-desc">{getDynamicDescription(pet, level, battlesParticipated)}</div>
         </div>
       )}
     </div>

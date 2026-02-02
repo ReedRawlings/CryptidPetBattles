@@ -149,18 +149,6 @@
   font-weight: bold;
 }
 
-.pet-card__battle-count {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  background: #9c27b0;
-  color: white;
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
 .pet-card__emoji {
   font-size: 36px;
   margin-bottom: 4px;
@@ -245,13 +233,6 @@
   font-size: 12px;
   color: var(--color-text);
   line-height: 1.4;
-}
-
-.pet-card__tooltip-calc {
-  font-size: 11px;
-  color: #9c27b0;
-  margin-top: 4px;
-  font-weight: bold;
 }
 
 @keyframes tooltip-appear {
@@ -377,13 +358,6 @@
     padding: 1px 4px;
     top: -4px;
     left: -4px;
-  }
-
-  .pet-card__battle-count {
-    font-size: 8px;
-    padding: 1px 4px;
-    bottom: -2px;
-    right: -2px;
   }
 
   .pet-card__frozen-badge {
