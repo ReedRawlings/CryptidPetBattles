@@ -129,35 +129,33 @@ export function Game() {
     <div className="game">
       <GameHeader />
 
-      <div className="game__wrapper">
-        <div className="game__content">
-          <Shop
-            selectedShopPet={selectedShopPet}
-            selectedFood={selectedFood}
-            onShopPetClick={handleShopPetClick}
-            onFoodClick={handleFoodClick}
+      <div className="game__content">
+        <Shop
+          selectedShopPet={selectedShopPet}
+          selectedFood={selectedFood}
+          onShopPetClick={handleShopPetClick}
+          onFoodClick={handleFoodClick}
+        />
+
+        <div className="game__team-row">
+          <Team
+            selectedTeamPet={selectedTeamPet}
+            onSlotClick={handleTeamSlotClick}
           />
-
-          <div className="game__team-row">
-            <Team
-              selectedTeamPet={selectedTeamPet}
-              onSlotClick={handleTeamSlotClick}
-            />
-            <div className="game__actions">
-              <button
-                className="pixel-btn pixel-btn--wide"
-                onClick={endTurn}
-                disabled={!hasPets}
-              >
-                {hasPets ? 'Battle!' : 'Buy a pet first!'}
-              </button>
-            </div>
+          <div className="game__actions">
+            <button
+              className="pixel-btn pixel-btn--wide"
+              onClick={endTurn}
+              disabled={!hasPets}
+            >
+              {hasPets ? 'Battle!' : 'Buy a pet first!'}
+            </button>
           </div>
-
-          {getHintText() && (
-            <div className="game__hint">{getHintText()}</div>
-          )}
         </div>
+
+        {getHintText() && (
+          <div className="game__hint">{getHintText()}</div>
+        )}
       </div>
     </div>
   );
