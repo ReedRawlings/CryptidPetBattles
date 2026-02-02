@@ -46,7 +46,7 @@ export const PET_TEMPLATES: PetTemplate[] = [
       effect: 'summon',
       baseValue: 1,
       target: 'self',
-      description: 'On faint, summon a Honeybee (stats scale with level)',
+      description: 'On faint, summon 1 Honeybee (stats scale with level)',
       scaling: [1, 1, 2], // Summon count: 1, 1, 2. Stats: 1/1, 2/2, 3/3
     },
   },
@@ -208,9 +208,9 @@ export const PET_TEMPLATES: PetTemplate[] = [
     ability: {
       trigger: 'startOfBattle',
       effect: 'dealDamage',
-      baseValue: 5,
+      baseValue: 4,
       target: 'allEnemies',
-      description: 'Start of battle: deal 5 damage to ALL enemies',
+      description: 'Start of battle: deal 4 damage to ALL enemies',
       scaling: [4, 5, 6],
     },
   },
@@ -240,9 +240,9 @@ export const PET_TEMPLATES: PetTemplate[] = [
     ability: {
       trigger: 'onFaint',
       effect: 'summon',
-      baseValue: 2, // Summons 2 heads
+      baseValue: 2,
       target: 'self',
-      description: 'On faint, summon two 2/4 Hydra Heads',
+      description: 'On faint, summon 2 Hydra Heads',
       scaling: [2, 2, 3],
     },
   },
