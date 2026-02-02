@@ -25,7 +25,8 @@ function getDynamicDescription(pet: Pet | PetTemplate, level: number, battlesPar
   }
 
   // Echo: replace "battles participated" with actual count
-  if (pet.templateId === 'echo') {
+  const templateId = 'templateId' in pet ? pet.templateId : pet.id;
+  if (templateId === 'echo') {
     description = description.replace('battles participated', `× ${battlesParticipated}`);
   }
 
