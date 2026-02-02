@@ -245,3 +245,238 @@
     transform: translateX(-50%) translateY(0);
   }
 }
+
+/* Mobile Layout - scale down all card sizes */
+@media (max-width: 768px) {
+  .pet-card {
+    padding: 8px;
+  }
+
+  .pet-card--small {
+    width: 48px;
+    height: 48px;
+    padding: 6px;
+    background-size: 192px 48px;
+    background-position: -96px 0;
+  }
+
+  .pet-card--small:hover {
+    background-position: -48px 0;
+  }
+
+  .pet-card--small.pet-card--selected {
+    background-position: 0 0;
+  }
+
+  .pet-card--small.pet-card--empty {
+    background-position: -144px 0;
+  }
+
+  .pet-card--small.pet-card--empty:hover {
+    background-position: -48px 0;
+  }
+
+  .pet-card--medium {
+    width: 64px;
+    height: 64px;
+    padding: 8px;
+    background-size: 256px 64px;
+    background-position: -128px 0;
+  }
+
+  .pet-card--medium:hover {
+    background-position: -64px 0;
+  }
+
+  .pet-card--medium.pet-card--selected {
+    background-position: 0 0;
+  }
+
+  .pet-card--medium.pet-card--empty {
+    background-position: -192px 0;
+  }
+
+  .pet-card--medium.pet-card--empty:hover {
+    background-position: -64px 0;
+  }
+
+  .pet-card--large {
+    width: 72px;
+    height: 72px;
+    padding: 8px;
+    background-size: 288px 72px;
+    background-position: -144px 0;
+  }
+
+  .pet-card--large:hover {
+    background-position: -72px 0;
+  }
+
+  .pet-card--large.pet-card--selected {
+    background-position: 0 0;
+  }
+
+  .pet-card--large.pet-card--empty {
+    background-position: -216px 0;
+  }
+
+  .pet-card--large.pet-card--empty:hover {
+    background-position: -72px 0;
+  }
+
+  .pet-card__empty-text {
+    font-size: 20px;
+  }
+
+  .pet-card__emoji {
+    font-size: 24px;
+    margin-bottom: 2px;
+  }
+
+  .pet-card--small .pet-card__emoji {
+    font-size: 16px;
+  }
+
+  .pet-card--large .pet-card__emoji {
+    font-size: 28px;
+  }
+
+  .pet-card__name {
+    display: none;
+  }
+
+  .pet-card--small .pet-card__name {
+    display: none;
+  }
+
+  .pet-card__stats {
+    font-size: 10px;
+  }
+
+  .pet-card__level {
+    font-size: 8px;
+    padding: 1px 4px;
+    top: -4px;
+    left: -4px;
+  }
+
+  .pet-card__frozen-badge {
+    font-size: 8px;
+    padding: 1px 4px;
+    top: -2px;
+    right: -2px;
+  }
+
+  .pet-card__tooltip {
+    min-width: 120px;
+    max-width: 160px;
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+
+  .pet-card__tooltip-trigger {
+    font-size: 8px;
+  }
+
+  .pet-card__tooltip-desc {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pet-card--small {
+    width: 40px;
+    height: 40px;
+    padding: 4px;
+    background-size: 160px 40px;
+    background-position: -80px 0;
+  }
+
+  .pet-card--small:hover {
+    background-position: -40px 0;
+  }
+
+  .pet-card--small.pet-card--selected {
+    background-position: 0 0;
+  }
+
+  .pet-card--small.pet-card--empty {
+    background-position: -120px 0;
+  }
+
+  .pet-card--small.pet-card--empty:hover {
+    background-position: -40px 0;
+  }
+
+  .pet-card--medium {
+    width: 52px;
+    height: 52px;
+    padding: 6px;
+    background-size: 208px 52px;
+    background-position: -104px 0;
+  }
+
+  .pet-card--medium:hover {
+    background-position: -52px 0;
+  }
+
+  .pet-card--medium.pet-card--selected {
+    background-position: 0 0;
+  }
+
+  .pet-card--medium.pet-card--empty {
+    background-position: -156px 0;
+  }
+
+  .pet-card--medium.pet-card--empty:hover {
+    background-position: -52px 0;
+  }
+
+  .pet-card--large {
+    width: 56px;
+    height: 56px;
+    padding: 6px;
+    background-size: 224px 56px;
+    background-position: -112px 0;
+  }
+
+  .pet-card--large:hover {
+    background-position: -56px 0;
+  }
+
+  .pet-card--large.pet-card--selected {
+    background-position: 0 0;
+  }
+
+  .pet-card--large.pet-card--empty {
+    background-position: -168px 0;
+  }
+
+  .pet-card--large.pet-card--empty:hover {
+    background-position: -56px 0;
+  }
+
+  .pet-card__emoji {
+    font-size: 18px;
+  }
+
+  .pet-card--small .pet-card__emoji {
+    font-size: 14px;
+  }
+
+  .pet-card--large .pet-card__emoji {
+    font-size: 22px;
+  }
+
+  .pet-card__name {
+    font-size: 8px;
+  }
+
+  .pet-card--small .pet-card__name {
+    display: none;
+  }
+
+  .pet-card__stats {
+    font-size: 9px;
+  }
+}
