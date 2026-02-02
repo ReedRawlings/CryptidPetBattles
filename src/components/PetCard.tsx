@@ -80,6 +80,10 @@ export function PetCard({
   const attack = isPetInstance ? (pet as Pet).currentAttack : pet.baseAttack;
   const health = isPetInstance ? (pet as Pet).currentHealth : pet.baseHealth;
   const level = isPetInstance ? (pet as Pet).level : 1;
+  const battlesParticipated = isPetInstance ? (pet as Pet).battlesParticipated : 0;
+
+  // Echo shows battle count since it multiplies damage
+  const isEcho = pet.templateId === 'echo';
 
   const classNames = [
     'pet-card',
@@ -125,6 +129,9 @@ export function PetCard({
     >
       {frozen && <div className="pet-card__frozen-badge">Frozen</div>}
       {level > 1 && <div className="pet-card__level">Lv.{level}</div>}
+      {isEcho && battlesParticipated > 0 && (
+        <div className="pet-card__battle-count">×{battlesParticipated}</div>
+      )}
       <div className="pet-card__emoji">{pet.emoji || '?'}</div>
       <div className="pet-card__name">{pet.name}</div>
       {showStats && (
@@ -140,6 +147,11 @@ export function PetCard({
             {pet.ability.trigger === 'passive' ? 'Passive' : pet.ability.trigger}
           </div>
           <div className="pet-card__tooltip-desc">{getDynamicDescription(pet, level)}</div>
+          {isEcho && (
+            <div className="pet-card__tooltip-calc">
+              = {getScaledAbilityValue(pet, level)} × {battlesParticipated} = {getScaledAbilityValue(pet, level) * battlesParticipated} dmg
+            </div>
+          )}
         </div>
       )}
     </div>
