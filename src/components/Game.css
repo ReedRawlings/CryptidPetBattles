@@ -43,3 +43,52 @@
   0%, 100% { opacity: 0.8; }
   50% { opacity: 1; }
 }
+
+/* Mobile Layout: Two columns (Shop | Team) */
+@media (max-width: 768px) {
+  .game {
+    padding: 10px;
+  }
+
+  .game__content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 8px;
+    grid-template-areas:
+      "shop team"
+      "shop team"
+      "actions actions";
+  }
+
+  .game__content > .shop {
+    grid-area: shop;
+  }
+
+  .game__content > .game__team-row {
+    grid-area: team;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .game__actions {
+    grid-area: actions;
+  }
+
+  .game__hint {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
+/* Small mobile screens */
+@media (max-width: 480px) {
+  .game {
+    padding: 6px;
+  }
+
+  .game__content {
+    gap: 6px;
+  }
+}

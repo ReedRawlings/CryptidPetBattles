@@ -83,3 +83,61 @@
 .shop__roll-btn:active:not(:disabled) {
   transform: scale(0.95);
 }
+
+/* Mobile Layout */
+@media (max-width: 768px) {
+  .shop {
+    padding: 24px 16px;
+    border-image-slice: 24;
+    border-image-width: 24px;
+  }
+
+  .shop__header {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .shop__header h2 {
+    font-size: 18px;
+  }
+
+  .shop__section {
+    margin-bottom: 12px;
+  }
+
+  .shop__section h3 {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .shop__items {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .shop__item {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .shop__freeze-btn {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shop {
+    padding: 16px 12px;
+    border-image-slice: 16;
+    border-image-width: 16px;
+  }
+
+  .shop__header h2 {
+    font-size: 16px;
+  }
+}

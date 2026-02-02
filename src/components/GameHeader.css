@@ -43,3 +43,53 @@
 .game-header__stat--wins .game-header__value {
   color: var(--color-health);
 }
+
+/* Mobile Layout */
+@media (max-width: 768px) {
+  .game-header {
+    gap: 16px;
+    padding: 4px 16px;
+    background-size: 256px 64px;
+    min-height: 64px;
+    margin-bottom: 10px;
+  }
+
+  .game-header__stat {
+    gap: 2px;
+  }
+
+  .game-header__label {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .game-header__value {
+    font-size: 16px;
+  }
+
+  .game-header__stat--lives .game-header__value {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-header {
+    gap: 12px;
+    padding: 4px 12px;
+    background-size: 200px 50px;
+    min-height: 50px;
+    margin-bottom: 8px;
+  }
+
+  .game-header__label {
+    font-size: 8px;
+  }
+
+  .game-header__value {
+    font-size: 14px;
+  }
+
+  .game-header__stat--lives .game-header__value {
+    font-size: 12px;
+  }
+}

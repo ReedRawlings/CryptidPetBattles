@@ -2,6 +2,36 @@ import React, { useState } from 'react';
 import { Pet, PetTemplate } from '../types';
 import './PetCard.css';
 
+// Get the scaled ability value based on pet level
+function getScaledAbilityValue(pet: Pet | PetTemplate, level: number): number {
+  const scaling = pet.ability.scaling;
+  if (scaling && scaling.length >= level) {
+    return scaling[level - 1];
+  }
+  return pet.ability.baseValue;
+}
+
+// Generate dynamic description with scaled value
+function getDynamicDescription(pet: Pet | PetTemplate, level: number, battlesParticipated: number = 0): string {
+  const baseValue = pet.ability.baseValue;
+  const scaledValue = getScaledAbilityValue(pet, level);
+
+  let description = pet.ability.description;
+
+  // Replace base value with scaled value
+  if (baseValue !== scaledValue) {
+    const regex = new RegExp(`\\b${baseValue}\\b`, 'g');
+    description = description.replace(regex, String(scaledValue));
+  }
+
+  // Echo: replace "battles participated" with actual count
+  if (pet.templateId === 'echo') {
+    description = description.replace('battles participated', `× ${battlesParticipated}`);
+  }
+
+  return description;
+}
+
 interface PetCardProps {
   pet: Pet | PetTemplate | null;
   onClick?: () => void;
@@ -55,6 +85,7 @@ export function PetCard({
   const attack = isPetInstance ? (pet as Pet).currentAttack : pet.baseAttack;
   const health = isPetInstance ? (pet as Pet).currentHealth : pet.baseHealth;
   const level = isPetInstance ? (pet as Pet).level : 1;
+  const battlesParticipated = isPetInstance ? (pet as Pet).battlesParticipated : 0;
 
   const classNames = [
     'pet-card',
@@ -114,7 +145,7 @@ export function PetCard({
           <div className="pet-card__tooltip-trigger">
             {pet.ability.trigger === 'passive' ? 'Passive' : pet.ability.trigger}
           </div>
-          <div className="pet-card__tooltip-desc">{pet.ability.description}</div>
+          <div className="pet-card__tooltip-desc">{getDynamicDescription(pet, level, battlesParticipated)}</div>
         </div>
       )}
     </div>

@@ -70,3 +70,59 @@
 .team__sell-btn:active {
   transform: scale(0.95);
 }
+
+/* Mobile Layout */
+@media (max-width: 768px) {
+  .team {
+    padding: 12px 16px;
+    border-image-slice: 16;
+    border-image-width: 16px;
+  }
+
+  .team__header {
+    margin-bottom: 8px;
+  }
+
+  .team__header h2 {
+    font-size: 18px;
+  }
+
+  .team__slots-container {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .team__position-label {
+    font-size: 10px;
+  }
+
+  .team__slots {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .team__slot {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .team__sell-btn {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .team {
+    padding: 8px 12px;
+  }
+
+  .team__header h2 {
+    font-size: 16px;
+  }
+
+  .team__slots {
+    gap: 6px;
+  }
+}

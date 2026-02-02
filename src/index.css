@@ -102,3 +102,92 @@ button.pixel-btn.pixel-btn--wide:active {
 button.pixel-btn.pixel-btn--wide:disabled {
   background-position: -600px 0;
 }
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  body {
+    font-size: 24px;
+  }
+
+  button.pixel-btn {
+    width: 80px;
+    height: 28px;
+    background-size: 320px 28px;
+    font-size: 12px;
+  }
+
+  button.pixel-btn:hover {
+    background-position: -80px 0;
+  }
+
+  button.pixel-btn:active {
+    background-position: -160px 0;
+  }
+
+  button.pixel-btn:disabled {
+    background-position: -240px 0;
+  }
+
+  button.pixel-btn.pixel-btn--wide {
+    width: 140px;
+    height: 49px;
+    background-size: 560px 49px;
+    font-size: 16px;
+  }
+
+  button.pixel-btn.pixel-btn--wide:hover {
+    background-position: -140px 0;
+  }
+
+  button.pixel-btn.pixel-btn--wide:active {
+    background-position: -280px 0;
+  }
+
+  button.pixel-btn.pixel-btn--wide:disabled {
+    background-position: -420px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 20px;
+  }
+
+  button.pixel-btn {
+    width: 70px;
+    height: 24px;
+    background-size: 280px 24px;
+    font-size: 10px;
+  }
+
+  button.pixel-btn:hover {
+    background-position: -70px 0;
+  }
+
+  button.pixel-btn:active {
+    background-position: -140px 0;
+  }
+
+  button.pixel-btn:disabled {
+    background-position: -210px 0;
+  }
+
+  button.pixel-btn.pixel-btn--wide {
+    width: 120px;
+    height: 42px;
+    background-size: 480px 42px;
+    font-size: 14px;
+  }
+
+  button.pixel-btn.pixel-btn--wide:hover {
+    background-position: -120px 0;
+  }
+
+  button.pixel-btn.pixel-btn--wide:active {
+    background-position: -240px 0;
+  }
+
+  button.pixel-btn.pixel-btn--wide:disabled {
+    background-position: -360px 0;
+  }
+}
