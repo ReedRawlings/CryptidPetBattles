@@ -145,22 +145,33 @@ export function buyPet(
     // Try to combine if same pet
     const existingPet = team[teamIndex]!;
     if (existingPet.templateId === template.id && existingPet.level < 3) {
-      // Combine pets (give XP)
+      // Combine pets (give XP and +1/+1 per XP gained)
       const updatedTeam = [...team];
       const combinedPet = { ...existingPet };
-      combinedPet.experience += 1;
+
+      // Shop pets give 1 XP when combined
+      const xpGained = 1;
+      combinedPet.experience += xpGained;
+
+      // Add +1/+1 for each XP gained (SAP mechanic)
+      combinedPet.currentAttack = Math.min(
+        combinedPet.currentAttack + xpGained,
+        GAME_CONSTANTS.MAX_STAT
+      );
+      combinedPet.currentHealth = Math.min(
+        combinedPet.currentHealth + xpGained,
+        GAME_CONSTANTS.MAX_STAT
+      );
+      combinedPet.maxHealth = Math.min(
+        combinedPet.maxHealth + xpGained,
+        GAME_CONSTANTS.MAX_STAT
+      );
 
       // Check for level up
       if (combinedPet.experience >= GAME_CONSTANTS.XP_TO_LEVEL_3 && combinedPet.level < 3) {
         combinedPet.level = 3;
-        combinedPet.currentAttack += 2;
-        combinedPet.currentHealth += 2;
-        combinedPet.maxHealth += 2;
       } else if (combinedPet.experience >= GAME_CONSTANTS.XP_TO_LEVEL_2 && combinedPet.level < 2) {
         combinedPet.level = 2;
-        combinedPet.currentAttack += 1;
-        combinedPet.currentHealth += 1;
-        combinedPet.maxHealth += 1;
       }
 
       updatedTeam[teamIndex] = combinedPet;
@@ -306,28 +317,39 @@ export function combinePets(
   const updatedTeam = [...team];
   const combinedPet = { ...target };
 
-  // Add XP (each pet gives 1 XP, plus the pet's existing XP)
-  combinedPet.experience += 1 + source.experience;
+  // Calculate XP gained (1 for the combine + source's existing XP)
+  const xpGained = 1 + source.experience;
 
-  // Take higher stats
+  // Add XP
+  combinedPet.experience += xpGained;
+
+  // Take higher stats first (like SAP)
   combinedPet.currentAttack = Math.max(source.currentAttack, target.currentAttack);
   combinedPet.currentHealth = Math.max(source.currentHealth, target.currentHealth);
   combinedPet.maxHealth = Math.max(source.maxHealth, target.maxHealth);
+
+  // Then add +1/+1 for each XP gained (SAP mechanic)
+  combinedPet.currentAttack = Math.min(
+    combinedPet.currentAttack + xpGained,
+    GAME_CONSTANTS.MAX_STAT
+  );
+  combinedPet.currentHealth = Math.min(
+    combinedPet.currentHealth + xpGained,
+    GAME_CONSTANTS.MAX_STAT
+  );
+  combinedPet.maxHealth = Math.min(
+    combinedPet.maxHealth + xpGained,
+    GAME_CONSTANTS.MAX_STAT
+  );
 
   let leveledUp = false;
 
   // Check for level up
   if (combinedPet.experience >= GAME_CONSTANTS.XP_TO_LEVEL_3 && combinedPet.level < 3) {
     combinedPet.level = 3;
-    combinedPet.currentAttack += 2;
-    combinedPet.currentHealth += 2;
-    combinedPet.maxHealth += 2;
     leveledUp = true;
   } else if (combinedPet.experience >= GAME_CONSTANTS.XP_TO_LEVEL_2 && combinedPet.level < 2) {
     combinedPet.level = 2;
-    combinedPet.currentAttack += 1;
-    combinedPet.currentHealth += 1;
-    combinedPet.maxHealth += 1;
     leveledUp = true;
   }
 
