@@ -4,6 +4,10 @@
   padding: 20px;
 }
 
+.game__wrapper {
+  /* No styling on desktop - panels handle their own borders */
+}
+
 .game__content {
   display: flex;
   flex-direction: column;
@@ -50,6 +54,13 @@
     padding: 10px;
   }
 
+  .game__wrapper {
+    border-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragon9SlicesB.png') 24 fill / 24px / 0 round;
+    background-color: transparent;
+    image-rendering: pixelated;
+    padding: 16px;
+  }
+
   .game__content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -63,12 +74,21 @@
 
   .game__content > .shop {
     grid-area: shop;
+    border-image: none;
+    padding: 8px;
+    background: transparent;
   }
 
   .game__content > .game__team-row {
     grid-area: team;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .game__content > .game__team-row .team {
+    border-image: none;
+    padding: 8px;
+    background: transparent;
   }
 
   .game__actions {
