@@ -2,6 +2,31 @@ import React, { useState } from 'react';
 import { Pet, PetTemplate } from '../types';
 import './PetCard.css';
 
+// Get the scaled ability value based on pet level
+function getScaledAbilityValue(pet: Pet | PetTemplate, level: number): number {
+  const scaling = pet.ability.scaling;
+  if (scaling && scaling.length >= level) {
+    return scaling[level - 1];
+  }
+  return pet.ability.baseValue;
+}
+
+// Generate dynamic description with scaled value
+function getDynamicDescription(pet: Pet | PetTemplate, level: number): string {
+  const baseValue = pet.ability.baseValue;
+  const scaledValue = getScaledAbilityValue(pet, level);
+
+  if (baseValue === scaledValue) {
+    return pet.ability.description;
+  }
+
+  // Replace the base value number in the description with the scaled value
+  // Match standalone numbers (not part of other numbers)
+  const description = pet.ability.description;
+  const regex = new RegExp(`\\b${baseValue}\\b`, 'g');
+  return description.replace(regex, String(scaledValue));
+}
+
 interface PetCardProps {
   pet: Pet | PetTemplate | null;
   onClick?: () => void;
@@ -114,7 +139,7 @@ export function PetCard({
           <div className="pet-card__tooltip-trigger">
             {pet.ability.trigger === 'passive' ? 'Passive' : pet.ability.trigger}
           </div>
-          <div className="pet-card__tooltip-desc">{pet.ability.description}</div>
+          <div className="pet-card__tooltip-desc">{getDynamicDescription(pet, level)}</div>
         </div>
       )}
     </div>
