@@ -313,7 +313,12 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
         ...state,
         phase: 'shop',
         shop: generateShop(newTurn, state.shop),
+        // Keep currentOpponent null - will be fetched by effect
         currentOpponent: null,
+        currentOpponentMmr: 1000,
+        currentOpponentSnapshotId: null,
+        currentOpponentPlayerId: null,
+        isRealOpponent: false,
         lastBattleResult: null,
         player: {
           ...state.player,
@@ -459,6 +464,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, [state.phase, state.multiplayer.isMultiplayerEnabled, state.multiplayer.runId, user]);
 
+  // Fetch opponent at the start of each shop phase (for opponent preview)
+  useEffect(() => {
+    if (state.phase === 'shop' && !state.currentOpponent) {
+      findAndSetOpponent();
+    }
+  }, [state.phase, state.currentOpponent]);
+
   // Find and set opponent before battle
   const findAndSetOpponent = useCallback(async () => {
     const playerId = state.multiplayer.isMultiplayerEnabled ? user?.id ?? null : null;
@@ -496,12 +508,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, [isConfigured, user]);
 
-  // End turn with opponent matching
-  const handleEndTurn = useCallback(async () => {
-    // Find opponent before starting battle
-    await findAndSetOpponent();
+  // End turn - opponent already matched at turn start
+  const handleEndTurn = useCallback(() => {
     dispatch({ type: 'END_TURN' });
-  }, [findAndSetOpponent]);
+  }, []);
 
   const value: GameContextType = {
     state,

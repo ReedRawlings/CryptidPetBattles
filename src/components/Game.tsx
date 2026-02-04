@@ -3,6 +3,7 @@ import { useGame } from '../game';
 import { GameHeader } from './GameHeader';
 import { Shop } from './Shop';
 import { Team } from './Team';
+import { OpponentPreview } from './OpponentPreview';
 import { BattleView } from './BattleView';
 import { BattleResult } from './BattleResult';
 import { GameOver } from './GameOver';
@@ -136,6 +137,8 @@ export function Game() {
           onShopPetClick={handleShopPetClick}
           onFoodClick={handleFoodClick}
         />
+
+        <OpponentPreview />
 
         <div className="game__team-row">
           <Team

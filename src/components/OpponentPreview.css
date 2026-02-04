@@ -1,0 +1,121 @@
+.opponent-preview {
+  border-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragon9SlicesE.png') 16 fill / 32px / 0 round;
+  background-color: rgba(139, 0, 0, 0.1);
+  image-rendering: pixelated;
+  padding: 12px 24px;
+}
+
+.opponent-preview--loading {
+  opacity: 0.7;
+}
+
+.opponent-preview__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.opponent-preview__header h3 {
+  font-size: 16px;
+  color: var(--color-danger, #dc3545);
+  margin: 0;
+}
+
+.opponent-preview__info {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.opponent-preview__badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.opponent-preview__badge {
+  background-color: var(--color-secondary, #6c757d);
+  color: white;
+}
+
+.opponent-preview__pet-count {
+  font-size: 12px;
+  color: var(--color-text-dim, #888);
+}
+
+.opponent-preview__slots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.opponent-preview__slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.opponent-preview__slot--empty {
+  width: 60px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 2px dashed var(--color-text-dim, #888);
+}
+
+.opponent-preview__slot--empty span {
+  font-size: 24px;
+  color: var(--color-text-dim, #888);
+}
+
+/* Mobile Layout */
+@media (max-width: 768px) {
+  .opponent-preview {
+    padding: 8px 16px;
+    border-image-slice: 16;
+    border-image-width: 16px;
+  }
+
+  .opponent-preview__header {
+    margin-bottom: 8px;
+  }
+
+  .opponent-preview__header h3 {
+    font-size: 14px;
+  }
+
+  .opponent-preview__slots {
+    gap: 4px;
+  }
+
+  .opponent-preview__badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .opponent-preview__pet-count {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .opponent-preview {
+    padding: 6px 12px;
+  }
+
+  .opponent-preview__header h3 {
+    font-size: 12px;
+  }
+
+  .opponent-preview__slot--empty {
+    width: 48px;
+    height: 64px;
+  }
+}
