@@ -1,6 +1,24 @@
-import { PetTemplate } from '../types';
+// Legacy pet data — retained for reference but no longer used by the game.
+// The active creature system uses creatures.json via src/data/creatures.ts.
 
-export const PET_TEMPLATES: PetTemplate[] = [
+interface LegacyPetTemplate {
+  id: string;
+  name: string;
+  tier: number;
+  baseAttack: number;
+  baseHealth: number;
+  emoji: string;
+  ability: {
+    trigger: string;
+    effect: string;
+    baseValue: number;
+    target: string;
+    description: string;
+    scaling?: number[];
+  };
+}
+
+export const PET_TEMPLATES: LegacyPetTemplate[] = [
   // Tier 1
   {
     id: 'puppy',
@@ -249,7 +267,7 @@ export const PET_TEMPLATES: PetTemplate[] = [
 ];
 
 // Summoned pet templates (not available in shop)
-export const SUMMONED_TEMPLATES: PetTemplate[] = [
+export const SUMMONED_TEMPLATES: LegacyPetTemplate[] = [
   {
     id: 'honeybee',
     name: 'Honeybee',
@@ -282,14 +300,14 @@ export const SUMMONED_TEMPLATES: PetTemplate[] = [
   },
 ];
 
-export function getPetTemplate(id: string): PetTemplate | undefined {
+export function getPetTemplate(id: string): LegacyPetTemplate | undefined {
   return PET_TEMPLATES.find((p) => p.id === id) || SUMMONED_TEMPLATES.find((p) => p.id === id);
 }
 
-export function getPetsByTier(tier: number): PetTemplate[] {
+export function getPetsByTier(tier: number): LegacyPetTemplate[] {
   return PET_TEMPLATES.filter((p) => p.tier === tier);
 }
 
-export function getAvailablePets(tiers: number[]): PetTemplate[] {
+export function getAvailablePets(tiers: number[]): LegacyPetTemplate[] {
   return PET_TEMPLATES.filter((p) => tiers.includes(p.tier));
 }

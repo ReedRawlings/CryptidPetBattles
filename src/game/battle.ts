@@ -6,7 +6,6 @@ import {
   BuffType,
   BUFF_DEFINITIONS,
   CreatureAbility,
-  CreatureEffect,
   EffectTarget,
 } from '../types';
 import {
@@ -440,7 +439,7 @@ function getDessertFaintDamage(dessertCount: number): number {
 function createBoneSummon(
   stats: { health: number; attack: number; speed: number },
   summoner: Creature,
-  state: BattleState
+  _state: BattleState
 ): Creature {
   return {
     id: `bone-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
