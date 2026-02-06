@@ -9,93 +9,68 @@ import { GameOver } from './GameOver';
 import './Game.css';
 
 export function Game() {
-  const { state, endTurn, buyPet, applyFood, swapPets, combinePets } = useGame();
+  const { state, endTurn, buyCreature, swapCreatures, combineCreatures } = useGame();
   const { phase, player, shop } = state;
 
   // Unified selection state
   const [selectedShopPet, setSelectedShopPet] = useState<number | null>(null);
-  const [selectedFood, setSelectedFood] = useState<number | null>(null);
   const [selectedTeamPet, setSelectedTeamPet] = useState<number | null>(null);
 
   const clearAllSelections = () => {
     setSelectedShopPet(null);
-    setSelectedFood(null);
     setSelectedTeamPet(null);
   };
 
   const handleShopPetClick = (index: number) => {
-    if (shop.pets[index]) {
+    if (shop.creatures[index]) {
       if (selectedShopPet === index) {
         setSelectedShopPet(null);
       } else {
         setSelectedShopPet(index);
-        setSelectedFood(null);
-        setSelectedTeamPet(null);
-      }
-    }
-  };
-
-  const handleFoodClick = (index: number) => {
-    if (shop.foods[index]) {
-      if (selectedFood === index) {
-        setSelectedFood(null);
-      } else {
-        setSelectedFood(index);
-        setSelectedShopPet(null);
         setSelectedTeamPet(null);
       }
     }
   };
 
   const handleTeamSlotClick = (index: number) => {
-    // If a shop pet is selected, try to buy it to this slot
+    // If a shop creature is selected, try to buy it to this slot
     if (selectedShopPet !== null) {
-      buyPet(selectedShopPet, index);
+      buyCreature(selectedShopPet, index);
       clearAllSelections();
       return;
     }
 
-    // If food is selected, try to apply it to this slot
-    if (selectedFood !== null) {
-      if (player.team[index]) {
-        applyFood(selectedFood, index);
-      }
-      clearAllSelections();
-      return;
-    }
-
-    // No shop item selected - handle team pet reordering/combining
-    const clickedPet = player.team[index];
+    // No shop item selected - handle team creature reordering/combining
+    const clickedCreature = player.team[index];
 
     if (selectedTeamPet === null) {
-      // No team pet selected - select this one if it exists
-      if (clickedPet) {
+      // No team creature selected - select this one if it exists
+      if (clickedCreature) {
         setSelectedTeamPet(index);
       }
     } else if (selectedTeamPet === index) {
-      // Clicked the same pet - deselect
+      // Clicked the same creature - deselect
       setSelectedTeamPet(null);
     } else {
       // Different slot selected - swap or combine
-      const sourcePet = player.team[selectedTeamPet];
-      const targetPet = player.team[index];
+      const sourceCreature = player.team[selectedTeamPet];
+      const targetCreature = player.team[index];
 
-      if (sourcePet && targetPet && sourcePet.templateId === targetPet.templateId) {
-        combinePets(selectedTeamPet, index);
+      if (sourceCreature && targetCreature && sourceCreature.templateId === targetCreature.templateId) {
+        combineCreatures(selectedTeamPet, index);
       } else {
-        swapPets(selectedTeamPet, index);
+        swapCreatures(selectedTeamPet, index);
       }
       setSelectedTeamPet(null);
     }
   };
 
-  const hasPets = player.team.some((pet) => pet !== null);
+  const hasCreatures = player.team.some((creature) => creature !== null);
 
   // Get hint text based on selection state
   const getHintText = () => {
-    if (selectedShopPet !== null) return 'Click a team slot to place this pet';
-    if (selectedFood !== null) return 'Click a pet on your team to feed';
-    if (selectedTeamPet !== null) return 'Click another slot to swap, or same pet type to combine';
+    if (selectedShopPet !== null) return 'Click a team slot to place this creature';
+    if (selectedTeamPet !== null) return 'Click another slot to swap, or same creature type to combine';
     return null;
   };
 
@@ -132,9 +107,7 @@ export function Game() {
       <div className="game__content">
         <Shop
           selectedShopPet={selectedShopPet}
-          selectedFood={selectedFood}
           onShopPetClick={handleShopPetClick}
-          onFoodClick={handleFoodClick}
         />
 
         <div className="game__team-row">
@@ -146,9 +119,9 @@ export function Game() {
             <button
               className="pixel-btn pixel-btn--wide"
               onClick={endTurn}
-              disabled={!hasPets}
+              disabled={!hasCreatures}
             >
-              {hasPets ? 'Battle!' : 'Buy a pet first!'}
+              {hasCreatures ? 'Battle!' : 'Buy a creature first!'}
             </button>
           </div>
         </div>

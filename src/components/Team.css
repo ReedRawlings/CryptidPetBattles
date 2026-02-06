@@ -5,37 +5,32 @@
   padding: 16px 32px;
 }
 
-.team__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.team__header h2 {
-  font-size: 24px;
-  color: var(--color-primary);
-}
-
-.team__slots-container {
+.team__row {
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 8px;
 }
 
-.team__position-label {
+.team__row:last-child {
+  margin-bottom: 0;
+}
+
+.team__row-label {
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-.team__position-label--back {
+  min-width: 70px;
   color: var(--color-text-dim);
 }
 
-.team__position-label--front {
+.team__row-label--front {
   color: var(--color-primary);
+}
+
+.team__row-label--back {
+  color: var(--color-text-dim);
 }
 
 .team__slots {
@@ -79,32 +74,22 @@
     border-image-width: 16px;
   }
 
-  .team__header {
-    margin-bottom: 8px;
-  }
-
-  .team__header h2 {
-    font-size: 18px;
-  }
-
-  .team__slots-container {
-    flex-direction: column;
+  .team__row {
     gap: 4px;
+    margin-bottom: 4px;
   }
 
-  .team__position-label {
+  .team__row-label {
     font-size: 10px;
+    min-width: 50px;
   }
 
   .team__slots {
-    flex-direction: column;
     gap: 8px;
   }
 
   .team__slot {
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
+    gap: 4px;
   }
 
   .team__sell-btn {
@@ -118,8 +103,9 @@
     padding: 8px 12px;
   }
 
-  .team__header h2 {
-    font-size: 16px;
+  .team__row-label {
+    font-size: 9px;
+    min-width: 40px;
   }
 
   .team__slots {

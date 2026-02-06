@@ -1,76 +1,58 @@
-import { Pet, BattleEvent, BattleResult, GAME_CONSTANTS } from '../types';
-import { SUMMONED_TEMPLATES } from '../data/pets';
+import {
+  Creature,
+  BattleEvent,
+  BattleResult,
+  GAME_CONSTANTS,
+  BuffType,
+  BUFF_DEFINITIONS,
+  CreatureAbility,
+  CreatureEffect,
+  EffectTarget,
+} from '../types';
+import {
+  applyBuff,
+  getEffectiveAttack,
+  getEffectiveSpeed,
+  getThornsStacks,
+  hasTaunt,
+  tickBuffs,
+  cleanse,
+} from './buffs';
+import { SPIRIT_BONE_TEMPLATES } from '../data/creatures';
 
-// Deep clone a pet for battle
-function clonePet(pet: Pet): Pet {
-  return {
-    ...pet,
-    ability: { ...pet.ability },
-    foodSlot: pet.foodSlot ? { ...pet.foodSlot } : null,
-    tempAttackBonus: 0,
-    armor: pet.armor || 0,
-    hasRevived: false,
-  };
-}
+// ============================================================
+// Battle State
+// ============================================================
 
-// Get ability value based on pet level
-function getAbilityValue(pet: Pet): number {
-  const scaling = pet.ability.scaling;
-  if (scaling && scaling.length >= pet.level) {
-    return scaling[pet.level - 1];
-  }
-  return pet.ability.baseValue;
-}
-
-// Create a summoned pet with optional stat scaling based on summoner level
-function createSummonedPet(templateId: string, position: number, statBonus: number = 0): Pet {
-  const template = SUMMONED_TEMPLATES.find((t) => t.id === templateId);
-  if (!template) {
-    throw new Error(`Unknown summoned pet template: ${templateId}`);
-  }
-
-  const attack = template.baseAttack + statBonus;
-  const health = template.baseHealth + statBonus;
-
-  return {
-    id: `${templateId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    templateId: template.id,
-    name: template.name,
-    tier: template.tier,
-    level: 1,
-    experience: 0,
-    baseAttack: attack,
-    baseHealth: health,
-    currentAttack: attack,
-    currentHealth: health,
-    maxHealth: health,
-    ability: { ...template.ability },
-    battlesParticipated: 0,
-    foodSlot: null,
-    position,
-    emoji: template.emoji,
-    tempAttackBonus: 0,
-    armor: 0,
-    hasRevived: false,
-  };
-}
-
-// Battle state for tracking
 interface BattleState {
-  playerTeam: Pet[];
-  opponentTeam: Pet[];
+  playerTeam: Creature[];
+  opponentTeam: Creature[];
   events: BattleEvent[];
   timestamp: number;
+  triggerDepth: number;
 }
 
-// Add event to battle log
+// ============================================================
+// Helpers
+// ============================================================
+
+function cloneCreature(c: Creature): Creature {
+  return {
+    ...c,
+    ability: { ...c.ability, effects: c.ability.effects.map((e) => ({ ...e })) },
+    buffs: c.buffs.map((b) => ({ ...b })),
+    lowHealthTriggered: false,
+  };
+}
+
 function addEvent(
   state: BattleState,
   type: BattleEvent['type'],
   source: string | null,
   target: string | null,
   value: number,
-  description?: string
+  description?: string,
+  buffType?: BuffType
 ): void {
   state.events.push({
     type,
@@ -79,383 +61,602 @@ function addEvent(
     value,
     timestamp: state.timestamp++,
     description,
+    buffType,
   });
 }
 
-// Get current attack value including temp bonuses
-function getAttack(pet: Pet): number {
-  return Math.min(pet.currentAttack + (pet.tempAttackBonus || 0), GAME_CONSTANTS.MAX_STAT);
+function isAlive(c: Creature): boolean {
+  return c.currentHealth > 0;
 }
 
-// Apply damage to pet, considering armor and passives
+function getLivingCreatures(team: Creature[]): Creature[] {
+  return team.filter(isAlive);
+}
+
+function getTeamFor(creature: Creature, state: BattleState): Creature[] {
+  return state.playerTeam.includes(creature) ? state.playerTeam : state.opponentTeam;
+}
+
+function getEnemyTeamFor(creature: Creature, state: BattleState): Creature[] {
+  return state.playerTeam.includes(creature) ? state.opponentTeam : state.playerTeam;
+}
+
+// ============================================================
+// Targeting
+// ============================================================
+
+/**
+ * Select attack target: Taunt > random frontline > random backline
+ */
+function selectTarget(enemyTeam: Creature[]): Creature | null {
+  const living = getLivingCreatures(enemyTeam);
+  if (living.length === 0) return null;
+
+  // Priority 1: Taunt
+  const taunters = living.filter(hasTaunt);
+  if (taunters.length > 0) {
+    return taunters[Math.floor(Math.random() * taunters.length)];
+  }
+
+  // Priority 2: Random frontline
+  const frontline = living.filter((c) => c.position === 'frontline');
+  if (frontline.length > 0) {
+    return frontline[Math.floor(Math.random() * frontline.length)];
+  }
+
+  // Priority 3: Random backline
+  const backline = living.filter((c) => c.position === 'backline');
+  if (backline.length > 0) {
+    return backline[Math.floor(Math.random() * backline.length)];
+  }
+
+  return living[Math.floor(Math.random() * living.length)];
+}
+
+/**
+ * Resolve effect target string to an array of creatures.
+ */
+function resolveTargets(
+  source: Creature,
+  targetStr: EffectTarget,
+  state: BattleState,
+  contextTarget?: Creature
+): Creature[] {
+  const friendlyTeam = getLivingCreatures(getTeamFor(source, state));
+  const enemyTeam = getLivingCreatures(getEnemyTeamFor(source, state));
+
+  switch (targetStr) {
+    case 'self':
+      return isAlive(source) ? [source] : [];
+
+    case 'all_allies':
+      return friendlyTeam;
+
+    case 'all_enemies':
+      return enemyTeam;
+
+    case 'random_enemy': {
+      if (enemyTeam.length === 0) return [];
+      return [enemyTeam[Math.floor(Math.random() * enemyTeam.length)]];
+    }
+
+    case 'random_frontline_enemy': {
+      const frontline = enemyTeam.filter((c) => c.position === 'frontline');
+      const pool = frontline.length > 0 ? frontline : enemyTeam;
+      if (pool.length === 0) return [];
+      return [pool[Math.floor(Math.random() * pool.length)]];
+    }
+
+    case 'nearest_enemy': {
+      // Nearest = frontline first, then backline
+      const frontline = enemyTeam.filter((c) => c.position === 'frontline');
+      if (frontline.length > 0) return [frontline[0]];
+      if (enemyTeam.length > 0) return [enemyTeam[0]];
+      return [];
+    }
+
+    case 'strongest_enemy': {
+      if (enemyTeam.length === 0) return [];
+      const sorted = [...enemyTeam].sort((a, b) => getEffectiveAttack(b) - getEffectiveAttack(a));
+      return [sorted[0]];
+    }
+
+    case 'lowest_hp_ally': {
+      if (friendlyTeam.length === 0) return [];
+      const sorted = [...friendlyTeam].sort((a, b) => a.currentHealth - b.currentHealth);
+      return [sorted[0]];
+    }
+
+    case 'self_and_nearest_ally': {
+      const result: Creature[] = isAlive(source) ? [source] : [];
+      const allies = friendlyTeam.filter((c) => c.id !== source.id);
+      if (allies.length > 0) {
+        // Nearest ally = same row first
+        const sameRow = allies.filter((c) => c.position === source.position);
+        if (sameRow.length > 0) result.push(sameRow[0]);
+        else result.push(allies[0]);
+      }
+      return result;
+    }
+
+    case 'self_and_lowest_ally': {
+      const result: Creature[] = isAlive(source) ? [source] : [];
+      const allies = friendlyTeam.filter((c) => c.id !== source.id);
+      if (allies.length > 0) {
+        const sorted = [...allies].sort((a, b) => a.currentHealth - b.currentHealth);
+        result.push(sorted[0]);
+      }
+      return result;
+    }
+
+    case 'attacker':
+      return contextTarget && isAlive(contextTarget) ? [contextTarget] : [];
+
+    default:
+      return [];
+  }
+}
+
+// ============================================================
+// Ability Execution
+// ============================================================
+
+/**
+ * Execute all effects of an ability on resolved targets.
+ * Handles buff/debuff application, damage, healing, cleansing.
+ * After applying buffs, checks on_buff/on_debuff triggers (with recursion guard).
+ */
+function executeAbilityEffects(
+  source: Creature,
+  ability: CreatureAbility,
+  state: BattleState,
+  contextTarget?: Creature
+): void {
+  for (const effect of ability.effects) {
+    const targets = resolveTargets(source, effect.target, state, contextTarget);
+
+    for (const target of targets) {
+      if (!isAlive(target)) continue;
+
+      const effectType = effect.type;
+
+      // Buff/Debuff application effects
+      if (isBuffType(effectType)) {
+        const stacks = effect.stacks ?? 1;
+        const duration = parseDuration(effect.duration);
+        applyBuff(target, effectType as BuffType, stacks, duration, source.id, state.events, state.timestamp++);
+
+        // Check on_buff / on_debuff triggers on the affected creature
+        const category = BUFF_DEFINITIONS[effectType as BuffType].category;
+        if (category === 'buff' && state.triggerDepth < GAME_CONSTANTS.MAX_TRIGGER_DEPTH) {
+          checkAndFireTrigger(target, 'on_buff', state);
+        } else if ((category === 'debuff' || category === 'dot') && state.triggerDepth < GAME_CONSTANTS.MAX_TRIGGER_DEPTH) {
+          checkAndFireTrigger(target, 'on_debuff', state);
+        }
+        continue;
+      }
+
+      // Damage effects
+      if (effectType === 'aoe' || effectType === 'deal_damage') {
+        const damage = effect.value ?? 0;
+        if (damage > 0) {
+          applyDamage(target, damage, state, source);
+        }
+        continue;
+      }
+
+      // Stat modification effects
+      if (effectType === 'increase_damage') {
+        const value = effect.value ?? 0;
+        target.currentAttack = Math.min(target.currentAttack + value, GAME_CONSTANTS.MAX_STAT);
+        addEvent(state, 'buff', source.id, target.id, value, `${target.name} gains +${value} ATK`);
+        continue;
+      }
+
+      if (effectType === 'increase_health') {
+        const value = effect.value ?? 0;
+        const healAmount = Math.min(value, target.maxHealth - target.currentHealth);
+        if (healAmount > 0) {
+          target.currentHealth += healAmount;
+          addEvent(state, 'heal', source.id, target.id, healAmount, `${target.name} heals for ${healAmount} HP`);
+        }
+        continue;
+      }
+
+      // Cleanse effects
+      if (effectType === 'cleanse_dot') {
+        cleanse(target, 'all', state.events, state.timestamp++);
+        continue;
+      }
+
+      if (effectType === 'cleanse_aoe') {
+        // Remove CC-type debuffs (taunt, slow)
+        const ccDebuffs = target.buffs.filter(
+          (b) => b.type === 'taunt' || b.type === 'slow' || b.type === 'weaken'
+        );
+        for (const buff of ccDebuffs) {
+          const idx = target.buffs.indexOf(buff);
+          if (idx !== -1) {
+            target.buffs.splice(idx, 1);
+            addEvent(state, 'buff_removed', source.id, target.id, 0,
+              `${target.name} is cleansed of ${BUFF_DEFINITIONS[buff.type].name}`, buff.type);
+          }
+        }
+        continue;
+      }
+    }
+  }
+}
+
+function isBuffType(type: string): boolean {
+  return type in BUFF_DEFINITIONS;
+}
+
+function parseDuration(duration: number | string | undefined): number | null {
+  if (duration === undefined || duration === 'this_combat') return null;
+  if (typeof duration === 'number') return duration;
+  // Parse "3_turns" -> 3
+  const match = String(duration).match(/^(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+}
+
+// ============================================================
+// Trigger System
+// ============================================================
+
+function checkAndFireTrigger(
+  creature: Creature,
+  triggerType: string,
+  state: BattleState,
+  contextTarget?: Creature
+): void {
+  if (!isAlive(creature)) return;
+  if (creature.ability.trigger !== triggerType) return;
+
+  state.triggerDepth++;
+  addEvent(state, 'ability', creature.id, null, 0, `${creature.name}'s ${creature.ability.name} triggers`);
+  executeAbilityEffects(creature, creature.ability, state, contextTarget);
+  state.triggerDepth--;
+}
+
+// ============================================================
+// Damage Application
+// ============================================================
+
 function applyDamage(
-  pet: Pet,
+  target: Creature,
   damage: number,
   state: BattleState,
-  attacker?: Pet
-): { damageDealt: number; killed: boolean } {
-  let finalDamage = damage;
-
-  // Golem's passive: reduce incoming damage
-  if (pet.ability.trigger === 'passive' && pet.ability.effect === 'reduceIncomingDamage') {
-    finalDamage = Math.max(1, finalDamage - getAbilityValue(pet));
-  }
-
-  // Apply armor
-  if (pet.armor && pet.armor > 0) {
-    finalDamage = Math.max(1, finalDamage - pet.armor);
-  }
-
-  pet.currentHealth -= finalDamage;
-
-  addEvent(state, 'damage', attacker?.id || null, pet.id, finalDamage, `${pet.name} takes ${finalDamage} damage`);
-
-  // Trigger onHurt abilities
-  if (pet.ability.trigger === 'onHurt' && attacker) {
-    triggerAbility(pet, state, attacker, pet === state.playerTeam[0] ? state.opponentTeam : state.playerTeam);
-  }
-
-  return {
-    damageDealt: finalDamage,
-    killed: pet.currentHealth <= 0,
-  };
-}
-
-// Trigger a pet's ability
-function triggerAbility(
-  pet: Pet,
-  state: BattleState,
-  triggerSource: Pet | null,
-  enemyTeam: Pet[]
+  attacker?: Creature
 ): void {
-  const value = getAbilityValue(pet);
-  const isPlayerPet = state.playerTeam.includes(pet);
-  const friendlyTeam = isPlayerPet ? state.playerTeam : state.opponentTeam;
+  const finalDamage = Math.max(1, damage);
+  target.currentHealth -= finalDamage;
 
-  addEvent(state, 'ability', pet.id, null, value, `${pet.name}'s ability triggers`);
+  addEvent(state, 'damage', attacker?.id ?? null, target.id, finalDamage,
+    `${target.name} takes ${finalDamage} damage`);
 
-  switch (pet.ability.effect) {
-    case 'gainAttack':
-      if (pet.ability.target === 'self') {
-        if (pet.ability.trigger === 'onAttack') {
-          // Berserker: temp bonus
-          pet.tempAttackBonus = (pet.tempAttackBonus || 0) + value;
-          addEvent(state, 'buff', pet.id, pet.id, value, `${pet.name} gains +${value} ATK temporarily`);
-        } else {
-          // Battle-only gain (Crow on enemy faint)
-          pet.currentAttack = Math.min(pet.currentAttack + value, GAME_CONSTANTS.MAX_STAT);
-          addEvent(state, 'buff', pet.id, pet.id, value, `${pet.name} gains +${value} ATK`);
-        }
-      } else if (pet.ability.target === 'adjacentAllies') {
-        // Wolf: buff adjacent allies
-        const petIndex = friendlyTeam.indexOf(pet);
-        const adjacentPets = [friendlyTeam[petIndex - 1], friendlyTeam[petIndex + 1]].filter(Boolean);
-        adjacentPets.forEach((ally) => {
-          ally.currentAttack = Math.min(ally.currentAttack + value, GAME_CONSTANTS.MAX_STAT);
-          addEvent(state, 'buff', pet.id, ally.id, value, `${ally.name} gains +${value} ATK from ${pet.name}`);
-        });
-      }
-      break;
-
-    case 'dealDamage':
-      if (pet.ability.target === 'attacker' && triggerSource) {
-        // Crab: damage attacker
-        applyDamage(triggerSource, value, state, pet);
-      } else if (pet.ability.target === 'randomEnemy') {
-        // Echo: damage random enemy based on battles participated
-        const multiplier = pet.templateId === 'echo' ? pet.battlesParticipated : 1;
-        const totalDamage = value * multiplier;
-        if (enemyTeam.length > 0 && totalDamage > 0) {
-          const target = enemyTeam[Math.floor(Math.random() * enemyTeam.length)];
-          applyDamage(target, totalDamage, state, pet);
-        }
-      } else if (pet.ability.target === 'allEnemies') {
-        // Dragon: damage all enemies
-        enemyTeam.forEach((enemy) => {
-          applyDamage(enemy, value, state, pet);
-        });
-      }
-      break;
-
-    case 'heal':
-      if (pet.ability.target === 'allAllies') {
-        // Pure: heal all allies
-        friendlyTeam.forEach((ally) => {
-          if (ally.currentHealth > 0) {
-            const healAmount = Math.min(value, ally.maxHealth - ally.currentHealth);
-            ally.currentHealth += healAmount;
-            addEvent(state, 'heal', pet.id, ally.id, healAmount, `${ally.name} heals for ${healAmount} HP`);
-          }
-        });
-      } else if (pet.ability.target === 'self') {
-        // Vampire: heal flat amount on kill
-        const healAmount = Math.min(value, pet.maxHealth - pet.currentHealth);
-        pet.currentHealth += healAmount;
-        addEvent(state, 'heal', pet.id, pet.id, healAmount, `${pet.name} heals for ${healAmount} HP`);
-      }
-      break;
-
-    case 'summon': {
-      // Bee or Hydra: summon pets
-      const summonId = pet.templateId === 'bee' ? 'honeybee' : 'hydra-head';
-      // Bee: scaling controls summon count (1, 1, 2 at levels 1, 2, 3)
-      // Hydra: scaling controls summon count (2, 2, 3 at levels 1, 2, 3)
-      const summonCount = value;
-      // Bee: stats scale with level (1/1 at Lv1, 2/2 at Lv2, 3/3 at Lv3)
-      const statBonus = pet.templateId === 'bee' ? pet.level - 1 : 0;
-
-      // Find position to summon at (where the dying pet is)
-      let petIndex = friendlyTeam.indexOf(pet);
-      if (petIndex === -1) petIndex = friendlyTeam.length;
-
-      for (let i = 0; i < summonCount; i++) {
-        // Count only ALIVE pets for team size check (dying pets will be removed)
-        const alivePetCount = friendlyTeam.filter(p => p.currentHealth > 0).length;
-        if (alivePetCount >= GAME_CONSTANTS.MAX_TEAM_SIZE) break;
-
-        const summoned = createSummonedPet(summonId, petIndex, statBonus);
-        friendlyTeam.splice(petIndex, 0, summoned);
-        addEvent(state, 'summon', pet.id, summoned.id, 1, `${pet.name} summons ${summoned.currentAttack}/${summoned.currentHealth} ${summoned.name}`);
-
-        // Trigger onFriendSummoned for all ALIVE allies
-        friendlyTeam.forEach((ally) => {
-          if (ally.ability.trigger === 'onFriendSummoned' && ally.id !== summoned.id && ally.currentHealth > 0) {
-            // Puppy gains stats
-            ally.currentAttack = Math.min(ally.currentAttack + getAbilityValue(ally), GAME_CONSTANTS.MAX_STAT);
-            ally.currentHealth = Math.min(ally.currentHealth + getAbilityValue(ally), GAME_CONSTANTS.MAX_STAT);
-            ally.maxHealth = Math.min(ally.maxHealth + getAbilityValue(ally), GAME_CONSTANTS.MAX_STAT);
-            addEvent(
-              state,
-              'buff',
-              ally.id,
-              ally.id,
-              getAbilityValue(ally),
-              `${ally.name} gains +${getAbilityValue(ally)}/+${getAbilityValue(ally)}`
-            );
-          }
-        });
-      }
-      break;
+  // Thorns reflection
+  if (attacker && isAlive(attacker)) {
+    const thorns = getThornsStacks(target);
+    if (thorns > 0) {
+      const thornsDamage = thorns * GAME_CONSTANTS.THORNS_PER_STACK;
+      attacker.currentHealth -= thornsDamage;
+      addEvent(state, 'thorns_damage', target.id, attacker.id, thornsDamage,
+        `${attacker.name} takes ${thornsDamage} thorns damage`);
     }
+  }
 
-    case 'giveArmor': {
-      // Turtle: give armor to pet behind
-      // For player team: higher index = front, so behind = petIndex - 1
-      // For opponent team: lower index = front, so behind = petIndex + 1
-      const petIndex = friendlyTeam.indexOf(pet);
-      const behindIndex = isPlayerPet ? petIndex - 1 : petIndex + 1;
-      const petBehind = friendlyTeam[behindIndex];
-      if (petBehind && petBehind.currentHealth > 0) {
-        petBehind.armor = (petBehind.armor || 0) + value;
-        addEvent(state, 'buff', pet.id, petBehind.id, value, `${petBehind.name} gains +${value} armor`);
-      }
-      break;
-    }
-
-    case 'revive':
-      // Phoenix: handled in processFaints
-      break;
+  // Check low_health trigger
+  if (
+    isAlive(target) &&
+    !target.lowHealthTriggered &&
+    target.currentHealth / target.maxHealth <= GAME_CONSTANTS.LOW_HEALTH_THRESHOLD
+  ) {
+    target.lowHealthTriggered = true;
+    checkAndFireTrigger(target, 'low_health', state, attacker);
   }
 }
 
-// Remove fainted pets and trigger faint abilities
+// ============================================================
+// Faint Processing
+// ============================================================
+
 function processFaints(state: BattleState): void {
-  const processTeam = (team: Pet[], enemyTeam: Pet[]): void => {
-    const faintedPets = team.filter((p) => p.currentHealth <= 0);
+  let hadFaints = true;
 
-    faintedPets.forEach((pet) => {
-      // Phoenix revive check
-      if (
-        pet.ability.trigger === 'onFaint' &&
-        pet.ability.effect === 'revive' &&
-        !pet.hasRevived
-      ) {
-        pet.currentHealth = getAbilityValue(pet);
-        pet.hasRevived = true;
-        addEvent(state, 'ability', pet.id, pet.id, pet.currentHealth, `${pet.name} revives with ${pet.currentHealth} HP`);
-        return;
-      }
+  // Loop to handle chain reactions (e.g. ally_dies triggers causing more faints)
+  while (hadFaints) {
+    hadFaints = false;
 
-      addEvent(state, 'faint', pet.id, null, 0, `${pet.name} faints`);
+    for (const team of [state.playerTeam, state.opponentTeam]) {
+      const enemyTeam = team === state.playerTeam ? state.opponentTeam : state.playerTeam;
+      const fainted = team.filter((c) => c.currentHealth <= 0);
 
-      // Trigger onFaint abilities
-      if (pet.ability.trigger === 'onFaint') {
-        triggerAbility(pet, state, null, enemyTeam);
-      }
+      for (const creature of fainted) {
+        hadFaints = true;
+        addEvent(state, 'faint', creature.id, null, 0, `${creature.name} faints`);
 
-      // Trigger onFriendFaint for allies
-      team.forEach((ally) => {
-        if (ally.id !== pet.id && ally.currentHealth > 0 && ally.ability.trigger === 'onFriendFaint') {
-          triggerAbility(ally, state, pet, enemyTeam);
+        // Spirit passive: summon Bone on faint
+        const spiritCount = team.filter((c) => c.type === 'Spirit' && isAlive(c)).length +
+          team.filter((c) => c.type === 'Spirit' && c.currentHealth <= 0 && c.id === creature.id).length;
+        if (creature.type === 'Spirit') {
+          const boneStats = getBoneStats(spiritCount);
+          if (boneStats) {
+            const bone = createBoneSummon(boneStats, creature, state);
+            const insertIdx = team.indexOf(creature);
+            team.splice(insertIdx + 1, 0, bone);
+            addEvent(state, 'summon', creature.id, bone.id, 0,
+              `${creature.name} summons a Bone (${bone.currentAttack}/${bone.currentHealth})`);
+          }
         }
-      });
 
-      // Trigger onEnemyFaint for enemies
-      enemyTeam.forEach((enemy) => {
-        if (enemy.currentHealth > 0 && enemy.ability.trigger === 'onEnemyFaint') {
-          triggerAbility(enemy, state, pet, team);
+        // Dessert passive: damage enemies on faint
+        const dessertCount = team.filter((c) => c.type === 'Dessert').length;
+        if (creature.type === 'Dessert') {
+          const dessertDamage = getDessertFaintDamage(dessertCount);
+          if (dessertDamage > 0) {
+            const livingEnemies = getLivingCreatures(enemyTeam);
+            if (dessertCount >= 5) {
+              // Damage all enemies
+              for (const enemy of livingEnemies) {
+                applyDamage(enemy, dessertDamage, state, creature);
+              }
+            } else if (livingEnemies.length > 0) {
+              // Damage random enemy
+              const randomEnemy = livingEnemies[Math.floor(Math.random() * livingEnemies.length)];
+              applyDamage(randomEnemy, dessertDamage, state, creature);
+            }
+          }
         }
-      });
-    });
 
-    // Remove dead pets (that didn't revive)
-    const deadPets = team.filter((p) => p.currentHealth <= 0);
-    deadPets.forEach((pet) => {
-      const index = team.indexOf(pet);
-      if (index > -1) {
-        team.splice(index, 1);
+        // Fire ally_dies triggers for living teammates
+        const livingAllies = team.filter((c) => isAlive(c) && c.id !== creature.id);
+        for (const ally of livingAllies) {
+          checkAndFireTrigger(ally, 'ally_dies', state, creature);
+        }
+
+        // Remove dead creature from team
+        const idx = team.indexOf(creature);
+        if (idx !== -1) team.splice(idx, 1);
       }
-    });
-  };
-
-  // Process both teams
-  processTeam(state.playerTeam, state.opponentTeam);
-  processTeam(state.opponentTeam, state.playerTeam);
+    }
+  }
 }
 
-// Main battle resolution
-export function resolveBattle(playerTeam: Pet[], opponentTeam: Pet[]): BattleResult {
-  // Clone teams
+function getBoneStats(spiritCount: number): { health: number; attack: number; speed: number } | null {
+  if (spiritCount >= 5) return SPIRIT_BONE_TEMPLATES[5];
+  if (spiritCount >= 3) return SPIRIT_BONE_TEMPLATES[3];
+  if (spiritCount >= 2) return SPIRIT_BONE_TEMPLATES[2];
+  return null;
+}
+
+function getDessertFaintDamage(dessertCount: number): number {
+  if (dessertCount >= 5) return 5;
+  if (dessertCount >= 3) return 3;
+  if (dessertCount >= 2) return 2;
+  return 0;
+}
+
+function createBoneSummon(
+  stats: { health: number; attack: number; speed: number },
+  summoner: Creature,
+  state: BattleState
+): Creature {
+  return {
+    id: `bone-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    templateId: 'bone',
+    name: 'Bone',
+    type: 'Spirit',
+    role: 'brawler',
+    shopTier: 0,
+    star: 1,
+    experience: 0,
+    baseAttack: stats.attack,
+    baseHealth: stats.health,
+    baseSpeed: stats.speed,
+    currentAttack: stats.attack,
+    currentHealth: stats.health,
+    currentSpeed: stats.speed,
+    maxHealth: stats.health,
+    position: summoner.position,
+    slotIndex: summoner.slotIndex,
+    teamIndex: summoner.teamIndex,
+    ability: {
+      name: 'None',
+      id: 'ability_bone',
+      trigger: 'passive',
+      description: 'No ability',
+      effects: [],
+    },
+    buffs: [],
+    battlesParticipated: 0,
+  };
+}
+
+// ============================================================
+// Tribe Passives (battle start)
+// ============================================================
+
+function applyTribePassives(team: Creature[]): void {
+  const tribeCounts: Record<string, number> = {};
+  for (const c of team) {
+    tribeCounts[c.type] = (tribeCounts[c.type] || 0) + 1;
+  }
+
+  // Flora: +HP to Flora creatures
+  const floraCount = tribeCounts['Flora'] || 0;
+  if (floraCount >= 2) {
+    const hpBonus = floraCount >= 3 ? 4 : 2;
+    for (const c of team) {
+      if (c.type === 'Flora') {
+        c.currentHealth += hpBonus;
+        c.maxHealth += hpBonus;
+      }
+    }
+  }
+
+  // Fauna: +ATK to Fauna creatures
+  const faunaCount = tribeCounts['Fauna'] || 0;
+  if (faunaCount >= 2) {
+    const atkBonus = faunaCount >= 5 ? 3 : faunaCount >= 3 ? 2 : 1;
+    for (const c of team) {
+      if (c.type === 'Fauna') {
+        c.currentAttack += atkBonus;
+      }
+    }
+  }
+}
+
+// ============================================================
+// Main Battle Resolution
+// ============================================================
+
+export function resolveBattle(playerTeam: Creature[], opponentTeam: Creature[]): BattleResult {
+  // 1. Clone both teams
   const state: BattleState = {
-    playerTeam: playerTeam.filter((p) => p !== null).map(clonePet),
-    opponentTeam: opponentTeam.filter((p) => p !== null).map(clonePet),
+    playerTeam: playerTeam.filter((c) => c !== null).map(cloneCreature),
+    opponentTeam: opponentTeam.filter((c) => c !== null).map(cloneCreature),
     events: [],
     timestamp: 0,
+    triggerDepth: 0,
   };
 
   addEvent(state, 'battleStart', null, null, 0, 'Battle begins!');
 
-  // Step 2: Trigger startOfBattle abilities (sorted by ATK, highest first)
-  const allPets = [...state.playerTeam, ...state.opponentTeam].sort(
-    (a, b) => getAttack(b) - getAttack(a)
-  );
+  // 2. Apply tribe passives
+  applyTribePassives(state.playerTeam);
+  applyTribePassives(state.opponentTeam);
 
-  allPets.forEach((pet) => {
-    if (pet.ability.trigger === 'startOfBattle') {
-      const enemyTeam = state.playerTeam.includes(pet) ? state.opponentTeam : state.playerTeam;
-      triggerAbility(pet, state, null, enemyTeam);
+  // 3. Fire position triggers (all creatures sorted by speed)
+  const allCreatures = [...state.playerTeam, ...state.opponentTeam]
+    .sort((a, b) => getEffectiveSpeed(b) - getEffectiveSpeed(a));
+
+  for (const creature of allCreatures) {
+    if (!isAlive(creature)) continue;
+    if (creature.position === 'frontline') {
+      checkAndFireTrigger(creature, 'frontline', state);
+    } else {
+      checkAndFireTrigger(creature, 'backline', state);
     }
-  });
-
-  // Process any faints from startOfBattle
-  processFaints(state);
-
-  // Step 3: Combat loop
-  let maxIterations = 100; // Safety limit
-  while (state.playerTeam.length > 0 && state.opponentTeam.length > 0 && maxIterations-- > 0) {
-    // Select attackers: rightmost player pet vs leftmost opponent pet
-    const playerAttacker = state.playerTeam[state.playerTeam.length - 1];
-    const opponentAttacker = state.opponentTeam[0];
-
-    // Trigger beforeAttack abilities
-    [playerAttacker, opponentAttacker].forEach((pet) => {
-      if (pet.ability.trigger === 'beforeAttack') {
-        const enemyTeam = state.playerTeam.includes(pet) ? state.opponentTeam : state.playerTeam;
-        triggerAbility(pet, state, null, enemyTeam);
-      }
-    });
-
-    // Apply damage simultaneously
-    const playerDamage = getAttack(playerAttacker);
-    const opponentDamage = getAttack(opponentAttacker);
-
-    addEvent(
-      state,
-      'attack',
-      playerAttacker.id,
-      opponentAttacker.id,
-      playerDamage,
-      `${playerAttacker.name} attacks ${opponentAttacker.name}`
-    );
-    addEvent(
-      state,
-      'attack',
-      opponentAttacker.id,
-      playerAttacker.id,
-      opponentDamage,
-      `${opponentAttacker.name} attacks ${playerAttacker.name}`
-    );
-
-    const playerResult = applyDamage(opponentAttacker, playerDamage, state, playerAttacker);
-    const opponentResult = applyDamage(playerAttacker, opponentDamage, state, opponentAttacker);
-
-    // Trigger onAttack abilities
-    [playerAttacker, opponentAttacker].forEach((pet) => {
-      if (pet.currentHealth > 0 && pet.ability.trigger === 'onAttack') {
-        const enemyTeam = state.playerTeam.includes(pet) ? state.opponentTeam : state.playerTeam;
-        triggerAbility(pet, state, null, enemyTeam);
-      }
-    });
-
-    // Trigger onFriendAttack abilities (Snake)
-    state.playerTeam.forEach((pet) => {
-      if (pet.id !== playerAttacker.id && pet.ability.trigger === 'onFriendAttack') {
-        triggerAbility(pet, state, playerAttacker, state.opponentTeam);
-      }
-    });
-    state.opponentTeam.forEach((pet) => {
-      if (pet.id !== opponentAttacker.id && pet.ability.trigger === 'onFriendAttack') {
-        triggerAbility(pet, state, opponentAttacker, state.playerTeam);
-      }
-    });
-
-    // Trigger afterAttack abilities
-    [playerAttacker, opponentAttacker].forEach((pet) => {
-      if (pet.currentHealth > 0 && pet.ability.trigger === 'afterAttack') {
-        const enemyTeam = state.playerTeam.includes(pet) ? state.opponentTeam : state.playerTeam;
-        triggerAbility(pet, state, null, enemyTeam);
-      }
-    });
-
-    // Handle kills and onKill abilities
-    if (playerResult.killed && playerAttacker.ability.trigger === 'onKill') {
-      triggerAbility(playerAttacker, state, opponentAttacker, state.opponentTeam);
-    }
-    if (opponentResult.killed && opponentAttacker.ability.trigger === 'onKill') {
-      triggerAbility(opponentAttacker, state, playerAttacker, state.playerTeam);
-    }
-
-    // Process faints
-    processFaints(state);
   }
 
-  // Step 4: Determine winner
+  // 4. Process faints from position triggers
+  processFaints(state);
+
+  // 5. Combat rounds
+  for (let round = 0; round < GAME_CONSTANTS.MAX_BATTLE_ROUNDS; round++) {
+    const livingPlayer = getLivingCreatures(state.playerTeam);
+    const livingOpponent = getLivingCreatures(state.opponentTeam);
+
+    if (livingPlayer.length === 0 || livingOpponent.length === 0) break;
+
+    addEvent(state, 'round_start', null, null, round + 1, `Round ${round + 1}`);
+
+    // 5a. Tick DoTs + buff durations
+    for (const creature of [...state.playerTeam, ...state.opponentTeam]) {
+      if (isAlive(creature)) {
+        tickBuffs(creature, state.events, state.timestamp++);
+      }
+    }
+
+    // 5b. Process faints from DoTs
+    processFaints(state);
+    if (getLivingCreatures(state.playerTeam).length === 0 || getLivingCreatures(state.opponentTeam).length === 0) break;
+
+    // 5c. Fire passive triggers
+    for (const creature of [...state.playerTeam, ...state.opponentTeam]) {
+      if (isAlive(creature)) {
+        checkAndFireTrigger(creature, 'passive', state);
+      }
+    }
+
+    // 5d. Process faints from passives
+    processFaints(state);
+    if (getLivingCreatures(state.playerTeam).length === 0 || getLivingCreatures(state.opponentTeam).length === 0) break;
+
+    // 5e. Build initiative queue
+    const allLiving = [
+      ...getLivingCreatures(state.playerTeam),
+      ...getLivingCreatures(state.opponentTeam),
+    ];
+
+    allLiving.sort((a, b) => {
+      const speedDiff = getEffectiveSpeed(b) - getEffectiveSpeed(a);
+      if (speedDiff !== 0) return speedDiff;
+      // Tiebreak: frontline > backline
+      const posA = a.position === 'frontline' ? 1 : 0;
+      const posB = b.position === 'frontline' ? 1 : 0;
+      if (posB !== posA) return posB - posA;
+      // Tiebreak: random
+      return Math.random() - 0.5;
+    });
+
+    addEvent(state, 'initiative', null, null, allLiving.length,
+      `Initiative: ${allLiving.map((c) => c.name).join(', ')}`);
+
+    // 5f. Each creature takes a turn
+    for (const attacker of allLiving) {
+      if (!isAlive(attacker)) continue;
+
+      const enemyTeam = getEnemyTeamFor(attacker, state);
+      const target = selectTarget(enemyTeam);
+      if (!target) continue;
+
+      // Attack
+      const damage = getEffectiveAttack(attacker);
+      addEvent(state, 'attack', attacker.id, target.id, damage,
+        `${attacker.name} attacks ${target.name} for ${damage}`);
+
+      applyDamage(target, damage, state, attacker);
+
+      // Check for kill
+      if (!isAlive(target)) {
+        checkAndFireTrigger(attacker, 'on_kill', state, target);
+      }
+
+      // Process faints after each attack
+      processFaints(state);
+
+      if (getLivingCreatures(state.playerTeam).length === 0 || getLivingCreatures(state.opponentTeam).length === 0) break;
+    }
+  }
+
+  // 6. Determine winner
+  const livingPlayer = getLivingCreatures(state.playerTeam);
+  const livingOpponent = getLivingCreatures(state.opponentTeam);
+
   let winner: 'player' | 'opponent' | 'draw';
   let damageDealt = 0;
 
-  if (state.playerTeam.length > 0 && state.opponentTeam.length === 0) {
+  if (livingPlayer.length > 0 && livingOpponent.length === 0) {
     winner = 'player';
-    damageDealt = state.playerTeam.reduce((sum, pet) => sum + pet.tier, 0);
-  } else if (state.opponentTeam.length > 0 && state.playerTeam.length === 0) {
+    damageDealt = livingPlayer.reduce((sum, c) => sum + c.shopTier, 0);
+  } else if (livingOpponent.length > 0 && livingPlayer.length === 0) {
     winner = 'opponent';
-    damageDealt = state.opponentTeam.reduce((sum, pet) => sum + pet.tier, 0);
+    damageDealt = livingOpponent.reduce((sum, c) => sum + c.shopTier, 0);
   } else {
     winner = 'draw';
   }
 
-  addEvent(
-    state,
-    'battleEnd',
-    null,
-    null,
-    damageDealt,
-    winner === 'draw' ? 'Battle ends in a draw!' : `${winner === 'player' ? 'Player' : 'Opponent'} wins!`
-  );
+  addEvent(state, 'battleEnd', null, null, damageDealt,
+    winner === 'draw' ? 'Battle ends in a draw!' : `${winner === 'player' ? 'Player' : 'Opponent'} wins!`);
 
   return {
     winner,
-    playerTeamRemaining: state.playerTeam,
-    opponentTeamRemaining: state.opponentTeam,
+    playerTeamRemaining: livingPlayer,
+    opponentTeamRemaining: livingOpponent,
     events: state.events,
     damageDealt,
   };
 }
 
-// Increment battles participated for all pets after battle
-export function incrementBattlesParticipated(team: (Pet | null)[]): void {
-  team.forEach((pet) => {
-    if (pet) {
-      pet.battlesParticipated++;
+/**
+ * Increment battles participated for all creatures after battle.
+ */
+export function incrementBattlesParticipated(team: (Creature | null)[]): void {
+  team.forEach((creature) => {
+    if (creature) {
+      creature.battlesParticipated++;
     }
   });
 }

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import type { Player } from '@/types';
-import type { TeamSnapshotWithProfile, MatchmakingResult, UserProfile, SerializedPet } from '@/types/multiplayer';
+import type { TeamSnapshotWithProfile, MatchmakingResult, UserProfile, SerializedCreature } from '@/types/multiplayer';
 import { deserializeTeam } from './teamSerializer';
 import { generateOpponent } from '@/game/opponent';
 
@@ -78,7 +78,7 @@ async function findRealOpponent(
         run_id: match.run_id,
         player_id: match.player_id,
         turn: match.turn,
-        team_data: match.team_data as SerializedPet[],
+        team_data: match.team_data as SerializedCreature[],
         team_power: match.team_power,
         mmr_at_snapshot: match.mmr_at_snapshot,
         created_at: match.created_at,

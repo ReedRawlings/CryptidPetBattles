@@ -1,0 +1,325 @@
+{
+  "_metadata": {
+    "version": "1.0",
+    "description": "Ability matrix tracker: 11 effects x 9 triggers = 99 possible slots, 67 viable, 42 assigned to creatures",
+    "lastUpdated": "2026-02-05",
+    "totalSlots": 99,
+    "viableSlots": 67,
+    "assignedSlots": 42,
+    "remainingSlots": 25
+  },
+
+  "triggers": {
+    "frontline": {
+      "id": "frontline",
+      "name": "Battle Start (Frontline)",
+      "description": "Triggers when creature is placed in frontline position at battle start",
+      "timing": "Immediately when battle begins"
+    },
+    "backline": {
+      "id": "backline",
+      "name": "Battle Start (Backline)",
+      "description": "Triggers when creature is placed in backline position at battle start",
+      "timing": "Immediately when battle begins"
+    },
+    "on_placement": {
+      "id": "on_placement",
+      "name": "On Placement",
+      "description": "Triggers when creature is placed on the field",
+      "timing": "During prep phase or mid-battle swap"
+    },
+    "on_buff": {
+      "id": "on_buff",
+      "name": "On Buff",
+      "description": "Triggers when creature gains a buff effect",
+      "timing": "Whenever any buff is applied to this creature"
+    },
+    "on_debuff": {
+      "id": "on_debuff",
+      "name": "On Debuff",
+      "description": "Triggers when creature gains a debuff effect",
+      "timing": "Whenever any debuff is applied to this creature"
+    },
+    "on_kill": {
+      "id": "on_kill",
+      "name": "On Kill",
+      "description": "Triggers when creature kills an enemy",
+      "timing": "Immediately after enemy reaches 0 HP"
+    },
+    "ally_dies": {
+      "id": "ally_dies",
+      "name": "Ally Dies",
+      "description": "Triggers when any allied creature dies",
+      "timing": "When any ally reaches 0 HP"
+    },
+    "passive": {
+      "id": "passive",
+      "name": "Passive",
+      "description": "Always active, triggers every turn or per attack",
+      "timing": "Continuous"
+    },
+    "low_health": {
+      "id": "low_health",
+      "name": "Low Health",
+      "description": "Triggers when creature's health drops below threshold",
+      "timing": "When health < specified percent"
+    }
+  },
+
+  "effects": {
+    "increase_damage": {
+      "id": "increase_damage",
+      "name": "Increase Damage",
+      "description": "Increase ATK stat",
+      "scaling": "Flat value (+1 ATK, +2 ATK, etc.)",
+      "duration": "Permanent or this combat"
+    },
+    "weaken": {
+      "id": "weaken",
+      "name": "Weaken",
+      "description": "Apply ATK debuff to enemies",
+      "scaling": "Flat reduction",
+      "affects": "Target enemies",
+      "stackable": true
+    },
+    "thorns": {
+      "id": "thorns",
+      "name": "Thorns",
+      "description": "Reflect damage back to attackers",
+      "scaling": "Amount reflected per hit",
+      "stackable": true
+    },
+    "aoe": {
+      "id": "aoe",
+      "name": "AoE Damage",
+      "description": "Hit all/multiple enemies in area",
+      "variants": ["column", "cone", "all"],
+      "scaling": "Damage based on attack stat"
+    },
+    "dot": {
+      "id": "dot",
+      "name": "Damage Over Time",
+      "description": "Damage over time effect (bleed, burn, poison)",
+      "variants": ["bleed", "burn", "poison"],
+      "scaling": "Damage per second or per round"
+    },
+    "taunt": {
+      "id": "taunt",
+      "name": "Taunt",
+      "description": "Force enemies to attack this unit",
+      "duration": "Number of turns",
+      "stackable": false
+    },
+    "slow": {
+      "id": "slow",
+      "name": "Slow",
+      "description": "Reduce attack speed (speed debuff)",
+      "scaling": "Percent or flat reduction",
+      "affects": "Target enemies",
+      "stackable": true
+    },
+    "haste": {
+      "id": "haste",
+      "name": "Haste",
+      "description": "Increase attack speed (speed buff)",
+      "scaling": "Stacking +1 per application",
+      "affects": "Self or allies",
+      "stackable": true
+    },
+    "cleanse_dot": {
+      "id": "cleanse_dot",
+      "name": "Cleanse DoT",
+      "description": "Remove DoT effects (bleed, burn, poison)",
+      "scope": "Single target or AoE",
+      "removes": "Bleed, Burn, Poison only"
+    },
+    "cleanse_aoe": {
+      "id": "cleanse_aoe",
+      "name": "Cleanse CC",
+      "description": "Remove AoE crowd control effects",
+      "scope": "Single target or AoE",
+      "removes": "Taunt, Slow, Stun, other CC"
+    },
+    "increase_health": {
+      "id": "increase_health",
+      "name": "Increase Health",
+      "description": "Restore health or grant temporary health",
+      "scaling": "Flat amount or percent of max HP",
+      "affects": "Self or target ally",
+      "stackable": true
+    }
+  },
+
+  "matrix": {
+    "increase_damage": {
+      "frontline":    { "available": true,  "description": "Gain ATK buff when placed in frontline at battle start", "assignedTo": "sharkdog", "assignedCreatureName": "Sharkdog", "assignedTribe": "Flora", "assignedRole": "Brawler" },
+      "backline":     { "available": true,  "description": "Gain ATK buff when placed in backline at battle start", "assignedTo": "road_rage", "assignedCreatureName": "Road Rage", "assignedTribe": "Kami", "assignedRole": "Brawler" },
+      "on_placement": { "available": true,  "description": "Gain ATK buff when placed on the field", "assignedTo": "boxing_cherries", "assignedCreatureName": "Boxing Cherries", "assignedTribe": "Dessert", "assignedRole": "Brawler" },
+      "on_buff":      { "available": true,  "description": "Gain ATK buff when receiving a buff", "assignedTo": "expresso", "assignedCreatureName": "Expresso", "assignedTribe": "Kami", "assignedRole": "Assassin" },
+      "on_debuff":    { "available": true,  "description": "Gain ATK buff when receiving a debuff", "assignedTo": "von_fish", "assignedCreatureName": "Von Fish", "assignedTribe": "Flora", "assignedRole": "Brawler" },
+      "on_kill":      { "available": true,  "description": "Gain ATK buff when killing an enemy", "assignedTo": "jacket", "assignedCreatureName": "Jacket", "assignedTribe": "Spirit", "assignedRole": "Brawler" },
+      "ally_dies":    { "available": true,  "description": "Gain ATK buff when an ally dies", "assignedTo": "jaws_dog", "assignedCreatureName": "Jaws Dog", "assignedTribe": "Flora", "assignedRole": "Brawler" },
+      "passive":      { "available": true,  "description": "Passively gain ATK each turn", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "low_health":   { "available": true,  "description": "Gain ATK buff when health drops low", "assignedTo": "pampkin", "assignedCreatureName": "Pampkin", "assignedTribe": "Fauna", "assignedRole": "Brawler" }
+    },
+    "weaken": {
+      "frontline":    { "available": true,  "description": "Weaken frontline enemies at battle start", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "backline":     { "available": true,  "description": "Weaken backline enemies at battle start", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_placement": { "available": true,  "description": "Weaken nearby enemies when placed", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_buff":      { "available": true,  "description": "Weaken enemies when receiving a buff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_debuff":    { "available": true,  "description": "Weaken enemies when receiving a debuff", "assignedTo": "mimicuter", "assignedCreatureName": "Mimicuter", "assignedTribe": "Kami", "assignedRole": "Assassin" },
+      "on_kill":      { "available": true,  "description": "Weaken enemies when killing", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "ally_dies":    { "available": true,  "description": "Weaken enemies when an ally dies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "passive":      { "available": true,  "description": "Passively weaken enemies each turn", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "low_health":   { "available": true,  "description": "Weaken enemies when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    },
+    "thorns": {
+      "frontline":    { "available": true,  "description": "Gain thorns when placed in frontline", "assignedTo": "bvr", "assignedCreatureName": "BVR", "assignedTribe": "Flora", "assignedRole": "Tank" },
+      "backline":     { "available": false, "description": "N/A - Thorns not useful in backline", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_placement": { "available": true,  "description": "Gain thorns when placed on the field", "assignedTo": "cacti_in_pain", "assignedCreatureName": "Cacti in Pain", "assignedTribe": "Fauna", "assignedRole": "Tank" },
+      "on_buff":      { "available": true,  "description": "Gain thorns when receiving a buff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_debuff":    { "available": true,  "description": "Gain thorns when receiving a debuff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_kill":      { "available": true,  "description": "Gain thorns after killing an enemy", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "ally_dies":    { "available": true,  "description": "Gain thorns when an ally dies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "passive":      { "available": true,  "description": "Passively reflect damage back to attackers", "assignedTo": "funny_bones", "assignedCreatureName": "Funny Bones", "assignedTribe": "Spirit", "assignedRole": "Tank" },
+      "low_health":   { "available": true,  "description": "Gain thorns when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    },
+    "aoe": {
+      "frontline":    { "available": true,  "description": "AoE damage to enemies when placed in frontline", "assignedTo": "paincakes", "assignedCreatureName": "Paincakes", "assignedTribe": "Dessert", "assignedRole": "Mage" },
+      "backline":     { "available": true,  "description": "AoE damage to enemies when placed in backline", "assignedTo": "shadow", "assignedCreatureName": "Shadow", "assignedTribe": "Spirit", "assignedRole": "Mage" },
+      "on_placement": { "available": true,  "description": "AoE damage when placed on the field", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_buff":      { "available": true,  "description": "AoE damage when receiving a buff", "assignedTo": "kyng_wyrm", "assignedCreatureName": "Kyng Wyrm", "assignedTribe": "Flora", "assignedRole": "Mage" },
+      "on_debuff":    { "available": true,  "description": "AoE damage when receiving a debuff", "assignedTo": "hegg", "assignedCreatureName": "Hegg", "assignedTribe": "Dessert", "assignedRole": "Mage" },
+      "on_kill":      { "available": true,  "description": "AoE damage when killing an enemy", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "ally_dies":    { "available": true,  "description": "AoE damage when an ally dies", "assignedTo": "puff", "assignedCreatureName": "Puff", "assignedTribe": "Kami", "assignedRole": "Mage" },
+      "passive":      { "available": true,  "description": "Passively deal AoE damage each turn", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "low_health":   { "available": true,  "description": "AoE damage when health drops low", "assignedTo": "trippy", "assignedCreatureName": "Trippy", "assignedTribe": "Fauna", "assignedRole": "Mage" }
+    },
+    "dot": {
+      "frontline":    { "available": true,  "description": "Apply DoT to enemies when placed in frontline", "assignedTo": "char", "assignedCreatureName": "Char", "assignedTribe": "Kami", "assignedRole": "Mage" },
+      "backline":     { "available": true,  "description": "Apply DoT to enemies from backline", "assignedTo": "spiderlight", "assignedCreatureName": "Spiderlight", "assignedTribe": "Flora", "assignedRole": "Assassin" },
+      "on_placement": { "available": true,  "description": "Apply DoT when placed on the field", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_buff":      { "available": true,  "description": "Apply DoT to enemies when receiving a buff", "assignedTo": "sharnut", "assignedCreatureName": "Sharnut", "assignedTribe": "Dessert", "assignedRole": "Assassin" },
+      "on_debuff":    { "available": true,  "description": "Apply DoT to enemies when receiving a debuff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_kill":      { "available": true,  "description": "Apply DoT to enemies when killing", "assignedTo": "reapa", "assignedCreatureName": "Reapa", "assignedTribe": "Spirit", "assignedRole": "Assassin" },
+      "ally_dies":    { "available": true,  "description": "Apply DoT to enemies when an ally dies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "passive":      { "available": true,  "description": "Passively apply DoT to enemies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "low_health":   { "available": true,  "description": "Apply DoT when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    },
+    "taunt": {
+      "frontline":    { "available": true,  "description": "Gain taunt when placed in frontline", "assignedTo": "saturn_snail", "assignedCreatureName": "Saturn Snail", "assignedTribe": "Flora", "assignedRole": "Tank" },
+      "backline":     { "available": false, "description": "N/A - Taunt not useful in backline", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_placement": { "available": true,  "description": "Gain taunt when placed on the field", "assignedTo": "matt", "assignedCreatureName": "Matt", "assignedTribe": "Kami", "assignedRole": "Tank" },
+      "on_buff":      { "available": true,  "description": "Gain taunt when receiving a buff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_debuff":    { "available": true,  "description": "Gain taunt when receiving a debuff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_kill":      { "available": true,  "description": "Gain taunt after killing an enemy", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "ally_dies":    { "available": true,  "description": "Gain taunt when an ally dies", "assignedTo": "yokai", "assignedCreatureName": "Yokai", "assignedTribe": "Spirit", "assignedRole": "Tank" },
+      "passive":      { "available": true,  "description": "Passively taunt enemies", "assignedTo": "kawaiiburger", "assignedCreatureName": "KawaiiBurger", "assignedTribe": "Dessert", "assignedRole": "Tank" },
+      "low_health":   { "available": true,  "description": "Gain taunt when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    },
+    "slow": {
+      "frontline":    { "available": true,  "description": "Slow enemies when placed in frontline", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "backline":     { "available": true,  "description": "Slow enemies from backline", "assignedTo": "rope_snake", "assignedCreatureName": "Rope Snake", "assignedTribe": "Flora", "assignedRole": "Assassin" },
+      "on_placement": { "available": true,  "description": "Slow enemies when placed on the field", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_buff":      { "available": true,  "description": "Slow enemies when receiving a buff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_debuff":    { "available": true,  "description": "Slow enemies when receiving a debuff", "assignedTo": "man_eating_vines", "assignedCreatureName": "Man Eating Vines", "assignedTribe": "Fauna", "assignedRole": "Assassin" },
+      "on_kill":      { "available": true,  "description": "Slow enemies when killing", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "ally_dies":    { "available": true,  "description": "Slow enemies when an ally dies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "passive":      { "available": true,  "description": "Passively slow enemies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "low_health":   { "available": true,  "description": "Slow enemies when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    },
+    "haste": {
+      "frontline":    { "available": true,  "description": "Gain haste when placed in frontline", "assignedTo": "daisy_buff", "assignedCreatureName": "Daisy Buff", "assignedTribe": "Fauna", "assignedRole": "Support" },
+      "backline":     { "available": true,  "description": "Gain haste when placed in backline", "assignedTo": "strudecles", "assignedCreatureName": "Strudecles", "assignedTribe": "Dessert", "assignedRole": "Brawler" },
+      "on_placement": { "available": true,  "description": "Gain haste when placed on the field", "assignedTo": "zaboo", "assignedCreatureName": "Zaboo", "assignedTribe": "Flora", "assignedRole": "Support" },
+      "on_buff":      { "available": true,  "description": "Gain haste when receiving a buff", "assignedTo": "party_cacti", "assignedCreatureName": "Party Cacti", "assignedTribe": "Fauna", "assignedRole": "Support" },
+      "on_debuff":    { "available": true,  "description": "Gain haste when receiving a debuff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_kill":      { "available": true,  "description": "Gain haste when killing an enemy", "assignedTo": "routa", "assignedCreatureName": "Routa", "assignedTribe": "Kami", "assignedRole": "Brawler" },
+      "ally_dies":    { "available": true,  "description": "Gain haste when an ally dies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "passive":      { "available": true,  "description": "Passively gain haste", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "low_health":   { "available": true,  "description": "Gain haste when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    },
+    "cleanse_dot": {
+      "frontline":    { "available": true,  "description": "Cleanse DoTs from allies when placed in frontline", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "backline":     { "available": true,  "description": "Cleanse DoTs from allies from backline", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_placement": { "available": true,  "description": "Cleanse DoTs from allies when placed", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_buff":      { "available": true,  "description": "Cleanse DoTs when receiving a buff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_debuff":    { "available": true,  "description": "Cleanse DoTs when receiving a debuff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_kill":      { "available": true,  "description": "Cleanse DoTs when killing an enemy", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "ally_dies":    { "available": true,  "description": "Cleanse DoTs when an ally dies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "passive":      { "available": true,  "description": "Passively cleanse DoTs from allies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "low_health":   { "available": true,  "description": "Cleanse DoTs when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    },
+    "cleanse_aoe": {
+      "frontline":    { "available": true,  "description": "Cleanse CC from allies when placed in frontline", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "backline":     { "available": true,  "description": "Cleanse CC from allies from backline", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_placement": { "available": true,  "description": "Cleanse CC from allies when placed", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_buff":      { "available": true,  "description": "Cleanse CC from allies when receiving a buff", "assignedTo": "urny", "assignedCreatureName": "Urny", "assignedTribe": "Kami", "assignedRole": "Support" },
+      "on_debuff":    { "available": true,  "description": "Cleanse CC from allies when receiving a debuff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_kill":      { "available": true,  "description": "Cleanse CC when killing an enemy", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "ally_dies":    { "available": true,  "description": "Cleanse CC from allies when an ally dies", "assignedTo": "butterfly", "assignedCreatureName": "Butterfly", "assignedTribe": "Dessert", "assignedRole": "Support" },
+      "passive":      { "available": true,  "description": "Passively cleanse CC from allies", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "low_health":   { "available": true,  "description": "Cleanse CC when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    },
+    "increase_health": {
+      "frontline":    { "available": true,  "description": "Gain HP when placed in frontline", "assignedTo": "panda", "assignedCreatureName": "Panda", "assignedTribe": "Flora", "assignedRole": "Tank" },
+      "backline":     { "available": true,  "description": "Heal allies from backline", "assignedTo": "vndr", "assignedCreatureName": "VNDR", "assignedTribe": "Kami", "assignedRole": "Support" },
+      "on_placement": { "available": true,  "description": "Gain HP when placed on the field", "assignedTo": "toasta", "assignedCreatureName": "Toasta", "assignedTribe": "Kami", "assignedRole": "Tank" },
+      "on_buff":      { "available": true,  "description": "Gain HP when receiving a buff", "assignedTo": "off_the_foot", "assignedCreatureName": "Off the Foot", "assignedTribe": "Kami", "assignedRole": "Support" },
+      "on_debuff":    { "available": true,  "description": "Gain HP when receiving a debuff", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null },
+      "on_kill":      { "available": true,  "description": "Gain HP when killing an enemy", "assignedTo": "three_cream", "assignedCreatureName": "Three Cream", "assignedTribe": "Dessert", "assignedRole": "Support" },
+      "ally_dies":    { "available": true,  "description": "Gain HP when an ally dies", "assignedTo": "egg_bird", "assignedCreatureName": "Egg Bird", "assignedTribe": "Flora", "assignedRole": "Support" },
+      "passive":      { "available": true,  "description": "Passively regenerate HP", "assignedTo": "ghost", "assignedCreatureName": "Ghost", "assignedTribe": "Spirit", "assignedRole": "Support" },
+      "low_health":   { "available": true,  "description": "Gain HP when health drops low", "assignedTo": null, "assignedCreatureName": null, "assignedTribe": null, "assignedRole": null }
+    }
+  },
+
+  "assignments": [
+    { "creatureId": "jacket", "creatureName": "Jacket", "tribe": "Spirit", "role": "Brawler", "shopTier": 1, "effect": "increase_damage", "trigger": "on_kill" },
+    { "creatureId": "ghost", "creatureName": "Ghost", "tribe": "Spirit", "role": "Support", "shopTier": 1, "effect": "increase_health", "trigger": "passive" },
+    { "creatureId": "funny_bones", "creatureName": "Funny Bones", "tribe": "Spirit", "role": "Tank", "shopTier": 2, "effect": "thorns", "trigger": "passive" },
+    { "creatureId": "reapa", "creatureName": "Reapa", "tribe": "Spirit", "role": "Assassin", "shopTier": 2, "effect": "dot", "trigger": "on_kill" },
+    { "creatureId": "shadow", "creatureName": "Shadow", "tribe": "Spirit", "role": "Mage", "shopTier": 3, "effect": "aoe", "trigger": "backline" },
+    { "creatureId": "yokai", "creatureName": "Yokai", "tribe": "Spirit", "role": "Tank", "shopTier": 3, "effect": "taunt", "trigger": "ally_dies" },
+
+    { "creatureId": "sharkdog", "creatureName": "Sharkdog", "tribe": "Flora", "role": "Brawler", "shopTier": 1, "effect": "increase_damage", "trigger": "frontline" },
+    { "creatureId": "zaboo", "creatureName": "Zaboo", "tribe": "Flora", "role": "Support", "shopTier": 1, "effect": "haste", "trigger": "on_placement" },
+    { "creatureId": "bvr", "creatureName": "BVR", "tribe": "Flora", "role": "Tank", "shopTier": 1, "effect": "thorns", "trigger": "frontline" },
+    { "creatureId": "spiderlight", "creatureName": "Spiderlight", "tribe": "Flora", "role": "Assassin", "shopTier": 2, "effect": "dot", "trigger": "backline" },
+    { "creatureId": "saturn_snail", "creatureName": "Saturn Snail", "tribe": "Flora", "role": "Tank", "shopTier": 2, "effect": "taunt", "trigger": "frontline" },
+    { "creatureId": "kyng_wyrm", "creatureName": "Kyng Wyrm", "tribe": "Flora", "role": "Mage", "shopTier": 2, "effect": "aoe", "trigger": "on_buff" },
+    { "creatureId": "von_fish", "creatureName": "Von Fish", "tribe": "Flora", "role": "Brawler", "shopTier": 3, "effect": "increase_damage", "trigger": "on_debuff" },
+    { "creatureId": "panda", "creatureName": "Panda", "tribe": "Flora", "role": "Tank", "shopTier": 3, "effect": "increase_health", "trigger": "frontline" },
+    { "creatureId": "rope_snake", "creatureName": "Rope Snake", "tribe": "Flora", "role": "Assassin", "shopTier": 3, "effect": "slow", "trigger": "backline" },
+    { "creatureId": "egg_bird", "creatureName": "Egg Bird", "tribe": "Flora", "role": "Support", "shopTier": 4, "effect": "increase_health", "trigger": "ally_dies" },
+    { "creatureId": "jaws_dog", "creatureName": "Jaws Dog", "tribe": "Flora", "role": "Brawler", "shopTier": 4, "effect": "increase_damage", "trigger": "ally_dies" },
+
+    { "creatureId": "daisy_buff", "creatureName": "Daisy Buff", "tribe": "Fauna", "role": "Support", "shopTier": 1, "effect": "haste", "trigger": "frontline" },
+    { "creatureId": "cacti_in_pain", "creatureName": "Cacti in Pain", "tribe": "Fauna", "role": "Tank", "shopTier": 1, "effect": "thorns", "trigger": "on_placement" },
+    { "creatureId": "party_cacti", "creatureName": "Party Cacti", "tribe": "Fauna", "role": "Support", "shopTier": 2, "effect": "haste", "trigger": "on_buff" },
+    { "creatureId": "man_eating_vines", "creatureName": "Man Eating Vines", "tribe": "Fauna", "role": "Assassin", "shopTier": 2, "effect": "slow", "trigger": "on_debuff" },
+    { "creatureId": "trippy", "creatureName": "Trippy", "tribe": "Fauna", "role": "Mage", "shopTier": 3, "effect": "aoe", "trigger": "low_health" },
+    { "creatureId": "pampkin", "creatureName": "Pampkin", "tribe": "Fauna", "role": "Brawler", "shopTier": 3, "effect": "increase_damage", "trigger": "low_health" },
+
+    { "creatureId": "toasta", "creatureName": "Toasta", "tribe": "Kami", "role": "Tank", "shopTier": 1, "effect": "increase_health", "trigger": "on_placement" },
+    { "creatureId": "urny", "creatureName": "Urny", "tribe": "Kami", "role": "Support", "shopTier": 1, "effect": "cleanse_aoe", "trigger": "on_buff" },
+    { "creatureId": "expresso", "creatureName": "Expresso", "tribe": "Kami", "role": "Assassin", "shopTier": 1, "effect": "increase_damage", "trigger": "on_buff" },
+    { "creatureId": "char", "creatureName": "Char", "tribe": "Kami", "role": "Mage", "shopTier": 2, "effect": "dot", "trigger": "frontline" },
+    { "creatureId": "road_rage", "creatureName": "Road Rage", "tribe": "Kami", "role": "Brawler", "shopTier": 2, "effect": "increase_damage", "trigger": "backline" },
+    { "creatureId": "matt", "creatureName": "Matt", "tribe": "Kami", "role": "Tank", "shopTier": 2, "effect": "taunt", "trigger": "on_placement" },
+    { "creatureId": "puff", "creatureName": "Puff", "tribe": "Kami", "role": "Mage", "shopTier": 3, "effect": "aoe", "trigger": "ally_dies" },
+    { "creatureId": "routa", "creatureName": "Routa", "tribe": "Kami", "role": "Brawler", "shopTier": 3, "effect": "haste", "trigger": "on_kill" },
+    { "creatureId": "off_the_foot", "creatureName": "Off the Foot", "tribe": "Kami", "role": "Support", "shopTier": 3, "effect": "increase_health", "trigger": "on_buff" },
+    { "creatureId": "mimicuter", "creatureName": "Mimicuter", "tribe": "Kami", "role": "Assassin", "shopTier": 4, "effect": "weaken", "trigger": "on_debuff" },
+    { "creatureId": "vndr", "creatureName": "VNDR", "tribe": "Kami", "role": "Support", "shopTier": 4, "effect": "increase_health", "trigger": "backline" },
+
+    { "creatureId": "boxing_cherries", "creatureName": "Boxing Cherries", "tribe": "Dessert", "role": "Brawler", "shopTier": 1, "effect": "increase_damage", "trigger": "on_placement" },
+    { "creatureId": "three_cream", "creatureName": "Three Cream", "tribe": "Dessert", "role": "Support", "shopTier": 1, "effect": "increase_health", "trigger": "on_kill" },
+    { "creatureId": "paincakes", "creatureName": "Paincakes", "tribe": "Dessert", "role": "Mage", "shopTier": 2, "effect": "aoe", "trigger": "frontline" },
+    { "creatureId": "kawaiiburger", "creatureName": "KawaiiBurger", "tribe": "Dessert", "role": "Tank", "shopTier": 2, "effect": "taunt", "trigger": "passive" },
+    { "creatureId": "sharnut", "creatureName": "Sharnut", "tribe": "Dessert", "role": "Assassin", "shopTier": 3, "effect": "dot", "trigger": "on_buff" },
+    { "creatureId": "butterfly", "creatureName": "Butterfly", "tribe": "Dessert", "role": "Support", "shopTier": 3, "effect": "cleanse_aoe", "trigger": "ally_dies" },
+    { "creatureId": "strudecles", "creatureName": "Strudecles", "tribe": "Dessert", "role": "Brawler", "shopTier": 4, "effect": "haste", "trigger": "backline" },
+    { "creatureId": "hegg", "creatureName": "Hegg", "tribe": "Dessert", "role": "Mage", "shopTier": 4, "effect": "aoe", "trigger": "on_debuff" }
+  ]
+}

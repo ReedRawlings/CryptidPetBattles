@@ -51,33 +51,30 @@
   color: var(--color-text-dim);
 }
 
-.battle-result__pets-wrapper {
+.battle-result__formation {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
+}
+
+.battle-result__row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
   justify-content: center;
 }
 
-.battle-result__position {
+.battle-result__row-label {
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   white-space: nowrap;
-}
-
-.battle-result__position--back {
+  min-width: 36px;
   color: var(--color-text-dim);
 }
 
-.battle-result__position--front {
+.battle-result__row-label--front {
   color: var(--color-primary);
-}
-
-.battle-result__pets {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
 }
 
 .battle-result__pet-slot {
@@ -106,10 +103,10 @@
 }
 
 .battle-result__empty-slot {
-  width: 80px;
-  height: 100px;
+  width: 64px;
+  height: 64px;
   border: 2px dashed var(--color-text-dim);
-  border-radius: 12px;
+  border-radius: 8px;
   opacity: 0.3;
 }
 

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from 'react';
-import { GameState, Pet, Player, GAME_CONSTANTS } from '../types';
-import { generateShop, rollShop, buyPet, sellPet, applyFood, swapPets, combinePets, toggleFreeze } from './shop';
+import { GameState, Creature, Player, GAME_CONSTANTS } from '../types';
+import { generateShop, rollShop, buyCreature, sellCreature, swapCreatures, combineCreatures, toggleFreeze } from './shop';
 import { resolveBattle, incrementBattlesParticipated } from './battle';
 import { generateOpponent } from './opponent';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,7 +19,6 @@ import type { MultiplayerState } from '@/types/multiplayer';
 // Extended game state with multiplayer
 interface ExtendedGameState extends GameState {
   multiplayer: MultiplayerState;
-  // Track opponent info for MMR updates
   currentOpponentMmr: number;
   currentOpponentSnapshotId: string | null;
   currentOpponentPlayerId: string | null;
@@ -29,19 +28,17 @@ interface ExtendedGameState extends GameState {
 // Action types
 type GameAction =
   | { type: 'START_GAME'; mode: 'arena' | 'versus' }
-  | { type: 'BUY_PET'; shopIndex: number; teamIndex: number }
-  | { type: 'SELL_PET'; teamIndex: number }
-  | { type: 'APPLY_FOOD'; foodIndex: number; teamIndex: number }
+  | { type: 'BUY_CREATURE'; shopIndex: number; teamIndex: number }
+  | { type: 'SELL_CREATURE'; teamIndex: number }
   | { type: 'ROLL_SHOP' }
-  | { type: 'SWAP_PETS'; indexA: number; indexB: number }
-  | { type: 'COMBINE_PETS'; sourceIndex: number; targetIndex: number }
+  | { type: 'SWAP_CREATURES'; indexA: number; indexB: number }
+  | { type: 'COMBINE_CREATURES'; sourceIndex: number; targetIndex: number }
   | { type: 'TOGGLE_FREEZE'; shopIndex: number }
   | { type: 'END_TURN' }
   | { type: 'START_BATTLE' }
   | { type: 'COMPLETE_BATTLE' }
   | { type: 'NEXT_TURN' }
   | { type: 'RESET_GAME' }
-  // Multiplayer actions
   | { type: 'SET_MULTIPLAYER_STATE'; state: Partial<MultiplayerState> }
   | { type: 'SET_MATCHED_OPPONENT'; opponent: Player; mmr: number; snapshotId: string | null; playerId: string | null; isReal: boolean }
   | { type: 'RESTORE_GAME'; state: Partial<ExtendedGameState> };
@@ -64,7 +61,6 @@ function createInitialState(): ExtendedGameState {
     currentOpponent: null,
     lastBattleResult: null,
     gameMode: 'arena',
-    // Multiplayer state
     multiplayer: {
       isAuthenticated: false,
       isMultiplayerEnabled: false,
@@ -88,7 +84,6 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
       return {
         ...initialState,
         gameMode: action.mode,
-        // Preserve multiplayer authentication state
         multiplayer: {
           ...initialState.multiplayer,
           isAuthenticated: state.multiplayer.isAuthenticated,
@@ -125,12 +120,12 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
       };
     }
 
-    case 'BUY_PET': {
-      if (state.player.gold < GAME_CONSTANTS.PET_BUY_COST) {
+    case 'BUY_CREATURE': {
+      if (state.player.gold < GAME_CONSTANTS.CREATURE_BUY_COST) {
         return state;
       }
 
-      const result = buyPet(
+      const result = buyCreature(
         state.shop,
         action.shopIndex,
         state.player.team,
@@ -147,13 +142,13 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
         player: {
           ...state.player,
           team: result.updatedTeam,
-          gold: state.player.gold - GAME_CONSTANTS.PET_BUY_COST,
+          gold: state.player.gold - GAME_CONSTANTS.CREATURE_BUY_COST,
         },
       };
     }
 
-    case 'SELL_PET': {
-      const result = sellPet(state.player.team, action.teamIndex);
+    case 'SELL_CREATURE': {
+      const result = sellCreature(state.player.team, action.teamIndex);
 
       if (!result.success) {
         return state;
@@ -165,33 +160,6 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
           ...state.player,
           team: result.updatedTeam,
           gold: state.player.gold + result.goldGained,
-        },
-      };
-    }
-
-    case 'APPLY_FOOD': {
-      if (state.player.gold < GAME_CONSTANTS.FOOD_COST) {
-        return state;
-      }
-
-      const result = applyFood(
-        state.shop,
-        action.foodIndex,
-        state.player.team,
-        action.teamIndex
-      );
-
-      if (!result.success) {
-        return state;
-      }
-
-      return {
-        ...state,
-        shop: result.updatedShop,
-        player: {
-          ...state.player,
-          team: result.updatedTeam,
-          gold: state.player.gold - GAME_CONSTANTS.FOOD_COST,
         },
       };
     }
@@ -211,18 +179,18 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
       };
     }
 
-    case 'SWAP_PETS': {
+    case 'SWAP_CREATURES': {
       return {
         ...state,
         player: {
           ...state.player,
-          team: swapPets(state.player.team, action.indexA, action.indexB),
+          team: swapCreatures(state.player.team, action.indexA, action.indexB),
         },
       };
     }
 
-    case 'COMBINE_PETS': {
-      const result = combinePets(
+    case 'COMBINE_CREATURES': {
+      const result = combineCreatures(
         state.player.team,
         action.sourceIndex,
         action.targetIndex
@@ -250,19 +218,16 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
 
     case 'END_TURN':
     case 'START_BATTLE': {
-      // Use pre-matched opponent or generate AI opponent
       const opponent = state.currentOpponent ?? generateOpponent(state.player.currentTurn, state.player.wins);
-      const playerPets = state.player.team.filter((p): p is Pet => p !== null);
-      const opponentPets = opponent.team.filter((p): p is Pet => p !== null);
+      const playerCreatures = state.player.team.filter((c): c is Creature => c !== null);
+      const opponentCreatures = opponent.team.filter((c): c is Creature => c !== null);
 
-      if (playerPets.length === 0) {
-        // No pets to battle - skip battle
+      if (playerCreatures.length === 0) {
         return state;
       }
 
-      const battleResult = resolveBattle(playerPets, opponentPets);
+      const battleResult = resolveBattle(playerCreatures, opponentCreatures);
 
-      // Increment battles participated
       incrementBattlesParticipated(state.player.team);
 
       return {
@@ -274,7 +239,6 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
     }
 
     case 'COMPLETE_BATTLE': {
-      // Transition from battle animation to result
       return {
         ...state,
         phase: 'result',
@@ -294,7 +258,6 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
         newLives -= result.damageDealt || 1;
       }
 
-      // Check win/lose conditions
       if (newWins >= GAME_CONSTANTS.WINS_TO_WIN || newLives <= 0) {
         return {
           ...state,
@@ -309,6 +272,13 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
 
       const newTurn = state.player.currentTurn + 1;
 
+      // Kami gold bonus
+      const kamiCount = state.player.team.filter((c) => c !== null && c.type === 'Kami').length;
+      let bonusGold = 0;
+      if (kamiCount >= 5) bonusGold = 3;
+      else if (kamiCount >= 3) bonusGold = 2;
+      else if (kamiCount >= 2) bonusGold = 1;
+
       return {
         ...state,
         phase: 'shop',
@@ -320,7 +290,7 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
           lives: newLives,
           wins: newWins,
           currentTurn: newTurn,
-          gold: GAME_CONSTANTS.GOLD_PER_TURN,
+          gold: GAME_CONSTANTS.GOLD_PER_TURN + bonusGold,
         },
       };
     }
@@ -338,20 +308,17 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
 interface GameContextType {
   state: ExtendedGameState;
   dispatch: React.Dispatch<GameAction>;
-  // Convenience actions
   startGame: (mode: 'arena' | 'versus') => void;
-  buyPet: (shopIndex: number, teamIndex: number) => void;
-  sellPet: (teamIndex: number) => void;
-  applyFood: (foodIndex: number, teamIndex: number) => void;
+  buyCreature: (shopIndex: number, teamIndex: number) => void;
+  sellCreature: (teamIndex: number) => void;
   rollShop: () => void;
-  swapPets: (indexA: number, indexB: number) => void;
-  combinePets: (sourceIndex: number, targetIndex: number) => void;
+  swapCreatures: (indexA: number, indexB: number) => void;
+  combineCreatures: (sourceIndex: number, targetIndex: number) => void;
   toggleFreeze: (shopIndex: number) => void;
   endTurn: () => void;
   completeBattle: () => void;
   nextTurn: () => void;
   resetGame: () => void;
-  // Multiplayer actions
   findAndSetOpponent: () => Promise<void>;
   isMultiplayerReady: boolean;
 }
@@ -373,7 +340,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    // Update player info from auth
     if (user) {
       dispatch({
         type: 'RESTORE_GAME',
@@ -389,7 +355,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, [user, isConfigured]);
 
-  // Save team snapshot when turn ends (entering battle phase)
+  // Save team snapshot when turn ends
   useEffect(() => {
     if (
       state.phase === 'battle' &&
@@ -407,7 +373,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, [state.phase, state.multiplayer.isMultiplayerEnabled, state.multiplayer.runId, user]);
 
-  // Record battle and update stats when battle completes
+  // Record battle and update stats
   useEffect(() => {
     if (
       state.phase === 'result' &&
@@ -420,7 +386,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         : state.lastBattleResult.winner === 'opponent' ? 'loss'
         : 'draw';
 
-      // Record the battle
       recordBattle({
         runId: state.multiplayer.runId,
         turn: state.player.currentTurn,
@@ -431,21 +396,19 @@ export function GameProvider({ children }: { children: ReactNode }) {
         result,
         damageDealt: state.lastBattleResult.damageDealt,
         battleEvents: state.lastBattleResult.events,
-        clientHash: '', // TODO: Implement hash for validation
+        clientHash: '',
         isAiOpponent: !state.isRealOpponent,
       });
 
-      // Update MMR if fighting a real opponent
       if (state.isRealOpponent) {
         updateMmr(user.id, state.currentOpponentMmr, result);
       }
 
-      // Update player stats
       updatePlayerStats(user.id, result, false);
     }
   }, [state.phase, state.lastBattleResult, state.multiplayer.isMultiplayerEnabled, user]);
 
-  // Handle game over - complete the run
+  // Handle game over
   useEffect(() => {
     if (
       state.phase === 'gameOver' &&
@@ -455,11 +418,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     ) {
       const gameResult = state.player.wins >= GAME_CONSTANTS.WINS_TO_WIN ? 'won' : 'lost';
       completeGameRun(state.multiplayer.runId, gameResult);
-      updatePlayerStats(user.id, 'draw', true, gameResult); // 'draw' is placeholder for battle result
+      updatePlayerStats(user.id, 'draw', true, gameResult);
     }
   }, [state.phase, state.multiplayer.isMultiplayerEnabled, state.multiplayer.runId, user]);
 
-  // Find and set opponent before battle
   const findAndSetOpponent = useCallback(async () => {
     const playerId = state.multiplayer.isMultiplayerEnabled ? user?.id ?? null : null;
 
@@ -480,11 +442,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, [state.multiplayer.isMultiplayerEnabled, state.player.mmr, state.player.currentTurn, state.player.wins, user]);
 
-  // Start game with multiplayer support
   const handleStartGame = useCallback(async (mode: 'arena' | 'versus') => {
     dispatch({ type: 'START_GAME', mode });
 
-    // Create a game run if authenticated
     if (isConfigured && user) {
       const run = await startGameRun(user.id, user.mmr);
       if (run) {
@@ -496,9 +456,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, [isConfigured, user]);
 
-  // End turn with opponent matching
   const handleEndTurn = useCallback(async () => {
-    // Find opponent before starting battle
     await findAndSetOpponent();
     dispatch({ type: 'END_TURN' });
   }, [findAndSetOpponent]);
@@ -507,12 +465,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     state,
     dispatch,
     startGame: handleStartGame,
-    buyPet: (shopIndex, teamIndex) => dispatch({ type: 'BUY_PET', shopIndex, teamIndex }),
-    sellPet: (teamIndex) => dispatch({ type: 'SELL_PET', teamIndex }),
-    applyFood: (foodIndex, teamIndex) => dispatch({ type: 'APPLY_FOOD', foodIndex, teamIndex }),
+    buyCreature: (shopIndex, teamIndex) => dispatch({ type: 'BUY_CREATURE', shopIndex, teamIndex }),
+    sellCreature: (teamIndex) => dispatch({ type: 'SELL_CREATURE', teamIndex }),
     rollShop: () => dispatch({ type: 'ROLL_SHOP' }),
-    swapPets: (indexA, indexB) => dispatch({ type: 'SWAP_PETS', indexA, indexB }),
-    combinePets: (sourceIndex, targetIndex) => dispatch({ type: 'COMBINE_PETS', sourceIndex, targetIndex }),
+    swapCreatures: (indexA, indexB) => dispatch({ type: 'SWAP_CREATURES', indexA, indexB }),
+    combineCreatures: (sourceIndex, targetIndex) => dispatch({ type: 'COMBINE_CREATURES', sourceIndex, targetIndex }),
     toggleFreeze: (shopIndex) => dispatch({ type: 'TOGGLE_FREEZE', shopIndex }),
     endTurn: handleEndTurn,
     completeBattle: () => dispatch({ type: 'COMPLETE_BATTLE' }),

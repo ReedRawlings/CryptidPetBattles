@@ -1,4 +1,4 @@
-import type { Pet, BattleEvent } from './index';
+import type { Creature, BattleEvent } from './index';
 import type { Profile, PlayerStats, TeamSnapshot as DbTeamSnapshot } from './database';
 
 // Re-export database types for convenience
@@ -26,26 +26,23 @@ export interface UserProfile {
   mmr: number;
 }
 
-// Serialized pet for database storage (excludes runtime-only fields)
-export interface SerializedPet {
+// Serialized creature for database storage (excludes runtime-only fields)
+export interface SerializedCreature {
   templateId: string;
   name: string;
-  tier: number;
-  level: number;
+  star: number;
   experience: number;
   currentAttack: number;
   currentHealth: number;
+  currentSpeed: number;
   maxHealth: number;
-  position: number;
+  position: number; // team index 0-4
   battlesParticipated: number;
-  foodSlotId: string | null;
-  foodAttackBonus: number;
-  foodHealthBonus: number;
 }
 
 // Team snapshot with populated profile for matchmaking
 export interface TeamSnapshotWithProfile extends Omit<DbTeamSnapshot, 'team_data'> {
-  team_data: SerializedPet[];
+  team_data: SerializedCreature[];
   profile?: UserProfile;
 }
 
@@ -62,8 +59,8 @@ export interface BattleSubmission {
   turn: number;
   opponentSnapshotId: string | null;
   opponentPlayerId: string | null;
-  playerTeam: SerializedPet[];
-  opponentTeam: SerializedPet[];
+  playerTeam: SerializedCreature[];
+  opponentTeam: SerializedCreature[];
   result: 'win' | 'loss' | 'draw';
   damageDealt: number;
   battleEvents: BattleEvent[];
@@ -80,14 +77,14 @@ export interface ActiveGameRun {
   wins: number;
   gold: number;
   mmrAtStart: number;
-  teamData: SerializedPet[];
+  teamData: SerializedCreature[];
   createdAt: string;
 }
 
 // Serialization utilities types
 export interface SerializationContext {
-  petToSerialized: (pet: Pet) => SerializedPet;
-  serializedToPet: (data: SerializedPet) => Pet;
+  creatureToSerialized: (creature: Creature) => SerializedCreature;
+  serializedToCreature: (data: SerializedCreature) => Creature;
 }
 
 // Multiplayer game state extension

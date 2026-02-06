@@ -1,0 +1,3850 @@
+{
+  "_metadata": {
+    "version": "1.0",
+    "description": "Creature ability system based on trigger x effect matrix",
+    "lastUpdated": "2026-02-05",
+    "totalCreatures": 42
+  },
+  "triggerReference": {
+    "frontline": {
+      "description": "Triggers when creature is placed in frontline position at battle start",
+      "timing": "Immediately when battle begins"
+    },
+    "backline": {
+      "description": "Triggers when creature is placed in backline position at battle start",
+      "timing": "Immediately when battle begins"
+    },
+    "on_placement": {
+      "description": "Triggers when creature is placed on the field",
+      "timing": "During prep phase or mid-battle swap"
+    },
+    "on_buff": {
+      "description": "Triggers when creature gains a buff effect",
+      "timing": "Whenever any buff is applied to this creature"
+    },
+    "on_debuff": {
+      "description": "Triggers when creature gains a debuff effect",
+      "timing": "Whenever any debuff is applied to this creature"
+    },
+    "on_kill": {
+      "description": "Triggers when creature kills an enemy",
+      "timing": "Immediately after enemy reaches 0 HP"
+    },
+    "ally_dies": {
+      "description": "Triggers when any allied creature dies",
+      "timing": "When any ally reaches 0 HP"
+    },
+    "passive": {
+      "description": "Always active, triggers every turn or per attack",
+      "timing": "Continuous"
+    },
+    "low_health": {
+      "description": "Triggers when creature's health drops below threshold",
+      "timing": "When health < specified percent"
+    }
+  },
+  "effectReference": {
+    "increase_damage": {
+      "description": "Increase ATK stat",
+      "scaling": "Flat value (+1 ATK, +2 ATK, etc.)",
+      "duration": "Permanent or this combat"
+    },
+    "weaken": {
+      "description": "Apply ATK debuff to enemies",
+      "scaling": "Flat reduction",
+      "affects": "Target enemies",
+      "stackable": true
+    },
+    "thorns": {
+      "description": "Reflect damage back to attackers",
+      "scaling": "Amount reflected per hit",
+      "stackable": true
+    },
+    "aoe": {
+      "description": "Hit all/multiple enemies in area",
+      "variants": [
+        "column",
+        "cone",
+        "all"
+      ],
+      "scaling": "Damage based on attack stat"
+    },
+    "dot": {
+      "description": "Damage over time effect",
+      "variants": [
+        "bleed",
+        "burn",
+        "poison"
+      ],
+      "scaling": "Damage per second or per round"
+    },
+    "taunt": {
+      "description": "Force enemies to attack this unit",
+      "duration": "Number of turns",
+      "stackable": false
+    },
+    "slow": {
+      "description": "Reduce attack speed (speed debuff)",
+      "scaling": "Percent or flat reduction",
+      "affects": "Target enemies",
+      "stackable": true
+    },
+    "haste": {
+      "description": "Increase attack speed (speed buff)",
+      "scaling": "Stacking +1 per application",
+      "affects": "Self or allies",
+      "stackable": true
+    },
+    "cleanse_dot": {
+      "description": "Remove DoT effects",
+      "scope": "Single target or AoE",
+      "removes": "Bleed, Burn, Poison only"
+    },
+    "cleanse_aoe": {
+      "description": "Remove AoE crowd control",
+      "scope": "Single target or AoE",
+      "removes": "Taunt, Slow, Stun, other CC"
+    },
+    "increase_health": {
+      "description": "Restore health or grant temporary health",
+      "scaling": "Flat amount or percent of max HP",
+      "affects": "Self or target ally",
+      "stackable": true
+    }
+  },
+  "buffDefinitions": {
+    "strengthen": {
+      "name": "Strengthen",
+      "type": "buff",
+      "description": "Increase ATK",
+      "perStack": "+2 ATK",
+      "stackable": true,
+      "duration": "this_combat"
+    },
+    "weaken": {
+      "name": "Weaken",
+      "type": "debuff",
+      "description": "Reduce target ATK",
+      "perStack": "-2 ATK",
+      "stackable": true,
+      "duration": "this_combat"
+    },
+    "thorns": {
+      "name": "Thorns",
+      "type": "buff",
+      "description": "Reflect damage back to attacker",
+      "perStack": "Reflect 2 damage per hit taken",
+      "stackable": true,
+      "duration": "this_combat"
+    },
+    "haste": {
+      "name": "Haste",
+      "type": "buff",
+      "description": "Increase attack speed",
+      "perStack": "+0.5 speed",
+      "stackable": true,
+      "duration": "this_combat"
+    },
+    "slow": {
+      "name": "Slow",
+      "type": "debuff",
+      "description": "Reduce attack speed",
+      "perStack": "-0.5 speed",
+      "stackable": true,
+      "duration": "this_combat"
+    },
+    "burn": {
+      "name": "Burn",
+      "type": "dot",
+      "description": "Fire damage over time",
+      "perStack": "2 damage per turn",
+      "stackable": true,
+      "duration": "3 turns"
+    },
+    "poison": {
+      "name": "Poison",
+      "type": "dot",
+      "description": "Poison damage over time",
+      "perStack": "2 damage per turn",
+      "stackable": true,
+      "duration": "3 turns"
+    },
+    "bleed": {
+      "name": "Bleed",
+      "type": "dot",
+      "description": "Bleed damage over time based on max HP",
+      "perStack": "0.5% of target max HP per turn",
+      "stackable": true,
+      "duration": "3 turns"
+    },
+    "taunt": {
+      "name": "Taunt",
+      "type": "buff",
+      "description": "Force enemies to target this creature",
+      "perStack": "N/A - duration based, not stackable",
+      "stackable": false,
+      "duration": "X turns or permanent"
+    },
+    "gigantify": {
+      "name": "Gigantify",
+      "type": "buff",
+      "description": "Increase max HP and current HP",
+      "perStack": "+10 max HP and +10 current HP",
+      "stackable": true,
+      "duration": "this_combat"
+    }
+  },
+  "creatures": [
+    {
+      "id": "jacket",
+      "name": "Jacket",
+      "type": "Spirit",
+      "role": "brawler",
+      "shopTier": 1,
+      "description": "A forgotten jacket that moves on its own",
+      "typePassive": {
+        "name": "Bone Summoner",
+        "tiers": {
+          "2": "Summon a Bone (10 HP / 5 ATK / 1 Speed) when they faint",
+          "3": "Summon a Bone (15 HP / 8 ATK / 1 Speed) when they faint",
+          "5": "Summon a Bone (20 HP / 10 ATK / 1 Speed) when they faint"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 25,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Soul Reave",
+            "id": "ability_jacket_1",
+            "trigger": "on_kill",
+            "description": "On kill, gain 1 stack of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 38,
+            "attack": 23,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Soul Reave",
+            "id": "ability_jacket_2",
+            "trigger": "on_kill",
+            "description": "On kill, gain 2 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 56,
+            "attack": 34,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Soul Reave",
+            "id": "ability_jacket_3",
+            "trigger": "on_kill",
+            "description": "On kill, gain 3 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "ghost",
+      "name": "Ghost",
+      "type": "Spirit",
+      "role": "support",
+      "shopTier": 1,
+      "description": "A friendly spirit that radiates warmth",
+      "typePassive": {
+        "name": "Bone Summoner",
+        "tiers": {
+          "2": "Summon a Bone (10 HP / 5 ATK / 1 Speed) when they faint",
+          "3": "Summon a Bone (15 HP / 8 ATK / 1 Speed) when they faint",
+          "5": "Summon a Bone (20 HP / 10 ATK / 1 Speed) when they faint"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 20,
+            "attack": 10,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Warm Embrace",
+            "id": "ability_ghost_1",
+            "trigger": "passive",
+            "description": "Gain 1 stack of Gigantify each turn",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 30,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Warm Embrace",
+            "id": "ability_ghost_2",
+            "trigger": "passive",
+            "description": "Gain 2 stacks of Gigantify each turn",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Warm Embrace",
+            "id": "ability_ghost_3",
+            "trigger": "passive",
+            "description": "Gain 3 stacks of Gigantify each turn",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "funny_bones",
+      "name": "Funny Bones",
+      "type": "Spirit",
+      "role": "tank",
+      "shopTier": 2,
+      "description": "A skeletal jokester with a sharp sense of humor",
+      "typePassive": {
+        "name": "Bone Summoner",
+        "tiers": {
+          "2": "Summon a Bone (10 HP / 5 ATK / 1 Speed) when they faint",
+          "3": "Summon a Bone (15 HP / 8 ATK / 1 Speed) when they faint",
+          "5": "Summon a Bone (20 HP / 10 ATK / 1 Speed) when they faint"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 35,
+            "attack": 11,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Punchline",
+            "id": "ability_funny_bones_1",
+            "trigger": "passive",
+            "description": "Gain 1 stack of Thorns each turn",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 53,
+            "attack": 17,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Punchline",
+            "id": "ability_funny_bones_2",
+            "trigger": "passive",
+            "description": "Gain 2 stacks of Thorns each turn",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 79,
+            "attack": 25,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Punchline",
+            "id": "ability_funny_bones_3",
+            "trigger": "passive",
+            "description": "Gain 3 stacks of Thorns each turn",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "reapa",
+      "name": "Reapa",
+      "type": "Spirit",
+      "role": "assassin",
+      "shopTier": 2,
+      "description": "A shadowy harvester of souls",
+      "typePassive": {
+        "name": "Bone Summoner",
+        "tiers": {
+          "2": "Summon a Bone (10 HP / 5 ATK / 1 Speed) when they faint",
+          "3": "Summon a Bone (15 HP / 8 ATK / 1 Speed) when they faint",
+          "5": "Summon a Bone (20 HP / 10 ATK / 1 Speed) when they faint"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 18,
+            "attack": 18,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Harvest",
+            "id": "ability_reapa_1",
+            "trigger": "on_kill",
+            "description": "On kill, apply 1 stack of Poison to a random enemy for 3 turns",
+            "effects": [
+              {
+                "type": "poison",
+                "stacks": 1,
+                "target": "random_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 27,
+            "attack": 27,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Harvest",
+            "id": "ability_reapa_2",
+            "trigger": "on_kill",
+            "description": "On kill, apply 2 stacks of Poison to a random enemy for 3 turns",
+            "effects": [
+              {
+                "type": "poison",
+                "stacks": 2,
+                "target": "random_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 41,
+            "attack": 41,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Harvest",
+            "id": "ability_reapa_3",
+            "trigger": "on_kill",
+            "description": "On kill, apply 3 stacks of Poison to a random enemy for 3 turns",
+            "effects": [
+              {
+                "type": "poison",
+                "stacks": 3,
+                "target": "random_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "shadow",
+      "name": "Shadow",
+      "type": "Spirit",
+      "role": "mage",
+      "shopTier": 3,
+      "description": "A living darkness that consumes light",
+      "typePassive": {
+        "name": "Bone Summoner",
+        "tiers": {
+          "2": "Summon a Bone (10 HP / 5 ATK / 1 Speed) when they faint",
+          "3": "Summon a Bone (15 HP / 8 ATK / 1 Speed) when they faint",
+          "5": "Summon a Bone (20 HP / 10 ATK / 1 Speed) when they faint"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 22,
+            "attack": 18,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Eclipse Burst",
+            "id": "ability_shadow_1",
+            "trigger": "backline",
+            "description": "At battle start from backline, deal 4 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 4,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 33,
+            "attack": 27,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Eclipse Burst",
+            "id": "ability_shadow_2",
+            "trigger": "backline",
+            "description": "At battle start from backline, deal 8 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 8,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 50,
+            "attack": 41,
+            "speed": 4
+          },
+          "ability": {
+            "name": "Eclipse Burst",
+            "id": "ability_shadow_3",
+            "trigger": "backline",
+            "description": "At battle start from backline, deal 12 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 12,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "yokai",
+      "name": "Yokai",
+      "type": "Spirit",
+      "role": "tank",
+      "shopTier": 3,
+      "description": "An ancient spirit guardian awakened by loss",
+      "typePassive": {
+        "name": "Bone Summoner",
+        "tiers": {
+          "2": "Summon a Bone (10 HP / 5 ATK / 1 Speed) when they faint",
+          "3": "Summon a Bone (15 HP / 8 ATK / 1 Speed) when they faint",
+          "5": "Summon a Bone (20 HP / 10 ATK / 1 Speed) when they faint"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 42,
+            "attack": 13,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Guardian's Oath",
+            "id": "ability_yokai_1",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, gain Taunt for 2 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 2,
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 63,
+            "attack": 20,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Guardian's Oath",
+            "id": "ability_yokai_2",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, gain Taunt for 3 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 3,
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 95,
+            "attack": 29,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Guardian's Oath",
+            "id": "ability_yokai_3",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, gain Taunt for 4 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 4,
+                "target": "self"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "sharkdog",
+      "name": "Sharkdog",
+      "type": "Flora",
+      "role": "brawler",
+      "shopTier": 1,
+      "description": "Half shark, half dog, all bite",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 25,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Feeding Frenzy",
+            "id": "ability_sharkdog_1",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 1 stack of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 38,
+            "attack": 23,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Feeding Frenzy",
+            "id": "ability_sharkdog_2",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 2 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 56,
+            "attack": 34,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Feeding Frenzy",
+            "id": "ability_sharkdog_3",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 3 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "zaboo",
+      "name": "Zaboo",
+      "type": "Flora",
+      "role": "support",
+      "shopTier": 1,
+      "description": "A zippy creature that energizes allies",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 20,
+            "attack": 10,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Zip Zap",
+            "id": "ability_zaboo_1",
+            "trigger": "on_placement",
+            "description": "On placement, gain 2 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 30,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Zip Zap",
+            "id": "ability_zaboo_2",
+            "trigger": "on_placement",
+            "description": "On placement, gain 4 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 4,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Zip Zap",
+            "id": "ability_zaboo_3",
+            "trigger": "on_placement",
+            "description": "On placement, gain 6 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 6,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "bvr",
+      "name": "BVR",
+      "type": "Flora",
+      "role": "tank",
+      "shopTier": 1,
+      "description": "A sturdy beast with razor-sharp quills",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 30,
+            "attack": 10,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Quill Guard",
+            "id": "ability_bvr_1",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 1 stack of Thorns",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Quill Guard",
+            "id": "ability_bvr_2",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 2 stacks of Thorns",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 68,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Quill Guard",
+            "id": "ability_bvr_3",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 3 stacks of Thorns",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "spiderlight",
+      "name": "Spiderlight",
+      "type": "Flora",
+      "role": "assassin",
+      "shopTier": 2,
+      "description": "A bioluminescent spider that weaves venomous webs",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 18,
+            "attack": 18,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Venom Web",
+            "id": "ability_spiderlight_1",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 1 stack of Poison to a random frontline enemy for 3 turns",
+            "effects": [
+              {
+                "type": "poison",
+                "stacks": 1,
+                "target": "random_frontline_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 27,
+            "attack": 27,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Venom Web",
+            "id": "ability_spiderlight_2",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 2 stacks of Poison to a random frontline enemy for 3 turns",
+            "effects": [
+              {
+                "type": "poison",
+                "stacks": 2,
+                "target": "random_frontline_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 41,
+            "attack": 41,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Venom Web",
+            "id": "ability_spiderlight_3",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 3 stacks of Poison to a random frontline enemy for 3 turns",
+            "effects": [
+              {
+                "type": "poison",
+                "stacks": 3,
+                "target": "random_frontline_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "saturn_snail",
+      "name": "Saturn Snail",
+      "type": "Flora",
+      "role": "tank",
+      "shopTier": 2,
+      "description": "A cosmic gastropod with an impenetrable shell",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 37,
+            "attack": 11,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Orbital Shell",
+            "id": "ability_saturn_snail_1",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain Taunt for 2 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 2,
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 56,
+            "attack": 17,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Orbital Shell",
+            "id": "ability_saturn_snail_2",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain Taunt for 3 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 3,
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 83,
+            "attack": 25,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Orbital Shell",
+            "id": "ability_saturn_snail_3",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain Taunt for 4 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 4,
+                "target": "self"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "kyng_wyrm",
+      "name": "Kyng Wyrm",
+      "type": "Flora",
+      "role": "mage",
+      "shopTier": 2,
+      "description": "A royal serpent crackling with elemental power",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 20,
+            "attack": 16,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Royal Tempest",
+            "id": "ability_kyng_wyrm_1",
+            "trigger": "on_buff",
+            "description": "When buffed, deal 3 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 3,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 30,
+            "attack": 24,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Royal Tempest",
+            "id": "ability_kyng_wyrm_2",
+            "trigger": "on_buff",
+            "description": "When buffed, deal 6 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 6,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 36,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Royal Tempest",
+            "id": "ability_kyng_wyrm_3",
+            "trigger": "on_buff",
+            "description": "When buffed, deal 9 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 9,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "von_fish",
+      "name": "Von Fish",
+      "type": "Flora",
+      "role": "brawler",
+      "shopTier": 3,
+      "description": "A noble fish that fights harder when cornered",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 31,
+            "attack": 20,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Cornered Fury",
+            "id": "ability_von_fish_1",
+            "trigger": "on_debuff",
+            "description": "When debuffed, gain 2 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 47,
+            "attack": 30,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Cornered Fury",
+            "id": "ability_von_fish_2",
+            "trigger": "on_debuff",
+            "description": "When debuffed, gain 3 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 70,
+            "attack": 45,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Cornered Fury",
+            "id": "ability_von_fish_3",
+            "trigger": "on_debuff",
+            "description": "When debuffed, gain 4 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 4,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "panda",
+      "name": "Panda",
+      "type": "Flora",
+      "role": "tank",
+      "shopTier": 3,
+      "description": "A bamboo-armored guardian",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 42,
+            "attack": 13,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Bamboo Fortitude",
+            "id": "ability_panda_1",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 1 stack of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 63,
+            "attack": 20,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Bamboo Fortitude",
+            "id": "ability_panda_2",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 2 stacks of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 95,
+            "attack": 29,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Bamboo Fortitude",
+            "id": "ability_panda_3",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, gain 3 stacks of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "rope_snake",
+      "name": "Rope Snake",
+      "type": "Flora",
+      "role": "assassin",
+      "shopTier": 3,
+      "description": "A constricting predator that ensnares from the shadows",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 22,
+            "attack": 21,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Constrict",
+            "id": "ability_rope_snake_1",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 2 stacks of Slow to 1 random enemy",
+            "effects": [
+              {
+                "type": "slow",
+                "stacks": 2,
+                "target": "random_enemy",
+                "targetCount": 1,
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 33,
+            "attack": 32,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Constrict",
+            "id": "ability_rope_snake_2",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 2 stacks of Slow to 2 random enemies",
+            "effects": [
+              {
+                "type": "slow",
+                "stacks": 2,
+                "target": "random_enemy",
+                "targetCount": 2,
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 50,
+            "attack": 47,
+            "speed": 4
+          },
+          "ability": {
+            "name": "Constrict",
+            "id": "ability_rope_snake_3",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 2 stacks of Slow to all enemies",
+            "effects": [
+              {
+                "type": "slow",
+                "stacks": 2,
+                "target": "all_enemies",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "egg_bird",
+      "name": "Egg Bird",
+      "type": "Flora",
+      "role": "support",
+      "shopTier": 4,
+      "description": "A nurturing avian that channels fallen allies' energy",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 30,
+            "attack": 15,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Phoenix Tears",
+            "id": "ability_egg_bird_1",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, apply 1 stack of Gigantify to self and lowest HP ally",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 1,
+                "target": "self_and_lowest_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Phoenix Tears",
+            "id": "ability_egg_bird_2",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, apply 2 stacks of Gigantify to self and lowest HP ally",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 2,
+                "target": "self_and_lowest_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 68,
+            "attack": 34,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Phoenix Tears",
+            "id": "ability_egg_bird_3",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, apply 3 stacks of Gigantify to self and lowest HP ally",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 3,
+                "target": "self_and_lowest_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "jaws_dog",
+      "name": "Jaws Dog",
+      "type": "Flora",
+      "role": "brawler",
+      "shopTier": 4,
+      "description": "A ferocious beast fueled by righteous fury",
+      "typePassive": {
+        "name": "Nature's Vigor",
+        "tiers": {
+          "2": "Flora gain +2 HP",
+          "3": "Flora gain +4 HP",
+          "5": "Flora gain +4 HP and reduce damage by 2 from all sources (min 1)"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 38,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Vengeance Bite",
+            "id": "ability_jaws_dog_1",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, gain 2 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 56,
+            "attack": 34,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Vengeance Bite",
+            "id": "ability_jaws_dog_2",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, gain 4 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 4,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 84,
+            "attack": 51,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Vengeance Bite",
+            "id": "ability_jaws_dog_3",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, gain 6 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 6,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "daisy_buff",
+      "name": "Daisy Buff",
+      "type": "Fauna",
+      "role": "support",
+      "shopTier": 1,
+      "description": "A cheerful flower that inspires speed",
+      "typePassive": {
+        "name": "Primal Fury",
+        "tiers": {
+          "2": "Fauna gain 1 ATK",
+          "3": "Fauna gain 2 ATK",
+          "5": "Fauna gain 3 ATK"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 20,
+            "attack": 10,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Petal Rush",
+            "id": "ability_daisy_buff_1",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, apply 2 stacks of Haste to all allies",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 2,
+                "target": "all_allies",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 30,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Petal Rush",
+            "id": "ability_daisy_buff_2",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, apply 4 stacks of Haste to all allies",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 4,
+                "target": "all_allies",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Petal Rush",
+            "id": "ability_daisy_buff_3",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, apply 6 stacks of Haste to all allies",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 6,
+                "target": "all_allies",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "cacti_in_pain",
+      "name": "Cacti in Pain",
+      "type": "Fauna",
+      "role": "tank",
+      "shopTier": 1,
+      "description": "A perpetually aching cactus covered in needles",
+      "typePassive": {
+        "name": "Primal Fury",
+        "tiers": {
+          "2": "Fauna gain 1 ATK",
+          "3": "Fauna gain 2 ATK",
+          "5": "Fauna gain 3 ATK"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 30,
+            "attack": 10,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Needle Coat",
+            "id": "ability_cacti_in_pain_1",
+            "trigger": "on_placement",
+            "description": "On placement, gain 1 stack of Thorns",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Needle Coat",
+            "id": "ability_cacti_in_pain_2",
+            "trigger": "on_placement",
+            "description": "On placement, gain 2 stacks of Thorns",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 68,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Needle Coat",
+            "id": "ability_cacti_in_pain_3",
+            "trigger": "on_placement",
+            "description": "On placement, gain 3 stacks of Thorns",
+            "effects": [
+              {
+                "type": "thorns",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "party_cacti",
+      "name": "Party Cacti",
+      "type": "Fauna",
+      "role": "support",
+      "shopTier": 2,
+      "description": "A festive cactus that accelerates when enhanced",
+      "typePassive": {
+        "name": "Primal Fury",
+        "tiers": {
+          "2": "Fauna gain 1 ATK",
+          "3": "Fauna gain 2 ATK",
+          "5": "Fauna gain 3 ATK"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 23,
+            "attack": 11,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Party Tempo",
+            "id": "ability_party_cacti_1",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 2 stacks of Haste to self and nearest ally",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 2,
+                "target": "self_and_nearest_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 35,
+            "attack": 17,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Party Tempo",
+            "id": "ability_party_cacti_2",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 4 stacks of Haste to self and nearest ally",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 4,
+                "target": "self_and_nearest_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 52,
+            "attack": 25,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Party Tempo",
+            "id": "ability_party_cacti_3",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 6 stacks of Haste to self and nearest ally",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 6,
+                "target": "self_and_nearest_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "man_eating_vines",
+      "name": "Man Eating Vines",
+      "type": "Fauna",
+      "role": "assassin",
+      "shopTier": 2,
+      "description": "Predatory vines that tighten when threatened",
+      "typePassive": {
+        "name": "Primal Fury",
+        "tiers": {
+          "2": "Fauna gain 1 ATK",
+          "3": "Fauna gain 2 ATK",
+          "5": "Fauna gain 3 ATK"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 18,
+            "attack": 18,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Tightening Grip",
+            "id": "ability_man_eating_vines_1",
+            "trigger": "on_debuff",
+            "description": "When debuffed, apply 2 stacks of Slow to attacker",
+            "effects": [
+              {
+                "type": "slow",
+                "stacks": 2,
+                "target": "attacker",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 27,
+            "attack": 27,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Tightening Grip",
+            "id": "ability_man_eating_vines_2",
+            "trigger": "on_debuff",
+            "description": "When debuffed, apply 4 stacks of Slow to attacker",
+            "effects": [
+              {
+                "type": "slow",
+                "stacks": 4,
+                "target": "attacker",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 41,
+            "attack": 41,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Tightening Grip",
+            "id": "ability_man_eating_vines_3",
+            "trigger": "on_debuff",
+            "description": "When debuffed, apply 6 stacks of Slow to attacker",
+            "effects": [
+              {
+                "type": "slow",
+                "stacks": 6,
+                "target": "attacker",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "trippy",
+      "name": "Trippy",
+      "type": "Fauna",
+      "role": "mage",
+      "shopTier": 3,
+      "description": "A psychedelic mushroom that unleashes spores in desperation",
+      "typePassive": {
+        "name": "Primal Fury",
+        "tiers": {
+          "2": "Fauna gain 1 ATK",
+          "3": "Fauna gain 2 ATK",
+          "5": "Fauna gain 3 ATK"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 22,
+            "attack": 18,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Spore Burst",
+            "id": "ability_trippy_1",
+            "trigger": "low_health",
+            "description": "When below 30% HP, deal 6 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 6,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 33,
+            "attack": 27,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Spore Burst",
+            "id": "ability_trippy_2",
+            "trigger": "low_health",
+            "description": "When below 30% HP, deal 12 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 12,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 50,
+            "attack": 41,
+            "speed": 4
+          },
+          "ability": {
+            "name": "Spore Burst",
+            "id": "ability_trippy_3",
+            "trigger": "low_health",
+            "description": "When below 30% HP, deal 18 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 18,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "pampkin",
+      "name": "Pampkin",
+      "type": "Fauna",
+      "role": "brawler",
+      "shopTier": 3,
+      "description": "A jack-o-lantern warrior that blazes brighter when wounded",
+      "typePassive": {
+        "name": "Primal Fury",
+        "tiers": {
+          "2": "Fauna gain 1 ATK",
+          "3": "Fauna gain 2 ATK",
+          "5": "Fauna gain 3 ATK"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 31,
+            "attack": 20,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Blazing Wrath",
+            "id": "ability_pampkin_1",
+            "trigger": "low_health",
+            "description": "When below 30% HP, gain 2 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 47,
+            "attack": 30,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Blazing Wrath",
+            "id": "ability_pampkin_2",
+            "trigger": "low_health",
+            "description": "When below 30% HP, gain 3 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 70,
+            "attack": 45,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Blazing Wrath",
+            "id": "ability_pampkin_3",
+            "trigger": "low_health",
+            "description": "When below 30% HP, gain 4 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 4,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "toasta",
+      "name": "Toasta",
+      "type": "Kami",
+      "role": "tank",
+      "shopTier": 1,
+      "description": "A warm slice of comfort and resilience",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 30,
+            "attack": 10,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Warm Up",
+            "id": "ability_toasta_1",
+            "trigger": "on_placement",
+            "description": "On placement, gain 1 stack of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Warm Up",
+            "id": "ability_toasta_2",
+            "trigger": "on_placement",
+            "description": "On placement, gain 2 stacks of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 68,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Warm Up",
+            "id": "ability_toasta_3",
+            "trigger": "on_placement",
+            "description": "On placement, gain 3 stacks of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "urny",
+      "name": "Urny",
+      "type": "Kami",
+      "role": "support",
+      "shopTier": 1,
+      "description": "An ancient urn that purifies afflictions",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 20,
+            "attack": 9,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Purifying Flame",
+            "id": "ability_urny_1",
+            "trigger": "on_buff",
+            "description": "When buffed, cleanse 1 debuff from self",
+            "effects": [
+              {
+                "type": "cleanse",
+                "value": 1,
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 30,
+            "attack": 14,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Purifying Flame",
+            "id": "ability_urny_2",
+            "trigger": "on_buff",
+            "description": "When buffed, cleanse 1 debuff from self and nearest ally",
+            "effects": [
+              {
+                "type": "cleanse",
+                "value": 1,
+                "target": "self_and_nearest_ally"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 20,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Purifying Flame",
+            "id": "ability_urny_3",
+            "trigger": "on_buff",
+            "description": "When buffed, cleanse all debuffs from all allies",
+            "effects": [
+              {
+                "type": "cleanse",
+                "value": "all",
+                "target": "all_allies"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "expresso",
+      "name": "Expresso",
+      "type": "Kami",
+      "role": "assassin",
+      "shopTier": 1,
+      "description": "A hyper-caffeinated cup that strikes with jittery precision",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 17,
+            "attack": 16,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Caffeine Rush",
+            "id": "ability_expresso_1",
+            "trigger": "on_buff",
+            "description": "When buffed, gain 1 stack of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 26,
+            "attack": 24,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Caffeine Rush",
+            "id": "ability_expresso_2",
+            "trigger": "on_buff",
+            "description": "When buffed, gain 2 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 38,
+            "attack": 36,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Caffeine Rush",
+            "id": "ability_expresso_3",
+            "trigger": "on_buff",
+            "description": "When buffed, gain 3 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "char",
+      "name": "Char",
+      "type": "Kami",
+      "role": "mage",
+      "shopTier": 2,
+      "description": "A smoldering ember spirit that ignites foes",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 20,
+            "attack": 16,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Ember Ignition",
+            "id": "ability_char_1",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, apply 1 stack of Burn to nearest enemy for 3 turns",
+            "effects": [
+              {
+                "type": "burn",
+                "stacks": 1,
+                "target": "nearest_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 30,
+            "attack": 24,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Ember Ignition",
+            "id": "ability_char_2",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, apply 2 stacks of Burn to nearest enemy for 3 turns",
+            "effects": [
+              {
+                "type": "burn",
+                "stacks": 2,
+                "target": "nearest_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 36,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Ember Ignition",
+            "id": "ability_char_3",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, apply 3 stacks of Burn to nearest enemy for 3 turns",
+            "effects": [
+              {
+                "type": "burn",
+                "stacks": 3,
+                "target": "nearest_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "road_rage",
+      "name": "Road Rage",
+      "type": "Kami",
+      "role": "brawler",
+      "shopTier": 2,
+      "description": "A furious vehicle spirit charging from behind",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 28,
+            "attack": 17,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Rear Charge",
+            "id": "ability_road_rage_1",
+            "trigger": "backline",
+            "description": "At battle start from backline, gain 1 stack of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 42,
+            "attack": 26,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Rear Charge",
+            "id": "ability_road_rage_2",
+            "trigger": "backline",
+            "description": "At battle start from backline, gain 2 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 63,
+            "attack": 38,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Rear Charge",
+            "id": "ability_road_rage_3",
+            "trigger": "backline",
+            "description": "At battle start from backline, gain 3 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "matt",
+      "name": "Matt",
+      "type": "Kami",
+      "role": "tank",
+      "shopTier": 2,
+      "description": "A living doormat that absorbs all punishment",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 37,
+            "attack": 11,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Welcome Mat",
+            "id": "ability_matt_1",
+            "trigger": "on_placement",
+            "description": "On placement, gain Taunt for 2 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 2,
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 56,
+            "attack": 17,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Welcome Mat",
+            "id": "ability_matt_2",
+            "trigger": "on_placement",
+            "description": "On placement, gain Taunt for 3 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 3,
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 83,
+            "attack": 25,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Welcome Mat",
+            "id": "ability_matt_3",
+            "trigger": "on_placement",
+            "description": "On placement, gain Taunt for 4 turns",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": 4,
+                "target": "self"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "puff",
+      "name": "Puff",
+      "type": "Kami",
+      "role": "mage",
+      "shopTier": 3,
+      "description": "A vengeful cloud that erupts when allies fall",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 22,
+            "attack": 18,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Thunder Grief",
+            "id": "ability_puff_1",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, deal 5 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 5,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 33,
+            "attack": 27,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Thunder Grief",
+            "id": "ability_puff_2",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, deal 10 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 10,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 50,
+            "attack": 41,
+            "speed": 4
+          },
+          "ability": {
+            "name": "Thunder Grief",
+            "id": "ability_puff_3",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, deal 15 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 15,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "routa",
+      "name": "Routa",
+      "type": "Kami",
+      "role": "brawler",
+      "shopTier": 3,
+      "description": "A relentless runner that gains momentum with each kill",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 31,
+            "attack": 20,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Momentum",
+            "id": "ability_routa_1",
+            "trigger": "on_kill",
+            "description": "On kill, gain 2 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 47,
+            "attack": 30,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Momentum",
+            "id": "ability_routa_2",
+            "trigger": "on_kill",
+            "description": "On kill, gain 4 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 4,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 70,
+            "attack": 45,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Momentum",
+            "id": "ability_routa_3",
+            "trigger": "on_kill",
+            "description": "On kill, gain 6 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 6,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "off_the_foot",
+      "name": "Off the Foot",
+      "type": "Kami",
+      "role": "support",
+      "shopTier": 3,
+      "description": "A healing slipper that mends wounds when empowered",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 29,
+            "attack": 13,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Sole Mend",
+            "id": "ability_off_the_foot_1",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 1 stack of Gigantify to lowest HP ally",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 1,
+                "target": "lowest_hp_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 44,
+            "attack": 20,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Sole Mend",
+            "id": "ability_off_the_foot_2",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 2 stacks of Gigantify to lowest HP ally",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 2,
+                "target": "lowest_hp_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 65,
+            "attack": 29,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Sole Mend",
+            "id": "ability_off_the_foot_3",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 3 stacks of Gigantify to lowest HP ally",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 3,
+                "target": "lowest_hp_ally",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "mimicuter",
+      "name": "Mimicuter",
+      "type": "Kami",
+      "role": "assassin",
+      "shopTier": 4,
+      "description": "A deceptive mimic that exploits enemy weaknesses",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 26,
+            "attack": 24,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Mimic Strike",
+            "id": "ability_mimicuter_1",
+            "trigger": "on_debuff",
+            "description": "When debuffed, apply 1 stack of Weaken to strongest enemy",
+            "effects": [
+              {
+                "type": "weaken",
+                "stacks": 1,
+                "target": "strongest_enemy",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 39,
+            "attack": 36,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Mimic Strike",
+            "id": "ability_mimicuter_2",
+            "trigger": "on_debuff",
+            "description": "When debuffed, apply 2 stacks of Weaken to strongest enemy",
+            "effects": [
+              {
+                "type": "weaken",
+                "stacks": 2,
+                "target": "strongest_enemy",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 59,
+            "attack": 54,
+            "speed": 4
+          },
+          "ability": {
+            "name": "Mimic Strike",
+            "id": "ability_mimicuter_3",
+            "trigger": "on_debuff",
+            "description": "When debuffed, apply 3 stacks of Weaken to strongest enemy",
+            "effects": [
+              {
+                "type": "weaken",
+                "stacks": 3,
+                "target": "strongest_enemy",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "vndr",
+      "name": "VNDR",
+      "type": "Kami",
+      "role": "support",
+      "shopTier": 4,
+      "description": "A mystical vending machine dispensing vitality",
+      "typePassive": {
+        "name": "Spirit Economy",
+        "tiers": {
+          "2": "Gain 1 extra gold in shop",
+          "3": "Gain 2 extra gold in shop",
+          "5": "Gain 3 extra gold in shop"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 30,
+            "attack": 15,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Vend Vitality",
+            "id": "ability_vndr_1",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 1 stack of Gigantify to all allies",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 1,
+                "target": "all_allies",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Vend Vitality",
+            "id": "ability_vndr_2",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 2 stacks of Gigantify to all allies",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 2,
+                "target": "all_allies",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 68,
+            "attack": 34,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Vend Vitality",
+            "id": "ability_vndr_3",
+            "trigger": "backline",
+            "description": "At battle start from backline, apply 3 stacks of Gigantify to all allies",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 3,
+                "target": "all_allies",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "boxing_cherries",
+      "name": "Boxing Cherries",
+      "type": "Dessert",
+      "role": "brawler",
+      "shopTier": 1,
+      "description": "Twin cherries ready to throw down",
+      "typePassive": {
+        "name": "Sweet Revenge",
+        "tiers": {
+          "2": "Deal 1 damage to a random enemy, repeat",
+          "3": "Deal 2 damage to a random enemy, repeat",
+          "5": "Deal 3 damage to all enemies"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 25,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "One-Two Punch",
+            "id": "ability_boxing_cherries_1",
+            "trigger": "on_placement",
+            "description": "On placement, gain 1 stack of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 38,
+            "attack": 23,
+            "speed": 1
+          },
+          "ability": {
+            "name": "One-Two Punch",
+            "id": "ability_boxing_cherries_2",
+            "trigger": "on_placement",
+            "description": "On placement, gain 2 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 56,
+            "attack": 34,
+            "speed": 2
+          },
+          "ability": {
+            "name": "One-Two Punch",
+            "id": "ability_boxing_cherries_3",
+            "trigger": "on_placement",
+            "description": "On placement, gain 3 stacks of Strengthen",
+            "effects": [
+              {
+                "type": "strengthen",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "three_cream",
+      "name": "Three Cream",
+      "type": "Dessert",
+      "role": "support",
+      "shopTier": 1,
+      "description": "A triple-scoop healer that feeds on victory",
+      "typePassive": {
+        "name": "Sweet Revenge",
+        "tiers": {
+          "2": "Deal 1 damage to a random enemy, repeat",
+          "3": "Deal 2 damage to a random enemy, repeat",
+          "5": "Deal 3 damage to all enemies"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 22,
+            "attack": 10,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Victory Scoop",
+            "id": "ability_three_cream_1",
+            "trigger": "on_kill",
+            "description": "On kill, gain 1 stack of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 33,
+            "attack": 15,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Victory Scoop",
+            "id": "ability_three_cream_2",
+            "trigger": "on_kill",
+            "description": "On kill, gain 2 stacks of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 50,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Victory Scoop",
+            "id": "ability_three_cream_3",
+            "trigger": "on_kill",
+            "description": "On kill, gain 3 stacks of Gigantify",
+            "effects": [
+              {
+                "type": "gigantify",
+                "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "paincakes",
+      "name": "Paincakes",
+      "type": "Dessert",
+      "role": "mage",
+      "shopTier": 2,
+      "description": "Stacks of agony that flatten everything in sight",
+      "typePassive": {
+        "name": "Sweet Revenge",
+        "tiers": {
+          "2": "Deal 1 damage to a random enemy, repeat",
+          "3": "Deal 2 damage to a random enemy, repeat",
+          "5": "Deal 3 damage to all enemies"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 20,
+            "attack": 16,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Stack Slam",
+            "id": "ability_paincakes_1",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, deal 4 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 4,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 30,
+            "attack": 24,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Stack Slam",
+            "id": "ability_paincakes_2",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, deal 8 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 8,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 45,
+            "attack": 36,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Stack Slam",
+            "id": "ability_paincakes_3",
+            "trigger": "frontline",
+            "description": "At battle start from frontline, deal 12 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 12,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "kawaiiburger",
+      "name": "KawaiiBurger",
+      "type": "Dessert",
+      "role": "tank",
+      "shopTier": 2,
+      "description": "An adorable burger that nobody can resist attacking",
+      "typePassive": {
+        "name": "Sweet Revenge",
+        "tiers": {
+          "2": "Deal 1 damage to a random enemy, repeat",
+          "3": "Deal 2 damage to a random enemy, repeat",
+          "5": "Deal 3 damage to all enemies"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 37,
+            "attack": 11,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Irresistible Charm",
+            "id": "ability_kawaiiburger_1",
+            "trigger": "passive",
+            "description": "Passive: Taunt all enemies permanently",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": "permanent",
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 56,
+            "attack": 17,
+            "speed": 1
+          },
+          "ability": {
+            "name": "Irresistible Charm",
+            "id": "ability_kawaiiburger_2",
+            "trigger": "passive",
+            "description": "Passive: Taunt all enemies permanently",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": "permanent",
+                "target": "self"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 83,
+            "attack": 25,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Irresistible Charm",
+            "id": "ability_kawaiiburger_3",
+            "trigger": "passive",
+            "description": "Passive: Taunt all enemies permanently",
+            "effects": [
+              {
+                "type": "taunt",
+                "duration": "permanent",
+                "target": "self"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "sharnut",
+      "name": "Sharnut",
+      "type": "Dessert",
+      "role": "assassin",
+      "shopTier": 3,
+      "description": "A razor-edged donut that poisons through enhancement",
+      "typePassive": {
+        "name": "Sweet Revenge",
+        "tiers": {
+          "2": "Deal 1 damage to a random enemy, repeat",
+          "3": "Deal 2 damage to a random enemy, repeat",
+          "5": "Deal 3 damage to all enemies"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 22,
+            "attack": 21,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Glazed Edge",
+            "id": "ability_sharnut_1",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 1 stack of Bleed to a random enemy for 3 turns",
+            "effects": [
+              {
+                "type": "bleed",
+                "stacks": 1,
+                "target": "random_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 33,
+            "attack": 32,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Glazed Edge",
+            "id": "ability_sharnut_2",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 2 stacks of Bleed to a random enemy for 3 turns",
+            "effects": [
+              {
+                "type": "bleed",
+                "stacks": 2,
+                "target": "random_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 50,
+            "attack": 47,
+            "speed": 4
+          },
+          "ability": {
+            "name": "Glazed Edge",
+            "id": "ability_sharnut_3",
+            "trigger": "on_buff",
+            "description": "When buffed, apply 3 stacks of Bleed to a random enemy for 3 turns",
+            "effects": [
+              {
+                "type": "bleed",
+                "stacks": 3,
+                "target": "random_enemy",
+                "duration": "3_turns"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "butterfly",
+      "name": "Butterfly",
+      "type": "Dessert",
+      "role": "support",
+      "shopTier": 3,
+      "description": "A sweet butterfly that purifies in moments of grief",
+      "typePassive": {
+        "name": "Sweet Revenge",
+        "tiers": {
+          "2": "Deal 1 damage to a random enemy, repeat",
+          "3": "Deal 2 damage to a random enemy, repeat",
+          "5": "Deal 3 damage to all enemies"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 29,
+            "attack": 13,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Mourning Dust",
+            "id": "ability_butterfly_1",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, cleanse 1 debuff from all allies",
+            "effects": [
+              {
+                "type": "cleanse",
+                "value": 1,
+                "target": "all_allies"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 44,
+            "attack": 20,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Mourning Dust",
+            "id": "ability_butterfly_2",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, cleanse 2 debuffs from all allies",
+            "effects": [
+              {
+                "type": "cleanse",
+                "value": 2,
+                "target": "all_allies"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 65,
+            "attack": 29,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Mourning Dust",
+            "id": "ability_butterfly_3",
+            "trigger": "ally_dies",
+            "description": "When an ally dies, cleanse all debuffs from all allies",
+            "effects": [
+              {
+                "type": "cleanse",
+                "value": "all",
+                "target": "all_allies"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "strudecles",
+      "name": "Strudecles",
+      "type": "Dessert",
+      "role": "brawler",
+      "shopTier": 4,
+      "description": "A muscular strudel that launches devastating charges",
+      "typePassive": {
+        "name": "Sweet Revenge",
+        "tiers": {
+          "2": "Deal 1 damage to a random enemy, repeat",
+          "3": "Deal 2 damage to a random enemy, repeat",
+          "5": "Deal 3 damage to all enemies"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 38,
+            "attack": 23,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Strudel Charge",
+            "id": "ability_strudecles_1",
+            "trigger": "backline",
+            "description": "At battle start from backline, gain 4 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 4,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 56,
+            "attack": 34,
+            "speed": 2
+          },
+          "ability": {
+            "name": "Strudel Charge",
+            "id": "ability_strudecles_2",
+            "trigger": "backline",
+            "description": "At battle start from backline, gain 6 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 6,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 84,
+            "attack": 51,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Strudel Charge",
+            "id": "ability_strudecles_3",
+            "trigger": "backline",
+            "description": "At battle start from backline, gain 8 stacks of Haste",
+            "effects": [
+              {
+                "type": "haste",
+                "stacks": 8,
+                "target": "self",
+                "duration": "this_combat"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "hegg",
+      "name": "Hegg",
+      "type": "Dessert",
+      "role": "mage",
+      "shopTier": 4,
+      "description": "A hardboiled egg mage that erupts under pressure",
+      "typePassive": {
+        "name": "Sweet Revenge",
+        "tiers": {
+          "2": "Deal 1 damage to a random enemy, repeat",
+          "3": "Deal 2 damage to a random enemy, repeat",
+          "5": "Deal 3 damage to all enemies"
+        }
+      },
+      "tiers": {
+        "1": {
+          "tier": 1,
+          "stars": "★",
+          "baseStats": {
+            "health": 28,
+            "attack": 21,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Boiling Point",
+            "id": "ability_hegg_1",
+            "trigger": "on_debuff",
+            "description": "When debuffed, deal 5 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 5,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "2": {
+          "tier": 2,
+          "stars": "★★",
+          "baseStats": {
+            "health": 42,
+            "attack": 32,
+            "speed": 3
+          },
+          "ability": {
+            "name": "Boiling Point",
+            "id": "ability_hegg_2",
+            "trigger": "on_debuff",
+            "description": "When debuffed, deal 10 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 10,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        },
+        "3": {
+          "tier": 3,
+          "stars": "★★★",
+          "baseStats": {
+            "health": 63,
+            "attack": 47,
+            "speed": 4
+          },
+          "ability": {
+            "name": "Boiling Point",
+            "id": "ability_hegg_3",
+            "trigger": "on_debuff",
+            "description": "When debuffed, deal 15 damage to all enemies",
+            "effects": [
+              {
+                "type": "aoe",
+                "value": 15,
+                "target": "all_enemies"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "_usageNotes": {
+    "creatingNewCreature": [
+      "1. Copy the creature template structure (id, name, type, role, shopTier, description, typePassive, tiers)",
+      "2. Create 3 tier objects: 1, 2, 3",
+      "3. Fill baseStats (health, attack, speed) - tier 2 should be ~1.5x, tier 3 should be ~2.25x",
+      "4. Create ONE ability per tier",
+      "5. Each ability has: name, id, trigger, description, effects array",
+      "6. Effects array can have 1-3 effects, but should all serve the same core ability fantasy",
+      "7. Keep abilities aligned with the trigger x effect matrix"
+    ],
+    "scalingGuideline": {
+      "health": "1-star: 15-42, 2-star: ~1.5x, 3-star: ~2.25x",
+      "attack": "1-star: 9-24, 2-star: ~1.5x, 3-star: ~2.25x",
+      "speed": "Usually constant (1-3 range), or +1 at star 3",
+      "shopTierMultiplier": "T1=1.0x, T2=1.15x, T3=1.3x, T4=1.5x on base stats"
+    },
+    "abilityScopingRules": [
+      "Keep the core fantasy consistent across all 3 tiers",
+      "Tier 1 = baseline effect with basic numbers",
+      "Tier 2 = same effect, stronger numbers (usually 2x scaling)",
+      "Tier 3 = same effect, strongest numbers (usually 3x tier 1)",
+      "Do NOT change the trigger between tiers - same trigger across all 3"
+    ],
+    "tribePassives": {
+      "Spirit": "Bone Summoner - Summons Bones on faint (10/5/1 -> 15/8/1 -> 20/10/1)",
+      "Flora": "Nature's Vigor - HP bonus (+2 -> +4 -> +4 HP + 2 dmg reduction)",
+      "Fauna": "Primal Fury - ATK bonus (1 -> 2 -> 3 ATK)",
+      "Kami": "Spirit Economy - Gold bonus (1 -> 2 -> 3 extra gold)",
+      "Dessert": "Sweet Revenge - Damage on faint (1 random -> 2 random -> 3 all)"
+    }
+  }
+}

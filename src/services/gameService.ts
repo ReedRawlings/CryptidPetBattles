@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
-import type { Pet } from '@/types';
-import type { GameRun, SerializedPet, BattleSubmission } from '@/types/multiplayer';
+import type { Creature } from '@/types';
+import type { GameRun, SerializedCreature, BattleSubmission } from '@/types/multiplayer';
 import { serializeTeam, calculateTeamPower } from './teamSerializer';
 
 /**
@@ -64,7 +64,7 @@ export async function updateGameRun(
     lives?: number;
     wins?: number;
     gold?: number;
-    team_data?: SerializedPet[];
+    team_data?: SerializedCreature[];
     shop_data?: unknown;
   }
 ): Promise<boolean> {
@@ -119,7 +119,7 @@ export async function saveTeamSnapshot(
   runId: string,
   playerId: string,
   turn: number,
-  team: (Pet | null)[],
+  team: (Creature | null)[],
   mmr: number
 ): Promise<string | null> {
   if (!supabase) return null;
