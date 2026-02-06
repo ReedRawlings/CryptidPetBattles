@@ -2,15 +2,15 @@
   border-image: url('/tinyRPG_dragonRegaliaGUI_v1_0/20240707dragon9SlicesA.png') 48 fill / 48px / 0 round;
   background-color: transparent;
   image-rendering: pixelated;
-  padding: 48px;
-  margin-bottom: 10px;
+  padding: 24px 48px;
+  margin-bottom: 4px;
 }
 
 .shop__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .shop__header h2 {
@@ -35,13 +35,13 @@
 }
 
 .shop__section {
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 }
 
 .shop__section h3 {
   font-size: 14px;
   color: var(--color-text-dim);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .shop__items {
@@ -54,7 +54,53 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+}
+
+/* Scale up pet cards in shop by 20% (medium default: 96 -> 115) */
+.shop__item .pet-card--medium {
+  width: 115px;
+  height: 115px;
+  padding: 14px;
+  background-size: 460px 115px;
+  background-position: -230px 0;
+}
+
+.shop__item .pet-card--medium:hover {
+  background-position: -115px 0;
+}
+
+.shop__item .pet-card--medium.pet-card--selected {
+  background-position: 0 0;
+}
+
+.shop__item .pet-card--medium.pet-card--selected:hover {
+  background-position: 0 0;
+}
+
+.shop__item .pet-card--medium.pet-card--empty {
+  background-position: -345px 0;
+}
+
+.shop__item .pet-card--medium.pet-card--empty:hover {
+  background-position: -115px 0;
+}
+
+.shop__item .pet-card--medium .pet-card__avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 19px;
+}
+
+.shop__item .pet-card--medium .pet-card__tribe-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 9px;
+}
+
+.shop__item .pet-card--medium .pet-card__stats {
+  font-size: 18px;
+  padding: 3px 10px;
 }
 
 .shop__freeze-btn {

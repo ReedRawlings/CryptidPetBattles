@@ -125,15 +125,14 @@ export function PetCard({
       {star > 1 && (
         <div className="pet-card__star">{'★'.repeat(star)}</div>
       )}
+      <div className="pet-card__tribe-icon" style={{ backgroundColor: tribeColor }}>
+        {tribe.slice(0, 2).toUpperCase()}
+      </div>
       <div
         className="pet-card__avatar"
         style={{ backgroundColor: tribeColor }}
       >
         {getInitials(pet.name)}
-      </div>
-      <div className="pet-card__name">{pet.name}</div>
-      <div className="pet-card__tribe-badge" style={{ color: tribeColor }}>
-        {tribe}
       </div>
       {showStats && (
         <div className="pet-card__stats">
