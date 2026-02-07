@@ -16,7 +16,7 @@ import {
   combineCreatures,
   toggleFreeze,
 } from './shop';
-import { resolveBattle, incrementBattlesParticipated } from './battle';
+import { resolveBattle } from './battle';
 import { generateOpponent } from './opponent';
 
 // ============================================================
@@ -295,7 +295,11 @@ export function applyAction(state: GameState, action: EngineAction): EngineResul
       }
 
       const battleResult = resolveBattle(playerCreatures, opponentCreatures);
-      incrementBattlesParticipated(state.player.team);
+
+      // Clone team to avoid mutating input state
+      const updatedTeam = state.player.team.map((c) =>
+        c ? { ...c, battlesParticipated: c.battlesParticipated + 1 } : null
+      );
 
       return {
         success: true,
@@ -304,6 +308,10 @@ export function applyAction(state: GameState, action: EngineAction): EngineResul
           phase: 'result',
           currentOpponent: opponent,
           lastBattleResult: battleResult,
+          player: {
+            ...state.player,
+            team: updatedTeam,
+          },
         },
       };
     }

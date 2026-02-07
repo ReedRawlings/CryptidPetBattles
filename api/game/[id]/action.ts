@@ -9,6 +9,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { handleCors } from '../../_lib/cors';
 import { validateApiKey } from '../../_lib/auth';
 import { loadGameState, saveGameState } from '../../_lib/gameStore';
 import { runAction } from '../../../src/game/engine';
@@ -20,6 +21,7 @@ const VALID_ACTIONS: ActionName[] = [
 ];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handleCors(req, res)) return;
   if (!validateApiKey(req, res)) return;
 
   if (req.method !== 'POST') {
