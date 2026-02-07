@@ -41,6 +41,7 @@ export interface BuffInstance {
   stacks: number;
   remainingTurns: number | null; // null = lasts entire combat
   sourceId: string;
+  permanent?: boolean; // persists across battles (e.g. placement buffs)
 }
 
 // ============================================================

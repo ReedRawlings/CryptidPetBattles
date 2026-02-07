@@ -157,34 +157,30 @@
   left: 4px;
   width: 20px;
   height: 20px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8px;
-  font-weight: bold;
-  color: white;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
   z-index: 3;
   line-height: 1;
+}
+
+.pet-card__tribe-img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
 }
 
 .pet-card--small .pet-card__tribe-icon {
   width: 16px;
   height: 16px;
-  font-size: 6px;
   top: 2px;
   left: 2px;
-  border-radius: 3px;
 }
 
 .pet-card--large .pet-card__tribe-icon {
   width: 24px;
   height: 24px;
-  font-size: 9px;
   top: 6px;
   left: 6px;
-  border-radius: 5px;
 }
 
 /* Tribe-colored avatar placeholder */
@@ -323,6 +319,66 @@
   }
 }
 
+/* Buff icons row — below the card */
+.pet-card__buffs {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  z-index: 4;
+}
+
+.pet-card__buff-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(100, 255, 100, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.pet-card__buff-icon--debuff {
+  border-color: rgba(255, 80, 80, 0.5);
+}
+
+.pet-card__buff-img {
+  width: 12px;
+  height: 12px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.pet-card__buff-text {
+  font-size: 5px;
+  font-weight: bold;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.pet-card__buff-stacks {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  font-size: 7px;
+  font-weight: bold;
+  min-width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0 2px;
+}
+
 /* Mobile Layout - scale down all card sizes */
 @media (max-width: 768px) {
   .pet-card {
@@ -426,7 +482,6 @@
   .pet-card__tribe-icon {
     width: 16px;
     height: 16px;
-    font-size: 6px;
     top: 2px;
     left: 2px;
   }
@@ -434,7 +489,6 @@
   .pet-card--large .pet-card__tribe-icon {
     width: 18px;
     height: 18px;
-    font-size: 7px;
     top: 3px;
     left: 3px;
   }
@@ -474,6 +528,26 @@
 
   .pet-card__tooltip-desc {
     font-size: 10px;
+  }
+
+  .pet-card__buffs {
+    bottom: -16px;
+  }
+
+  .pet-card__buff-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .pet-card__buff-img {
+    width: 9px;
+    height: 9px;
+  }
+
+  .pet-card__buff-stacks {
+    font-size: 6px;
+    min-width: 8px;
+    height: 8px;
   }
 }
 
@@ -576,6 +650,5 @@
   .pet-card__tribe-icon {
     width: 14px;
     height: 14px;
-    font-size: 5px;
   }
 }

@@ -7,6 +7,69 @@ import {
   GAME_CONSTANTS,
 } from '../types';
 
+// ============================================================
+// Helpers
+// ============================================================
+
+function isBuffType(type: string): boolean {
+  return type in BUFF_DEFINITIONS;
+}
+
+// ============================================================
+// Permanent Buff Application (shop phase)
+// ============================================================
+
+/**
+ * Apply a permanent buff to a creature (persists across battles).
+ * Used for placement triggers during the shop phase.
+ */
+export function applyPermanentBuff(creature: Creature, buffType: BuffType, stacks: number): void {
+  const def = BUFF_DEFINITIONS[buffType];
+  const existing = creature.buffs.find((b) => b.type === buffType && b.permanent);
+
+  if (existing && def.stackable) {
+    existing.stacks = stacks; // Set to exact value (not additive, since we strip and re-apply)
+  } else if (!existing) {
+    creature.buffs.push({
+      type: buffType,
+      stacks,
+      remainingTurns: null,
+      sourceId: creature.id,
+      permanent: true,
+    });
+  }
+
+  // Gigantify: immediate HP boost
+  if (buffType === 'gigantify') {
+    const hpGain = stacks * GAME_CONSTANTS.GIGANTIFY_HP_PER_STACK;
+    creature.maxHealth += hpGain;
+    creature.currentHealth += hpGain;
+  }
+}
+
+/**
+ * Apply placement buffs based on creature's ability trigger and position.
+ * Strips old permanent buffs first, then applies matching self-targeting effects.
+ */
+export function applyPlacementBuffs(creature: Creature): void {
+  // Strip old permanent buffs
+  creature.buffs = creature.buffs.filter((b) => !b.permanent);
+
+  const trigger = creature.ability.trigger;
+  const matchesPosition =
+    trigger === 'on_placement' ||
+    (trigger === 'frontline' && creature.position === 'frontline') ||
+    (trigger === 'backline' && creature.position === 'backline');
+
+  if (!matchesPosition) return;
+
+  for (const effect of creature.ability.effects) {
+    if (isBuffType(effect.type) && effect.target === 'self') {
+      applyPermanentBuff(creature, effect.type as BuffType, effect.stacks ?? 1);
+    }
+  }
+}
+
 /**
  * Apply a buff/debuff to a creature. If the buff already exists and is stackable, add stacks.
  * Gigantify immediately increases HP.

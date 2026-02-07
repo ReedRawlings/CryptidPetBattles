@@ -39,7 +39,7 @@ function cloneCreature(c: Creature): Creature {
   return {
     ...c,
     ability: { ...c.ability, effects: c.ability.effects.map((e) => ({ ...e })) },
-    buffs: c.buffs.map((b) => ({ ...b })),
+    buffs: [], // Start fresh — placement triggers re-fire at battle start
     lowHealthTriggered: false,
   };
 }

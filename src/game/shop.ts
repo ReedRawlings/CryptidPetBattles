@@ -1,5 +1,6 @@
 import { Creature, CreatureTemplate, Shop, Position, TIER_SCHEDULE, GAME_CONSTANTS } from '../types';
 import { getAvailableCreatures, getCreatureTemplate } from '../data/creatures';
+import { applyPlacementBuffs } from './buffs';
 
 // Generate a unique ID
 function generateId(): string {
@@ -158,6 +159,7 @@ export function buyCreature(
   const position = getPositionFromIndex(teamIndex);
   const slotIndex = getSlotIndexFromTeamIndex(teamIndex);
   const newCreature = createCreatureFromTemplate(template, 1, position, slotIndex, teamIndex);
+  applyPlacementBuffs(newCreature);
 
   const updatedTeam = [...team];
   updatedTeam[teamIndex] = newCreature;
@@ -177,7 +179,7 @@ function combineWithTemplate(existing: Creature, template: CreatureTemplate): Cr
   const starKey = String(newStar) as '1' | '2' | '3';
   const tierData = template.tiers[starKey];
 
-  return {
+  const combined: Creature = {
     ...existing,
     star: newStar,
     baseAttack: tierData.baseStats.attack,
@@ -191,7 +193,10 @@ function combineWithTemplate(existing: Creature, template: CreatureTemplate): Cr
       ...tierData.ability,
       effects: tierData.ability.effects.map((e) => ({ ...e })),
     },
+    buffs: [], // Clear — ability may have changed at new star
   };
+  applyPlacementBuffs(combined);
+  return combined;
 }
 
 // Sell a creature from the team
@@ -224,7 +229,14 @@ export function swapCreatures(
   updatedTeam[indexA] = updatedTeam[indexB];
   updatedTeam[indexB] = temp;
 
-  return updateTeamPositions(updatedTeam);
+  const result = updateTeamPositions(updatedTeam);
+
+  // Re-apply placement buffs since positions may have changed
+  for (const creature of result) {
+    if (creature) applyPlacementBuffs(creature);
+  }
+
+  return result;
 }
 
 // Combine two identical creatures (star up)
@@ -259,7 +271,7 @@ export function combineCreatures(
   const tierData = template.tiers[starKey];
 
   const updatedTeam = [...team];
-  updatedTeam[targetIndex] = {
+  const combined: Creature = {
     ...target,
     star: newStar,
     baseAttack: tierData.baseStats.attack,
@@ -273,7 +285,10 @@ export function combineCreatures(
       ...tierData.ability,
       effects: tierData.ability.effects.map((e) => ({ ...e })),
     },
+    buffs: [], // Clear — ability may have changed at new star
   };
+  applyPlacementBuffs(combined);
+  updatedTeam[targetIndex] = combined;
   updatedTeam[sourceIndex] = null;
 
   return { success: true, updatedTeam, starredUp: true };

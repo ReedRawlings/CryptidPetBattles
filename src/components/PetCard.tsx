@@ -1,6 +1,29 @@
 import React, { useState } from 'react';
-import { Creature, CreatureTemplate, Tribe } from '../types';
+import { Creature, CreatureTemplate, Tribe, BuffType, BUFF_DEFINITIONS } from '../types';
 import './PetCard.css';
+
+const BUFF_ICONS: Partial<Record<BuffType, string>> = {
+  strengthen: '/assets/icons/Strengthen.png',
+  weaken: '/assets/icons/Weaken.png',
+  haste: '/assets/icons/Haste.png',
+  slow: '/assets/icons/Slow.png',
+  burn: '/assets/icons/Burn.png',
+  poison: '/assets/icons/Poison.png',
+  gigantify: '/assets/icons/Gigantify.png',
+};
+
+const BUFF_FALLBACK: Record<BuffType, string> = {
+  strengthen: 'STR',
+  weaken: 'WK',
+  thorns: 'THN',
+  haste: 'HST',
+  slow: 'SLW',
+  burn: 'BRN',
+  poison: 'PSN',
+  bleed: 'BLD',
+  taunt: 'TNT',
+  gigantify: 'GIG',
+};
 
 // Tribe colors for placeholder avatars
 const TRIBE_COLORS: Record<Tribe, string> = {
@@ -9,6 +32,14 @@ const TRIBE_COLORS: Record<Tribe, string> = {
   Fauna: '#F59E0B',
   Kami: '#3B82F6',
   Dessert: '#EC4899',
+};
+
+const TRIBE_ICONS: Record<Tribe, string> = {
+  Spirit: '/assets/icons/Spirits.png',
+  Flora: '/assets/icons/FloraIcon.png',
+  Fauna: '/assets/icons/Fauna.png',
+  Kami: '/assets/icons/Kami.png',
+  Dessert: '/assets/icons/dessert.png',
 };
 
 function getInitials(name: string): string {
@@ -125,8 +156,8 @@ export function PetCard({
       {star > 1 && (
         <div className="pet-card__star">{'★'.repeat(star)}</div>
       )}
-      <div className="pet-card__tribe-icon" style={{ backgroundColor: tribeColor }}>
-        {tribe.slice(0, 2).toUpperCase()}
+      <div className="pet-card__tribe-icon">
+        <img src={TRIBE_ICONS[tribe]} alt={tribe} className="pet-card__tribe-img" />
       </div>
       <div
         className="pet-card__avatar"
@@ -141,6 +172,28 @@ export function PetCard({
           <span className="pet-card__health">{health}</span>
           <span className="pet-card__divider">|</span>
           <span className="pet-card__speed">{speed}</span>
+        </div>
+      )}
+      {isInstance && (pet as Creature).buffs.length > 0 && (
+        <div className="pet-card__buffs">
+          {(pet as Creature).buffs.map((buff) => {
+            const iconSrc = BUFF_ICONS[buff.type];
+            const isDebuff = BUFF_DEFINITIONS[buff.type].category !== 'buff';
+            return (
+              <div
+                key={buff.type}
+                className={`pet-card__buff-icon ${isDebuff ? 'pet-card__buff-icon--debuff' : ''}`}
+                title={`${BUFF_DEFINITIONS[buff.type].name} x${buff.stacks}`}
+              >
+                {iconSrc ? (
+                  <img src={iconSrc} alt={BUFF_DEFINITIONS[buff.type].name} className="pet-card__buff-img" />
+                ) : (
+                  <span className="pet-card__buff-text">{BUFF_FALLBACK[buff.type]}</span>
+                )}
+                {buff.stacks > 1 && <span className="pet-card__buff-stacks">{buff.stacks}</span>}
+              </div>
+            );
+          })}
         </div>
       )}
       {showAbilityOnHover && showTooltip && (
