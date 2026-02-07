@@ -223,6 +223,65 @@
   to { background-position: -1152px 0; }
 }
 
+/* Buff icons row beneath stats */
+.battle-pet__buffs {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2px;
+  max-width: 90px;
+}
+
+.battle-pet__buff-icon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(100, 255, 100, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.battle-pet__buff-icon--debuff {
+  border-color: rgba(255, 80, 80, 0.5);
+}
+
+.battle-pet__buff-img {
+  width: 14px;
+  height: 14px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.battle-pet__buff-text {
+  font-size: 6px;
+  font-weight: bold;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.battle-pet__buff-stacks {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  font-size: 7px;
+  font-weight: bold;
+  min-width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0 2px;
+}
+
 /* Floating numbers */
 .battle-pet__number {
   position: absolute;
@@ -336,5 +395,29 @@
   .battle-pet {
     min-width: 50px;
     padding: 4px;
+  }
+
+  .battle-pet__buffs {
+    max-width: 60px;
+  }
+
+  .battle-pet__buff-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .battle-pet__buff-img {
+    width: 10px;
+    height: 10px;
+  }
+
+  .battle-pet__buff-text {
+    font-size: 5px;
+  }
+
+  .battle-pet__buff-stacks {
+    font-size: 6px;
+    min-width: 8px;
+    height: 8px;
   }
 }

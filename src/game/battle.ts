@@ -375,10 +375,10 @@ function processFaints(state: BattleState): void {
         hadFaints = true;
         addEvent(state, 'faint', creature.id, null, 0, `${creature.name} faints`);
 
-        // Spirit passive: summon Bone on faint
-        const spiritCount = team.filter((c) => c.type === 'Spirit' && isAlive(c)).length +
-          team.filter((c) => c.type === 'Spirit' && c.currentHealth <= 0 && c.id === creature.id).length;
-        if (creature.type === 'Spirit') {
+        // Spirit passive: summon Bone on faint (only for non-summoned Spirit creatures)
+        if (creature.type === 'Spirit' && creature.templateId !== 'bone') {
+          const spiritCount = team.filter((c) => c.type === 'Spirit' && isAlive(c)).length +
+            team.filter((c) => c.type === 'Spirit' && c.currentHealth <= 0 && c.id === creature.id).length;
           const boneStats = getBoneStats(spiritCount);
           if (boneStats) {
             const bone = createBoneSummon(boneStats, creature, state);

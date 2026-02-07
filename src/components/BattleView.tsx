@@ -11,6 +11,29 @@ const TRIBE_COLORS: Record<Tribe, string> = {
   Dessert: '#EC4899',
 };
 
+const BUFF_ICONS: Partial<Record<BuffType, string>> = {
+  strengthen: '/assets/icons/Strengthen.png',
+  weaken: '/assets/icons/Weaken.png',
+  haste: '/assets/icons/Haste.png',
+  slow: '/assets/icons/Slow.png',
+  burn: '/assets/icons/Burn.png',
+  poison: '/assets/icons/Poison.png',
+  gigantify: '/assets/icons/Gigantify.png',
+};
+
+const BUFF_FALLBACK_LABELS: Record<BuffType, string> = {
+  strengthen: 'STR',
+  weaken: 'WK',
+  thorns: 'THN',
+  haste: 'HST',
+  slow: 'SLW',
+  burn: 'BRN',
+  poison: 'PSN',
+  bleed: 'BLD',
+  taunt: 'TNT',
+  gigantify: 'GIG',
+};
+
 interface BattleCreature extends Creature {
   displayHealth: number;
   displayAttack: number;
@@ -30,7 +53,7 @@ function cloneBattleCreature(c: Creature): BattleCreature {
     displayHealth: c.currentHealth,
     displayAttack: c.currentAttack,
     displaySpeed: c.currentSpeed,
-    displayBuffs: [],
+    displayBuffs: c.buffs.map((b) => ({ type: b.type, stacks: b.stacks })),
     isAttacking: false,
     showAttackEffect: false,
     showBuffEffect: false,
@@ -101,6 +124,39 @@ export function BattleView() {
       if (idx === -1) return prev;
       const newTeam = [...prev];
       newTeam[idx] = { ...newTeam[idx], ...updates };
+      return newTeam;
+    });
+  };
+
+  const addBuffToCreature = (team: 'player' | 'opponent', id: string, buffType: BuffType, stacks: number) => {
+    const setState = team === 'player' ? setPlayerTeam : setOpponentTeam;
+    setState((prev) => {
+      const idx = prev.findIndex((c) => c.id === id);
+      if (idx === -1) return prev;
+      const newTeam = [...prev];
+      const creature = { ...newTeam[idx] };
+      const newBuffs = [...creature.displayBuffs];
+      const existingIdx = newBuffs.findIndex((b) => b.type === buffType);
+      if (existingIdx >= 0) {
+        newBuffs[existingIdx] = { ...newBuffs[existingIdx], stacks: newBuffs[existingIdx].stacks + stacks };
+      } else {
+        newBuffs.push({ type: buffType, stacks });
+      }
+      creature.displayBuffs = newBuffs;
+      newTeam[idx] = creature;
+      return newTeam;
+    });
+  };
+
+  const removeBuffFromCreature = (team: 'player' | 'opponent', id: string, buffType: BuffType) => {
+    const setState = team === 'player' ? setPlayerTeam : setOpponentTeam;
+    setState((prev) => {
+      const idx = prev.findIndex((c) => c.id === id);
+      if (idx === -1) return prev;
+      const newTeam = [...prev];
+      const creature = { ...newTeam[idx] };
+      creature.displayBuffs = creature.displayBuffs.filter((b) => b.type !== buffType);
+      newTeam[idx] = creature;
       return newTeam;
     });
   };
@@ -191,6 +247,9 @@ export function BattleView() {
               ? `+${event.value} ${BUFF_DEFINITIONS[event.buffType].name}`
               : `+${event.value}`,
           });
+          if (event.buffType) {
+            addBuffToCreature(targetTeam, target.id, event.buffType, event.value || 1);
+          }
           setTimeout(() => {
             updateCreatureById(targetTeam, target.id, { showBuffEffect: false });
           }, 650);
@@ -205,6 +264,9 @@ export function BattleView() {
               ? `${BUFF_DEFINITIONS[event.buffType].name}!`
               : 'Debuff!',
           });
+          if (event.buffType) {
+            addBuffToCreature(targetTeam, target.id, event.buffType, event.value || 1);
+          }
           setTimeout(() => {
             updateCreatureById(targetTeam, target.id, { showBuffEffect: false });
           }, 650);
@@ -212,6 +274,9 @@ export function BattleView() {
         break;
 
       case 'buff_removed':
+        if (targetTeam && target && event.buffType) {
+          removeBuffFromCreature(targetTeam, target.id, event.buffType);
+        }
         break;
 
       case 'faint':
@@ -296,6 +361,33 @@ export function BattleView() {
 
   const { winner } = lastBattleResult;
 
+  const renderBuffIcons = (buffs: { type: BuffType; stacks: number }[]) => {
+    if (buffs.length === 0) return null;
+    return (
+      <div className="battle-pet__buffs">
+        {buffs.map((buff) => {
+          const def = BUFF_DEFINITIONS[buff.type];
+          const iconSrc = BUFF_ICONS[buff.type];
+          const isDebuff = def.category === 'debuff' || def.category === 'dot';
+          return (
+            <div
+              key={buff.type}
+              className={`battle-pet__buff-icon ${isDebuff ? 'battle-pet__buff-icon--debuff' : ''}`}
+              title={`${def.name} x${buff.stacks}`}
+            >
+              {iconSrc ? (
+                <img src={iconSrc} alt={def.name} className="battle-pet__buff-img" />
+              ) : (
+                <span className="battle-pet__buff-text">{BUFF_FALLBACK_LABELS[buff.type]}</span>
+              )}
+              {buff.stacks > 1 && <span className="battle-pet__buff-stacks">{buff.stacks}</span>}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderCreature = (creature: BattleCreature, isPlayerTeam: boolean) => {
     if (creature.isFainted) {
       return (
@@ -322,6 +414,8 @@ export function BattleView() {
         </div>
         <div className="battle-pet__name">{creature.name}</div>
         {creature.star > 1 && <div className="battle-pet__star">{'★'.repeat(creature.star)}</div>}
+
+        {renderBuffIcons(creature.displayBuffs)}
 
         {creature.showAttackEffect && (
           <div key={`atk-${Date.now()}`} className="battle-pet__effect battle-pet__effect--attack" />
