@@ -7,14 +7,17 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "start": "vite preview"
+    "start": "vite preview",
+    "mcp": "npx tsx src/mcp/server.ts"
   },
   "repository": {
     "type": "git",
     "url": "http://local_proxy@127.0.0.1:20812/git/ReedRawlings/CryptidPetBattles"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "@supabase/supabase-js": "^2.93.3",
+    "@vercel/node": "^5.5.33",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
