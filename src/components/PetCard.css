@@ -319,13 +319,13 @@
   }
 }
 
-/* Buff icons row — below the card */
+/* Buff icons — right side, opposite tribe icon */
 .pet-card__buffs {
   position: absolute;
-  bottom: -20px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 4px;
+  right: 4px;
   display: flex;
+  flex-direction: column;
   gap: 2px;
   z-index: 4;
 }
@@ -531,7 +531,8 @@
   }
 
   .pet-card__buffs {
-    bottom: -16px;
+    top: 2px;
+    right: 2px;
   }
 
   .pet-card__buff-icon {

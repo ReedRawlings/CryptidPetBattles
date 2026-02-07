@@ -36,7 +36,11 @@
       "mcp__supabase__get_advisors",
       "Bash(python3 -c:*)",
       "Bash(export PATH=\"/usr/local/bin:/opt/homebrew/bin:$PATH\")",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(supabase projects list:*)",
+      "Bash(supabase db execute:*)",
+      "Bash(supabase:*)",
+      "Bash(ls:*)"
     ]
   }
 }

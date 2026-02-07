@@ -7,8 +7,8 @@ import { generateOpponent } from '@/game/opponent';
 // MMR range for matchmaking (starts tight, expands if no matches)
 const MMR_RANGES = [100, 200, 400, 800];
 
-// Turn range for similar progression
-const TURN_RANGE = 2;
+// Only match against opponents on the same turn
+const TURN_RANGE = 0;
 
 interface SnapshotQueryResult {
   id: string;

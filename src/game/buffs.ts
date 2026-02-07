@@ -28,7 +28,7 @@ export function applyPermanentBuff(creature: Creature, buffType: BuffType, stack
   const existing = creature.buffs.find((b) => b.type === buffType && b.permanent);
 
   if (existing && def.stackable) {
-    existing.stacks = stacks; // Set to exact value (not additive, since we strip and re-apply)
+    existing.stacks = stacks;
   } else if (!existing) {
     creature.buffs.push({
       type: buffType,

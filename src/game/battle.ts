@@ -579,6 +579,12 @@ export function resolveBattle(playerTeam: Creature[], opponentTeam: Creature[]):
       ...getLivingCreatures(state.opponentTeam),
     ];
 
+    // Assign random tiebreak values upfront for stable, unbiased sorting
+    const tiebreaks = new Map<string, number>();
+    for (const c of allLiving) {
+      tiebreaks.set(c.id, Math.random());
+    }
+
     allLiving.sort((a, b) => {
       const speedDiff = getEffectiveSpeed(b) - getEffectiveSpeed(a);
       if (speedDiff !== 0) return speedDiff;
@@ -586,8 +592,8 @@ export function resolveBattle(playerTeam: Creature[], opponentTeam: Creature[]):
       const posA = a.position === 'frontline' ? 1 : 0;
       const posB = b.position === 'frontline' ? 1 : 0;
       if (posB !== posA) return posB - posA;
-      // Tiebreak: random
-      return Math.random() - 0.5;
+      // Tiebreak: random (pre-assigned for stable sort)
+      return (tiebreaks.get(a.id) ?? 0) - (tiebreaks.get(b.id) ?? 0);
     });
 
     addEvent(state, 'initiative', null, null, allLiving.length,
