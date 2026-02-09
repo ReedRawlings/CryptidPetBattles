@@ -75,7 +75,7 @@ export type EffectTarget =
 export interface CreatureEffect {
   type: string; // effect type from creatures.json (strengthen, weaken, thorns, aoe, dot, taunt, slow, haste, cleanse_dot, cleanse_aoe, increase_damage, increase_health, gigantify, poison, burn, bleed)
   stacks?: number;
-  value?: number;
+  value?: number | string; // number for damage/heal amounts, 'all' for cleanse
   duration?: number | string; // number for turns, 'this_combat' for permanent
   target: EffectTarget;
   stackable?: boolean;

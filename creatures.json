@@ -310,13 +310,18 @@
             "name": "Warm Embrace",
             "id": "ability_ghost_1",
             "trigger": "passive",
-            "description": "Gain 1 stack of Gigantify each turn",
+            "description": "Each turn, gain 1 Gigantify and heal lowest HP ally for 3",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 1,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 3,
+                "target": "lowest_hp_ally"
               }
             ]
           }
@@ -333,13 +338,18 @@
             "name": "Warm Embrace",
             "id": "ability_ghost_2",
             "trigger": "passive",
-            "description": "Gain 2 stacks of Gigantify each turn",
+            "description": "Each turn, gain 2 Gigantify and heal lowest HP ally for 5",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 5,
+                "target": "lowest_hp_ally"
               }
             ]
           }
@@ -356,13 +366,18 @@
             "name": "Warm Embrace",
             "id": "ability_ghost_3",
             "trigger": "passive",
-            "description": "Gain 3 stacks of Gigantify each turn",
+            "description": "Each turn, gain 3 Gigantify and heal lowest HP ally for 8",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 8,
+                "target": "lowest_hp_ally"
               }
             ]
           }
@@ -739,12 +754,18 @@
             "name": "Feeding Frenzy",
             "id": "ability_sharkdog_1",
             "trigger": "frontline",
-            "description": "At battle start from frontline, gain 1 stack of Strengthen",
+            "description": "Frontline: gain 1 Strengthen and Weaken nearest enemy 1 stack",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 1,
                 "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "weaken",
+                "stacks": 1,
+                "target": "nearest_enemy",
                 "duration": "this_combat"
               }
             ]
@@ -762,12 +783,18 @@
             "name": "Feeding Frenzy",
             "id": "ability_sharkdog_2",
             "trigger": "frontline",
-            "description": "At battle start from frontline, gain 2 stacks of Strengthen",
+            "description": "Frontline: gain 2 Strengthen and Weaken nearest enemy 1 stack",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 2,
                 "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "weaken",
+                "stacks": 1,
+                "target": "nearest_enemy",
                 "duration": "this_combat"
               }
             ]
@@ -785,12 +812,18 @@
             "name": "Feeding Frenzy",
             "id": "ability_sharkdog_3",
             "trigger": "frontline",
-            "description": "At battle start from frontline, gain 3 stacks of Strengthen",
+            "description": "Frontline: gain 3 Strengthen and Weaken nearest enemy 2 stacks",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 3,
                 "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "weaken",
+                "stacks": 2,
+                "target": "nearest_enemy",
                 "duration": "this_combat"
               }
             ]
@@ -826,12 +859,18 @@
             "name": "Zip Zap",
             "id": "ability_zaboo_1",
             "trigger": "on_placement",
-            "description": "On placement, gain 2 stacks of Haste",
+            "description": "On placement, gain 2 Haste and Slow a random enemy 1 stack",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 2,
                 "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "slow",
+                "stacks": 1,
+                "target": "random_enemy",
                 "duration": "this_combat"
               }
             ]
@@ -849,12 +888,18 @@
             "name": "Zip Zap",
             "id": "ability_zaboo_2",
             "trigger": "on_placement",
-            "description": "On placement, gain 4 stacks of Haste",
+            "description": "On placement, gain 4 Haste and Slow a random enemy 2 stacks",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 4,
                 "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "slow",
+                "stacks": 2,
+                "target": "random_enemy",
                 "duration": "this_combat"
               }
             ]
@@ -872,12 +917,18 @@
             "name": "Zip Zap",
             "id": "ability_zaboo_3",
             "trigger": "on_placement",
-            "description": "On placement, gain 6 stacks of Haste",
+            "description": "On placement, gain 6 Haste and Slow a random enemy 3 stacks",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 6,
                 "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "slow",
+                "stacks": 3,
+                "target": "random_enemy",
                 "duration": "this_combat"
               }
             ]
@@ -1255,13 +1306,18 @@
             "name": "Cornered Fury",
             "id": "ability_von_fish_1",
             "trigger": "on_debuff",
-            "description": "When debuffed, gain 2 stacks of Strengthen",
+            "description": "When debuffed, gain 2 Strengthen and deal 3 damage to a random enemy",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 3,
+                "target": "random_enemy"
               }
             ]
           }
@@ -1278,13 +1334,18 @@
             "name": "Cornered Fury",
             "id": "ability_von_fish_2",
             "trigger": "on_debuff",
-            "description": "When debuffed, gain 3 stacks of Strengthen",
+            "description": "When debuffed, gain 3 Strengthen and deal 5 damage to a random enemy",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 5,
+                "target": "random_enemy"
               }
             ]
           }
@@ -1301,13 +1362,18 @@
             "name": "Cornered Fury",
             "id": "ability_von_fish_3",
             "trigger": "on_debuff",
-            "description": "When debuffed, gain 4 stacks of Strengthen",
+            "description": "When debuffed, gain 4 Strengthen and deal 8 damage to a random enemy",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 4,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 8,
+                "target": "random_enemy"
               }
             ]
           }
@@ -1342,11 +1408,16 @@
             "name": "Bamboo Fortitude",
             "id": "ability_panda_1",
             "trigger": "frontline",
-            "description": "At battle start from frontline, gain 1 stack of Gigantify",
+            "description": "Frontline: gain 1 Gigantify and Taunt, becoming the team's shield",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 1,
+                "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "taunt",
                 "target": "self",
                 "duration": "this_combat"
               }
@@ -1365,11 +1436,16 @@
             "name": "Bamboo Fortitude",
             "id": "ability_panda_2",
             "trigger": "frontline",
-            "description": "At battle start from frontline, gain 2 stacks of Gigantify",
+            "description": "Frontline: gain 2 Gigantify and Taunt, becoming the team's shield",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 2,
+                "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "taunt",
                 "target": "self",
                 "duration": "this_combat"
               }
@@ -1388,11 +1464,16 @@
             "name": "Bamboo Fortitude",
             "id": "ability_panda_3",
             "trigger": "frontline",
-            "description": "At battle start from frontline, gain 3 stacks of Gigantify",
+            "description": "Frontline: gain 3 Gigantify and Taunt, becoming the team's shield",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 3,
+                "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "taunt",
                 "target": "self",
                 "duration": "this_combat"
               }
@@ -1518,13 +1599,18 @@
             "name": "Phoenix Tears",
             "id": "ability_egg_bird_1",
             "trigger": "ally_dies",
-            "description": "When an ally dies, apply 1 stack of Gigantify to self and lowest HP ally",
+            "description": "When an ally dies, gain 1 Gigantify with lowest ally and heal them for 5",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 1,
                 "target": "self_and_lowest_ally",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 5,
+                "target": "self_and_lowest_ally"
               }
             ]
           }
@@ -1541,13 +1627,18 @@
             "name": "Phoenix Tears",
             "id": "ability_egg_bird_2",
             "trigger": "ally_dies",
-            "description": "When an ally dies, apply 2 stacks of Gigantify to self and lowest HP ally",
+            "description": "When an ally dies, gain 2 Gigantify with lowest ally and heal them for 8",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 2,
                 "target": "self_and_lowest_ally",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 8,
+                "target": "self_and_lowest_ally"
               }
             ]
           }
@@ -1564,13 +1655,18 @@
             "name": "Phoenix Tears",
             "id": "ability_egg_bird_3",
             "trigger": "ally_dies",
-            "description": "When an ally dies, apply 3 stacks of Gigantify to self and lowest HP ally",
+            "description": "When an ally dies, gain 3 Gigantify with lowest ally and heal them for 12",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 3,
                 "target": "self_and_lowest_ally",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 12,
+                "target": "self_and_lowest_ally"
               }
             ]
           }
@@ -1605,13 +1701,18 @@
             "name": "Vengeance Bite",
             "id": "ability_jaws_dog_1",
             "trigger": "ally_dies",
-            "description": "When an ally dies, gain 2 stacks of Strengthen",
+            "description": "When an ally dies, gain 2 Strengthen and heal self for 5",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 5,
+                "target": "self"
               }
             ]
           }
@@ -1628,13 +1729,18 @@
             "name": "Vengeance Bite",
             "id": "ability_jaws_dog_2",
             "trigger": "ally_dies",
-            "description": "When an ally dies, gain 4 stacks of Strengthen",
+            "description": "When an ally dies, gain 4 Strengthen and heal self for 8",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 4,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 8,
+                "target": "self"
               }
             ]
           }
@@ -1651,13 +1757,18 @@
             "name": "Vengeance Bite",
             "id": "ability_jaws_dog_3",
             "trigger": "ally_dies",
-            "description": "When an ally dies, gain 6 stacks of Strengthen",
+            "description": "When an ally dies, gain 6 Strengthen and heal self for 12",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 6,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 12,
+                "target": "self"
               }
             ]
           }
@@ -2124,13 +2235,18 @@
             "name": "Blazing Wrath",
             "id": "ability_pampkin_1",
             "trigger": "low_health",
-            "description": "When below 30% HP, gain 2 stacks of Strengthen",
+            "description": "Below 30% HP: gain 2 Strengthen and deal 4 damage to all enemies",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "aoe",
+                "value": 4,
+                "target": "all_enemies"
               }
             ]
           }
@@ -2147,13 +2263,18 @@
             "name": "Blazing Wrath",
             "id": "ability_pampkin_2",
             "trigger": "low_health",
-            "description": "When below 30% HP, gain 3 stacks of Strengthen",
+            "description": "Below 30% HP: gain 3 Strengthen and deal 6 damage to all enemies",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "aoe",
+                "value": 6,
+                "target": "all_enemies"
               }
             ]
           }
@@ -2170,13 +2291,18 @@
             "name": "Blazing Wrath",
             "id": "ability_pampkin_3",
             "trigger": "low_health",
-            "description": "When below 30% HP, gain 4 stacks of Strengthen",
+            "description": "Below 30% HP: gain 4 Strengthen and deal 10 damage to all enemies",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 4,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "aoe",
+                "value": 10,
+                "target": "all_enemies"
               }
             ]
           }
@@ -2211,13 +2337,18 @@
             "name": "Warm Up",
             "id": "ability_toasta_1",
             "trigger": "on_placement",
-            "description": "On placement, gain 1 stack of Gigantify",
+            "description": "On placement, gain 1 Gigantify and heal self and nearest ally for 3",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 1,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 3,
+                "target": "self_and_nearest_ally"
               }
             ]
           }
@@ -2234,13 +2365,18 @@
             "name": "Warm Up",
             "id": "ability_toasta_2",
             "trigger": "on_placement",
-            "description": "On placement, gain 2 stacks of Gigantify",
+            "description": "On placement, gain 2 Gigantify and heal self and nearest ally for 5",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 5,
+                "target": "self_and_nearest_ally"
               }
             ]
           }
@@ -2257,13 +2393,18 @@
             "name": "Warm Up",
             "id": "ability_toasta_3",
             "trigger": "on_placement",
-            "description": "On placement, gain 3 stacks of Gigantify",
+            "description": "On placement, gain 3 Gigantify and heal self and nearest ally for 8",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 8,
+                "target": "self_and_nearest_ally"
               }
             ]
           }
@@ -2382,13 +2523,19 @@
             "name": "Caffeine Rush",
             "id": "ability_expresso_1",
             "trigger": "on_buff",
-            "description": "When buffed, gain 1 stack of Strengthen",
+            "description": "When buffed, gain 1 Strengthen and Burn a random enemy for 1 stack",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 1,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "burn",
+                "stacks": 1,
+                "target": "random_enemy",
+                "duration": "3_turns"
               }
             ]
           }
@@ -2405,13 +2552,19 @@
             "name": "Caffeine Rush",
             "id": "ability_expresso_2",
             "trigger": "on_buff",
-            "description": "When buffed, gain 2 stacks of Strengthen",
+            "description": "When buffed, gain 2 Strengthen and Burn a random enemy for 1 stack",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "burn",
+                "stacks": 1,
+                "target": "random_enemy",
+                "duration": "3_turns"
               }
             ]
           }
@@ -2428,13 +2581,19 @@
             "name": "Caffeine Rush",
             "id": "ability_expresso_3",
             "trigger": "on_buff",
-            "description": "When buffed, gain 3 stacks of Strengthen",
+            "description": "When buffed, gain 3 Strengthen and Burn a random enemy for 2 stacks",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "burn",
+                "stacks": 2,
+                "target": "random_enemy",
+                "duration": "3_turns"
               }
             ]
           }
@@ -2556,13 +2715,19 @@
             "name": "Rear Charge",
             "id": "ability_road_rage_1",
             "trigger": "backline",
-            "description": "At battle start from backline, gain 1 stack of Strengthen",
+            "description": "Backline: gain 1 Strengthen and Burn a random enemy for 1 stack",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 1,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "burn",
+                "stacks": 1,
+                "target": "random_enemy",
+                "duration": "3_turns"
               }
             ]
           }
@@ -2579,13 +2744,19 @@
             "name": "Rear Charge",
             "id": "ability_road_rage_2",
             "trigger": "backline",
-            "description": "At battle start from backline, gain 2 stacks of Strengthen",
+            "description": "Backline: gain 2 Strengthen and Burn a random enemy for 2 stacks",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "burn",
+                "stacks": 2,
+                "target": "random_enemy",
+                "duration": "3_turns"
               }
             ]
           }
@@ -2602,13 +2773,19 @@
             "name": "Rear Charge",
             "id": "ability_road_rage_3",
             "trigger": "backline",
-            "description": "At battle start from backline, gain 3 stacks of Strengthen",
+            "description": "Backline: gain 3 Strengthen and Burn a random enemy for 3 stacks",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "burn",
+                "stacks": 3,
+                "target": "random_enemy",
+                "duration": "3_turns"
               }
             ]
           }
@@ -2811,13 +2988,18 @@
             "name": "Momentum",
             "id": "ability_routa_1",
             "trigger": "on_kill",
-            "description": "On kill, gain 2 stacks of Haste",
+            "description": "On kill, gain 2 Haste and deal 3 damage to a random enemy",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 3,
+                "target": "random_enemy"
               }
             ]
           }
@@ -2834,13 +3016,18 @@
             "name": "Momentum",
             "id": "ability_routa_2",
             "trigger": "on_kill",
-            "description": "On kill, gain 4 stacks of Haste",
+            "description": "On kill, gain 4 Haste and deal 5 damage to a random enemy",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 4,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 5,
+                "target": "random_enemy"
               }
             ]
           }
@@ -2857,13 +3044,18 @@
             "name": "Momentum",
             "id": "ability_routa_3",
             "trigger": "on_kill",
-            "description": "On kill, gain 6 stacks of Haste",
+            "description": "On kill, gain 6 Haste and deal 8 damage to a random enemy",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 6,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 8,
+                "target": "random_enemy"
               }
             ]
           }
@@ -3159,13 +3351,18 @@
             "name": "One-Two Punch",
             "id": "ability_boxing_cherries_1",
             "trigger": "on_placement",
-            "description": "On placement, gain 1 stack of Strengthen",
+            "description": "On placement, gain 1 Strengthen and deal 3 damage to a random enemy",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 1,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 3,
+                "target": "random_enemy"
               }
             ]
           }
@@ -3182,13 +3379,18 @@
             "name": "One-Two Punch",
             "id": "ability_boxing_cherries_2",
             "trigger": "on_placement",
-            "description": "On placement, gain 2 stacks of Strengthen",
+            "description": "On placement, gain 2 Strengthen and deal 5 damage to a random enemy",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 5,
+                "target": "random_enemy"
               }
             ]
           }
@@ -3205,13 +3407,18 @@
             "name": "One-Two Punch",
             "id": "ability_boxing_cherries_3",
             "trigger": "on_placement",
-            "description": "On placement, gain 3 stacks of Strengthen",
+            "description": "On placement, gain 3 Strengthen and deal 8 damage to a random enemy",
             "effects": [
               {
                 "type": "strengthen",
                 "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "deal_damage",
+                "value": 8,
+                "target": "random_enemy"
               }
             ]
           }
@@ -3246,13 +3453,18 @@
             "name": "Victory Scoop",
             "id": "ability_three_cream_1",
             "trigger": "on_kill",
-            "description": "On kill, gain 1 stack of Gigantify",
+            "description": "On kill, gain 1 Gigantify and heal self for 5",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 1,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 5,
+                "target": "self"
               }
             ]
           }
@@ -3269,13 +3481,18 @@
             "name": "Victory Scoop",
             "id": "ability_three_cream_2",
             "trigger": "on_kill",
-            "description": "On kill, gain 2 stacks of Gigantify",
+            "description": "On kill, gain 2 Gigantify and heal self for 8",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 8,
+                "target": "self"
               }
             ]
           }
@@ -3292,13 +3509,18 @@
             "name": "Victory Scoop",
             "id": "ability_three_cream_3",
             "trigger": "on_kill",
-            "description": "On kill, gain 3 stacks of Gigantify",
+            "description": "On kill, gain 3 Gigantify and heal self for 12",
             "effects": [
               {
                 "type": "gigantify",
                 "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 12,
+                "target": "self"
               }
             ]
           }
@@ -3672,11 +3894,17 @@
             "name": "Strudel Charge",
             "id": "ability_strudecles_1",
             "trigger": "backline",
-            "description": "At battle start from backline, gain 4 stacks of Haste",
+            "description": "Backline: gain 4 Haste and 1 Strengthen, charging forward",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 4,
+                "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "strengthen",
+                "stacks": 1,
                 "target": "self",
                 "duration": "this_combat"
               }
@@ -3695,11 +3923,17 @@
             "name": "Strudel Charge",
             "id": "ability_strudecles_2",
             "trigger": "backline",
-            "description": "At battle start from backline, gain 6 stacks of Haste",
+            "description": "Backline: gain 6 Haste and 2 Strengthen, charging forward",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 6,
+                "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "strengthen",
+                "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
               }
@@ -3718,11 +3952,17 @@
             "name": "Strudel Charge",
             "id": "ability_strudecles_3",
             "trigger": "backline",
-            "description": "At battle start from backline, gain 8 stacks of Haste",
+            "description": "Backline: gain 8 Haste and 3 Strengthen, charging forward",
             "effects": [
               {
                 "type": "haste",
                 "stacks": 8,
+                "target": "self",
+                "duration": "this_combat"
+              },
+              {
+                "type": "strengthen",
+                "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
               }

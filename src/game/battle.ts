@@ -237,7 +237,7 @@ function executeAbilityEffects(
 
       // Damage effects
       if (effectType === 'aoe' || effectType === 'deal_damage') {
-        const damage = effect.value ?? 0;
+        const damage = typeof effect.value === 'number' ? effect.value : 0;
         if (damage > 0) {
           applyDamage(target, damage, state, source);
         }
@@ -246,14 +246,14 @@ function executeAbilityEffects(
 
       // Stat modification effects
       if (effectType === 'increase_damage') {
-        const value = effect.value ?? 0;
+        const value = typeof effect.value === 'number' ? effect.value : 0;
         target.currentAttack = Math.min(target.currentAttack + value, GAME_CONSTANTS.MAX_STAT);
         addEvent(state, 'buff', source.id, target.id, value, `${target.name} gains +${value} ATK`);
         continue;
       }
 
       if (effectType === 'increase_health') {
-        const value = effect.value ?? 0;
+        const value = typeof effect.value === 'number' ? effect.value : 0;
         const healAmount = Math.min(value, target.maxHealth - target.currentHealth);
         if (healAmount > 0) {
           target.currentHealth += healAmount;
@@ -263,8 +263,9 @@ function executeAbilityEffects(
       }
 
       // Cleanse effects
-      if (effectType === 'cleanse_dot') {
-        cleanse(target, 'all', state.events, state.timestamp++);
+      if (effectType === 'cleanse' || effectType === 'cleanse_dot') {
+        const count = effect.value === 'all' ? 'all' : (typeof effect.value === 'number' ? effect.value : 'all');
+        cleanse(target, count, state.events, state.timestamp++);
         continue;
       }
 
