@@ -1599,17 +1599,17 @@
             "name": "Phoenix Tears",
             "id": "ability_egg_bird_1",
             "trigger": "ally_dies",
-            "description": "When an ally dies, gain 1 Gigantify with lowest ally and heal them for 5",
+            "description": "When an ally dies, gain 2 Gigantify with lowest ally and heal them for 8",
             "effects": [
               {
                 "type": "gigantify",
-                "stacks": 1,
+                "stacks": 2,
                 "target": "self_and_lowest_ally",
                 "duration": "this_combat"
               },
               {
                 "type": "increase_health",
-                "value": 5,
+                "value": 8,
                 "target": "self_and_lowest_ally"
               }
             ]
@@ -1627,17 +1627,17 @@
             "name": "Phoenix Tears",
             "id": "ability_egg_bird_2",
             "trigger": "ally_dies",
-            "description": "When an ally dies, gain 2 Gigantify with lowest ally and heal them for 8",
+            "description": "When an ally dies, gain 4 Gigantify with lowest ally and heal them for 12",
             "effects": [
               {
                 "type": "gigantify",
-                "stacks": 2,
+                "stacks": 4,
                 "target": "self_and_lowest_ally",
                 "duration": "this_combat"
               },
               {
                 "type": "increase_health",
-                "value": 8,
+                "value": 12,
                 "target": "self_and_lowest_ally"
               }
             ]
@@ -1655,17 +1655,17 @@
             "name": "Phoenix Tears",
             "id": "ability_egg_bird_3",
             "trigger": "ally_dies",
-            "description": "When an ally dies, gain 3 Gigantify with lowest ally and heal them for 12",
+            "description": "When an ally dies, gain 5 Gigantify with lowest ally and heal them for 18",
             "effects": [
               {
                 "type": "gigantify",
-                "stacks": 3,
+                "stacks": 5,
                 "target": "self_and_lowest_ally",
                 "duration": "this_combat"
               },
               {
                 "type": "increase_health",
-                "value": 12,
+                "value": 18,
                 "target": "self_and_lowest_ally"
               }
             ]
@@ -3177,13 +3177,19 @@
             "name": "Mimic Strike",
             "id": "ability_mimicuter_1",
             "trigger": "on_debuff",
-            "description": "When debuffed, apply 1 stack of Weaken to strongest enemy",
+            "description": "When debuffed, apply 2 Weaken and 1 Poison to strongest enemy",
             "effects": [
               {
                 "type": "weaken",
-                "stacks": 1,
+                "stacks": 2,
                 "target": "strongest_enemy",
                 "duration": "this_combat"
+              },
+              {
+                "type": "poison",
+                "stacks": 1,
+                "target": "strongest_enemy",
+                "duration": 3
               }
             ]
           }
@@ -3200,13 +3206,19 @@
             "name": "Mimic Strike",
             "id": "ability_mimicuter_2",
             "trigger": "on_debuff",
-            "description": "When debuffed, apply 2 stacks of Weaken to strongest enemy",
+            "description": "When debuffed, apply 3 Weaken and 2 Poison to strongest enemy",
             "effects": [
               {
                 "type": "weaken",
-                "stacks": 2,
+                "stacks": 3,
                 "target": "strongest_enemy",
                 "duration": "this_combat"
+              },
+              {
+                "type": "poison",
+                "stacks": 2,
+                "target": "strongest_enemy",
+                "duration": 3
               }
             ]
           }
@@ -3223,13 +3235,19 @@
             "name": "Mimic Strike",
             "id": "ability_mimicuter_3",
             "trigger": "on_debuff",
-            "description": "When debuffed, apply 3 stacks of Weaken to strongest enemy",
+            "description": "When debuffed, apply 4 Weaken and 2 Poison to strongest enemy",
             "effects": [
               {
                 "type": "weaken",
-                "stacks": 3,
+                "stacks": 4,
                 "target": "strongest_enemy",
                 "duration": "this_combat"
+              },
+              {
+                "type": "poison",
+                "stacks": 2,
+                "target": "strongest_enemy",
+                "duration": 3
               }
             ]
           }
@@ -3264,13 +3282,18 @@
             "name": "Vend Vitality",
             "id": "ability_vndr_1",
             "trigger": "backline",
-            "description": "At battle start from backline, apply 1 stack of Gigantify to all allies",
+            "description": "Backline: apply 2 Gigantify to all allies and heal all allies for 3",
             "effects": [
               {
                 "type": "gigantify",
-                "stacks": 1,
+                "stacks": 2,
                 "target": "all_allies",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 3,
+                "target": "all_allies"
               }
             ]
           }
@@ -3287,13 +3310,18 @@
             "name": "Vend Vitality",
             "id": "ability_vndr_2",
             "trigger": "backline",
-            "description": "At battle start from backline, apply 2 stacks of Gigantify to all allies",
+            "description": "Backline: apply 3 Gigantify to all allies and heal all allies for 5",
             "effects": [
               {
                 "type": "gigantify",
-                "stacks": 2,
+                "stacks": 3,
                 "target": "all_allies",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 5,
+                "target": "all_allies"
               }
             ]
           }
@@ -3310,13 +3338,18 @@
             "name": "Vend Vitality",
             "id": "ability_vndr_3",
             "trigger": "backline",
-            "description": "At battle start from backline, apply 3 stacks of Gigantify to all allies",
+            "description": "At battle start from backline, apply 5 Gigantify to all allies and heal all allies for 8",
             "effects": [
               {
                 "type": "gigantify",
-                "stacks": 3,
+                "stacks": 5,
                 "target": "all_allies",
                 "duration": "this_combat"
+              },
+              {
+                "type": "increase_health",
+                "value": 8,
+                "target": "all_allies"
               }
             ]
           }
@@ -3894,7 +3927,7 @@
             "name": "Strudel Charge",
             "id": "ability_strudecles_1",
             "trigger": "backline",
-            "description": "Backline: gain 4 Haste and 1 Strengthen, charging forward",
+            "description": "Backline: gain 4 Haste and 2 Strengthen, charging forward",
             "effects": [
               {
                 "type": "haste",
@@ -3904,7 +3937,7 @@
               },
               {
                 "type": "strengthen",
-                "stacks": 1,
+                "stacks": 2,
                 "target": "self",
                 "duration": "this_combat"
               }
@@ -3923,7 +3956,7 @@
             "name": "Strudel Charge",
             "id": "ability_strudecles_2",
             "trigger": "backline",
-            "description": "Backline: gain 6 Haste and 2 Strengthen, charging forward",
+            "description": "Backline: gain 6 Haste and 3 Strengthen, charging forward",
             "effects": [
               {
                 "type": "haste",
@@ -3933,7 +3966,7 @@
               },
               {
                 "type": "strengthen",
-                "stacks": 2,
+                "stacks": 3,
                 "target": "self",
                 "duration": "this_combat"
               }
@@ -3952,7 +3985,7 @@
             "name": "Strudel Charge",
             "id": "ability_strudecles_3",
             "trigger": "backline",
-            "description": "Backline: gain 8 Haste and 3 Strengthen, charging forward",
+            "description": "Backline: gain 8 Haste and 4 Strengthen, charging forward",
             "effects": [
               {
                 "type": "haste",
@@ -3962,7 +3995,7 @@
               },
               {
                 "type": "strengthen",
-                "stacks": 3,
+                "stacks": 4,
                 "target": "self",
                 "duration": "this_combat"
               }
@@ -3999,12 +4032,18 @@
             "name": "Boiling Point",
             "id": "ability_hegg_1",
             "trigger": "on_debuff",
-            "description": "When debuffed, deal 5 damage to all enemies",
+            "description": "When debuffed, deal 5 damage and apply 1 Burn to all enemies",
             "effects": [
               {
                 "type": "aoe",
                 "value": 5,
                 "target": "all_enemies"
+              },
+              {
+                "type": "burn",
+                "stacks": 1,
+                "target": "all_enemies",
+                "duration": 3
               }
             ]
           }
@@ -4021,12 +4060,18 @@
             "name": "Boiling Point",
             "id": "ability_hegg_2",
             "trigger": "on_debuff",
-            "description": "When debuffed, deal 10 damage to all enemies",
+            "description": "When debuffed, deal 10 damage and apply 1 Burn to all enemies",
             "effects": [
               {
                 "type": "aoe",
                 "value": 10,
                 "target": "all_enemies"
+              },
+              {
+                "type": "burn",
+                "stacks": 1,
+                "target": "all_enemies",
+                "duration": 3
               }
             ]
           }
@@ -4043,12 +4088,18 @@
             "name": "Boiling Point",
             "id": "ability_hegg_3",
             "trigger": "on_debuff",
-            "description": "When debuffed, deal 15 damage to all enemies",
+            "description": "When debuffed, deal 15 damage and apply 2 Burn to all enemies",
             "effects": [
               {
                 "type": "aoe",
                 "value": 15,
                 "target": "all_enemies"
+              },
+              {
+                "type": "burn",
+                "stacks": 2,
+                "target": "all_enemies",
+                "duration": 3
               }
             ]
           }
