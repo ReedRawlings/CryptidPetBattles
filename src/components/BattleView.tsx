@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGame } from '../game';
-import { Creature, BattleEvent, Tribe, BuffType, BUFF_DEFINITIONS } from '../types';
+import { Creature, BattleEvent, Tribe, Role, BuffType, BUFF_DEFINITIONS } from '../types';
 import './BattleView.css';
 
 const TRIBE_COLORS: Record<Tribe, string> = {
@@ -19,6 +19,22 @@ const BUFF_ICONS: Partial<Record<BuffType, string>> = {
   burn: '/assets/icons/Burn.png',
   poison: '/assets/icons/Poison.png',
   gigantify: '/assets/icons/Gigantify.png',
+};
+
+const ROLE_COLORS: Record<Role, string> = {
+  tank: '#4A90D9',
+  brawler: '#E74C3C',
+  support: '#2ECC71',
+  mage: '#9B59B6',
+  assassin: '#E67E22',
+};
+
+const ROLE_LABELS: Record<Role, string> = {
+  tank: 'TNK',
+  brawler: 'BRW',
+  support: 'SUP',
+  mage: 'MGE',
+  assassin: 'ASN',
 };
 
 const BUFF_FALLBACK_LABELS: Record<BuffType, string> = {
@@ -413,6 +429,12 @@ export function BattleView() {
           <span className="battle-pet__stat battle-pet__stat--speed">{creature.displaySpeed}</span>
         </div>
         <div className="battle-pet__name">{creature.name}</div>
+        <div
+          className="battle-pet__role"
+          style={{ backgroundColor: ROLE_COLORS[creature.role] }}
+        >
+          {ROLE_LABELS[creature.role]}
+        </div>
         {creature.star > 1 && <div className="battle-pet__star">{'★'.repeat(creature.star)}</div>}
 
         {renderBuffIcons(creature.displayBuffs)}

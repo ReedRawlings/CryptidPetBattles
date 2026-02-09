@@ -1486,7 +1486,7 @@
       "id": "rope_snake",
       "name": "Rope Snake",
       "type": "Flora",
-      "role": "assassin",
+      "role": "support",
       "shopTier": 3,
       "description": "A constricting predator that ensnares from the shadows",
       "typePassive": {
@@ -2040,7 +2040,7 @@
       "id": "man_eating_vines",
       "name": "Man Eating Vines",
       "type": "Fauna",
-      "role": "assassin",
+      "role": "support",
       "shopTier": 2,
       "description": "Predatory vines that tighten when threatened",
       "typePassive": {
@@ -3153,7 +3153,7 @@
       "id": "mimicuter",
       "name": "Mimicuter",
       "type": "Kami",
-      "role": "assassin",
+      "role": "support",
       "shopTier": 4,
       "description": "A deceptive mimic that exploits enemy weaknesses",
       "typePassive": {

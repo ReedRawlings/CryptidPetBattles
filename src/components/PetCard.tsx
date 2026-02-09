@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Creature, CreatureTemplate, Tribe, BuffType, BUFF_DEFINITIONS } from '../types';
+import { Creature, CreatureTemplate, Tribe, Role, BuffType, BUFF_DEFINITIONS } from '../types';
 import './PetCard.css';
 
 const BUFF_ICONS: Partial<Record<BuffType, string>> = {
@@ -40,6 +40,22 @@ const TRIBE_ICONS: Record<Tribe, string> = {
   Fauna: '/assets/icons/Fauna.png',
   Kami: '/assets/icons/Kami.png',
   Dessert: '/assets/icons/dessert.png',
+};
+
+const ROLE_COLORS: Record<Role, string> = {
+  tank: '#4A90D9',
+  brawler: '#E74C3C',
+  support: '#2ECC71',
+  mage: '#9B59B6',
+  assassin: '#E67E22',
+};
+
+const ROLE_LABELS: Record<Role, string> = {
+  tank: 'TNK',
+  brawler: 'BRW',
+  support: 'SUP',
+  mage: 'MGE',
+  assassin: 'ASN',
 };
 
 function getInitials(name: string): string {
@@ -103,6 +119,7 @@ export function PetCard({
   const star = isInstance ? (pet as Creature).star : 1;
   const tribe = isInstance ? (pet as Creature).type : (pet as CreatureTemplate).type;
   const shopTier = isInstance ? (pet as Creature).shopTier : (pet as CreatureTemplate).shopTier;
+  const role = isInstance ? (pet as Creature).role : (pet as CreatureTemplate).role;
 
   // Get ability for tooltip
   const ability = isInstance
@@ -160,6 +177,13 @@ export function PetCard({
         <img src={TRIBE_ICONS[tribe]} alt={tribe} className="pet-card__tribe-img" />
       </div>
       <div
+        className="pet-card__role-badge"
+        style={{ backgroundColor: ROLE_COLORS[role] }}
+        title={role}
+      >
+        {ROLE_LABELS[role]}
+      </div>
+      <div
         className="pet-card__avatar"
         style={{ backgroundColor: tribeColor }}
       >
@@ -198,6 +222,9 @@ export function PetCard({
       )}
       {showAbilityOnHover && showTooltip && (
         <div className="pet-card__tooltip">
+          <div className="pet-card__tooltip-role" style={{ color: ROLE_COLORS[role] }}>
+            {role}
+          </div>
           <div className="pet-card__tooltip-trigger">
             {ability.trigger.replace(/_/g, ' ')}
           </div>
