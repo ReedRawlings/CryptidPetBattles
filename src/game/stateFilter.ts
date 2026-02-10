@@ -20,6 +20,7 @@ export interface FilteredCreature {
   role: string;
   shopTier: number;
   star: number;
+  experience: number;
   currentAttack: number;
   currentHealth: number;
   currentSpeed: number;
@@ -89,6 +90,7 @@ function filterCreature(creature: Creature): FilteredCreature {
     role: creature.role,
     shopTier: creature.shopTier,
     star: creature.star,
+    experience: creature.experience,
     currentAttack: creature.currentAttack,
     currentHealth: creature.currentHealth,
     currentSpeed: creature.currentSpeed,

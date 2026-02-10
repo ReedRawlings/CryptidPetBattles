@@ -279,17 +279,21 @@ export function BattleView() {
         }
         break;
 
-      case 'faint':
-        if (sourceTeam && source) {
-          updateCreatureById(sourceTeam, source.id, { isFainted: true, displayHealth: 0 });
-          const capturedTeam = sourceTeam;
-          const capturedId = source.id;
+      case 'faint': {
+        // Use event.source directly — don't rely on findCreatureById which may have stale state
+        const faintId = event.source;
+        if (faintId) {
+          // Mark fainted in both teams (we may not know which due to stale closures)
+          for (const t of ['player', 'opponent'] as const) {
+            updateCreatureById(t, faintId, { isFainted: true, displayHealth: 0 });
+          }
           setTimeout(() => {
-            const setState = capturedTeam === 'player' ? setPlayerTeam : setOpponentTeam;
-            setState((prev) => prev.filter((c) => c.id !== capturedId));
+            setPlayerTeam((prev) => prev.filter((c) => c.id !== faintId));
+            setOpponentTeam((prev) => prev.filter((c) => c.id !== faintId));
           }, 300);
         }
         break;
+      }
 
       case 'summon':
         if (event.target && event.source) {

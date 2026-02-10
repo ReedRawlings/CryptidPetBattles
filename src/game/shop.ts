@@ -137,7 +137,7 @@ export function buyCreature(
 
   // Check if team slot is available
   if (team[teamIndex] !== null) {
-    // Try to combine if same creature
+    // Try to combine if same creature (shop creatures are always star 1, feeds into any star)
     const existing = team[teamIndex]!;
     if (existing.templateId === template.id && existing.star < GAME_CONSTANTS.MAX_STARS) {
       const updatedTeam = [...team];
@@ -173,30 +173,70 @@ export function buyCreature(
   return { success: true, creature: newCreature, updatedShop, updatedTeam };
 }
 
-// Helper: combine a shop template into an existing creature (star up via shop buy)
-function combineWithTemplate(existing: Creature, template: CreatureTemplate): Creature {
-  const newStar = Math.min(existing.star + 1, GAME_CONSTANTS.MAX_STARS);
-  const starKey = String(newStar) as '1' | '2' | '3';
-  const tierData = template.tiers[starKey];
+// XP needed to star up at a given star level
+function getXpThreshold(star: number): number {
+  return star === 1 ? 2 : 3;
+}
 
-  const combined: Creature = {
-    ...existing,
-    star: newStar,
-    baseAttack: tierData.baseStats.attack,
-    baseHealth: tierData.baseStats.health,
-    baseSpeed: tierData.baseStats.speed,
-    currentAttack: tierData.baseStats.attack,
-    currentHealth: tierData.baseStats.health,
-    currentSpeed: tierData.baseStats.speed,
-    maxHealth: tierData.baseStats.health,
-    ability: {
-      ...tierData.ability,
-      effects: tierData.ability.effects.map((e) => ({ ...e })),
-    },
-    buffs: [], // Clear — ability may have changed at new star
+// Apply incremental stat bonus for each XP point toward the next star
+function applyXpBonus(creature: Creature, template: CreatureTemplate): Creature {
+  const currKey = String(creature.star) as '1' | '2' | '3';
+  const nextKey = String(creature.star + 1) as '1' | '2' | '3';
+  const curr = template.tiers[currKey].baseStats;
+  const next = template.tiers[nextKey].baseStats;
+  const threshold = getXpThreshold(creature.star);
+  const atkBonus = Math.floor((next.attack - curr.attack) / threshold);
+  const hpBonus = Math.floor((next.health - curr.health) / threshold);
+  const spdBonus = Math.floor((next.speed - curr.speed) / threshold);
+  return {
+    ...creature,
+    baseAttack: creature.baseAttack + atkBonus,
+    baseHealth: creature.baseHealth + hpBonus,
+    baseSpeed: creature.baseSpeed + spdBonus,
+    currentAttack: creature.currentAttack + atkBonus,
+    currentHealth: creature.currentHealth + hpBonus,
+    currentSpeed: creature.currentSpeed + spdBonus,
+    maxHealth: creature.maxHealth + hpBonus,
   };
-  applyPlacementBuffs(combined);
-  return combined;
+}
+
+// Helper: combine a shop template into an existing creature
+// Each combine adds +1 experience; at threshold XP → star up (reset to 0)
+function combineWithTemplate(existing: Creature, template: CreatureTemplate): Creature {
+  const newExp = existing.experience + 1;
+
+  if (newExp >= getXpThreshold(existing.star)) {
+    // Star up!
+    const newStar = Math.min(existing.star + 1, GAME_CONSTANTS.MAX_STARS);
+    const starKey = String(newStar) as '1' | '2' | '3';
+    const tierData = template.tiers[starKey];
+
+    const combined: Creature = {
+      ...existing,
+      star: newStar,
+      experience: 0,
+      baseAttack: tierData.baseStats.attack,
+      baseHealth: tierData.baseStats.health,
+      baseSpeed: tierData.baseStats.speed,
+      currentAttack: tierData.baseStats.attack,
+      currentHealth: tierData.baseStats.health,
+      currentSpeed: tierData.baseStats.speed,
+      maxHealth: tierData.baseStats.health,
+      ability: {
+        ...tierData.ability,
+        effects: tierData.ability.effects.map((e) => ({ ...e })),
+      },
+      buffs: [], // Clear — ability may have changed at new star
+    };
+    applyPlacementBuffs(combined);
+    return combined;
+  }
+
+  // Not enough copies yet — increment experience and apply stat bonus
+  return applyXpBonus({
+    ...existing,
+    experience: newExp,
+  }, template);
 }
 
 // Sell a creature from the team
@@ -239,7 +279,9 @@ export function swapCreatures(
   return result;
 }
 
-// Combine two identical creatures (star up)
+// Combine two identical creatures on the team
+// Both must be the same templateId, source star ≤ target star.
+// Each combine adds +1 experience; at threshold XP the creature stars up.
 export function combineCreatures(
   team: (Creature | null)[],
   sourceIndex: number,
@@ -256,42 +298,67 @@ export function combineCreatures(
     return { success: false, updatedTeam: team, starredUp: false };
   }
 
+  // Source star must be ≤ target star (can't merge higher into lower)
+  if (source.star > target.star) {
+    return { success: false, updatedTeam: team, starredUp: false };
+  }
+
   if (target.star >= GAME_CONSTANTS.MAX_STARS) {
     return { success: false, updatedTeam: team, starredUp: false };
   }
 
-  const newStar = Math.min(target.star + 1, GAME_CONSTANTS.MAX_STARS);
-  const template = getCreatureTemplate(target.templateId);
+  const newExp = target.experience + 1;
+  const updatedTeam = [...team];
 
+  if (newExp >= getXpThreshold(target.star)) {
+    // Star up!
+    const newStar = Math.min(target.star + 1, GAME_CONSTANTS.MAX_STARS);
+    const template = getCreatureTemplate(target.templateId);
+
+    if (!template) {
+      return { success: false, updatedTeam: team, starredUp: false };
+    }
+
+    const starKey = String(newStar) as '1' | '2' | '3';
+    const tierData = template.tiers[starKey];
+
+    const combined: Creature = {
+      ...target,
+      star: newStar,
+      experience: 0,
+      baseAttack: tierData.baseStats.attack,
+      baseHealth: tierData.baseStats.health,
+      baseSpeed: tierData.baseStats.speed,
+      currentAttack: tierData.baseStats.attack,
+      currentHealth: tierData.baseStats.health,
+      currentSpeed: tierData.baseStats.speed,
+      maxHealth: tierData.baseStats.health,
+      ability: {
+        ...tierData.ability,
+        effects: tierData.ability.effects.map((e) => ({ ...e })),
+      },
+      buffs: [], // Clear — ability may have changed at new star
+    };
+    applyPlacementBuffs(combined);
+    updatedTeam[targetIndex] = combined;
+    updatedTeam[sourceIndex] = null;
+
+    return { success: true, updatedTeam, starredUp: true };
+  }
+
+  // Not enough copies yet — absorb, increment experience, and apply stat bonus
+  const template = getCreatureTemplate(target.templateId);
   if (!template) {
     return { success: false, updatedTeam: team, starredUp: false };
   }
 
-  const starKey = String(newStar) as '1' | '2' | '3';
-  const tierData = template.tiers[starKey];
-
-  const updatedTeam = [...team];
-  const combined: Creature = {
+  updatedTeam[targetIndex] = applyXpBonus({
     ...target,
-    star: newStar,
-    baseAttack: tierData.baseStats.attack,
-    baseHealth: tierData.baseStats.health,
-    baseSpeed: tierData.baseStats.speed,
-    currentAttack: tierData.baseStats.attack,
-    currentHealth: tierData.baseStats.health,
-    currentSpeed: tierData.baseStats.speed,
-    maxHealth: tierData.baseStats.health,
-    ability: {
-      ...tierData.ability,
-      effects: tierData.ability.effects.map((e) => ({ ...e })),
-    },
-    buffs: [], // Clear — ability may have changed at new star
-  };
-  applyPlacementBuffs(combined);
-  updatedTeam[targetIndex] = combined;
+    experience: newExp,
+  }, template);
   updatedTeam[sourceIndex] = null;
 
-  return { success: true, updatedTeam, starredUp: true };
+  return { success: true, updatedTeam, starredUp: false };
 }
 
 // Toggle freeze on a shop slot
