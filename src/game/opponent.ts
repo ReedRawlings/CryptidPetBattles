@@ -27,11 +27,11 @@ export function generateOpponent(turn: number, playerWins: number): Player {
   for (let i = 0; i < teamSize && i < GAME_CONSTANTS.MAX_TEAM_SIZE; i++) {
     const template = pickTemplate(availableCreatures, config.availableTiers, buildTribe ? chosenTribe : null, turn);
 
-    // Determine star level — earlier and more aggressive
+    // Determine star level
     let star = 1;
-    if (turn >= 8 && Math.random() < 0.25) {
+    if (turn >= 8 && Math.random() < 0.15) {
       star = 3;
-    } else if (turn >= 5 && Math.random() < 0.4) {
+    } else if (turn >= 5 && Math.random() < 0.25) {
       star = 2;
     } else if (turn >= 3 && Math.random() < 0.2) {
       star = 2;
@@ -40,12 +40,6 @@ export function generateOpponent(turn: number, playerWins: number): Player {
     const position = getPositionFromIndex(i);
     const slotIndex = getSlotIndexFromTeamIndex(i);
     const creature = createCreatureFromTemplate(template, star, position, slotIndex, i);
-
-    // Stat boosts scale with turn — more aggressive curve
-    const statBonus = Math.floor(turn / 2);
-    creature.currentAttack = Math.min(creature.currentAttack + statBonus, GAME_CONSTANTS.MAX_STAT);
-    creature.currentHealth = Math.min(creature.currentHealth + statBonus, GAME_CONSTANTS.MAX_STAT);
-    creature.maxHealth = creature.currentHealth;
 
     applyPlacementBuffs(creature);
     team[i] = creature;
