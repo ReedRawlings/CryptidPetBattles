@@ -183,6 +183,37 @@
   left: 6px;
 }
 
+/* Role badge — bottom-left corner */
+.pet-card__role-badge {
+  position: absolute;
+  bottom: -2px;
+  left: -2px;
+  font-size: 8px;
+  font-weight: bold;
+  color: white;
+  padding: 1px 4px;
+  border-radius: 3px;
+  z-index: 3;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.pet-card--small .pet-card__role-badge {
+  font-size: 6px;
+  padding: 1px 3px;
+  bottom: -1px;
+  left: -1px;
+}
+
+.pet-card--large .pet-card__role-badge {
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  bottom: -2px;
+  left: -2px;
+}
+
 /* Tribe-colored avatar placeholder */
 .pet-card__avatar {
   width: 40px;
@@ -257,6 +288,14 @@
 
 .pet-card__divider {
   color: var(--color-text-dim);
+}
+
+.pet-card__tooltip-role {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
 }
 
 /* Tooltip for ability description */
@@ -513,6 +552,16 @@
     padding: 1px 4px;
     top: -2px;
     right: -2px;
+  }
+
+  .pet-card__role-badge {
+    font-size: 6px;
+    padding: 1px 3px;
+  }
+
+  .pet-card--large .pet-card__role-badge {
+    font-size: 7px;
+    padding: 1px 4px;
   }
 
   .pet-card__tooltip {

@@ -75,7 +75,7 @@ export type EffectTarget =
 export interface CreatureEffect {
   type: string; // effect type from creatures.json (strengthen, weaken, thorns, aoe, dot, taunt, slow, haste, cleanse_dot, cleanse_aoe, increase_damage, increase_health, gigantify, poison, burn, bleed)
   stacks?: number;
-  value?: number;
+  value?: number | string; // number for damage/heal amounts, 'all' for cleanse
   duration?: number | string; // number for turns, 'this_combat' for permanent
   target: EffectTarget;
   stackable?: boolean;
@@ -247,8 +247,8 @@ export interface TierConfig {
 
 export const TIER_SCHEDULE: TierConfig[] = [
   { turns: [1, 2], availableTiers: [1], creatureSlots: 3 },
-  { turns: [3, 4], availableTiers: [1, 2], creatureSlots: 3 },
-  { turns: [5, 7], availableTiers: [1, 2, 3], creatureSlots: 4 },
+  { turns: [3, 4], availableTiers: [1, 2], creatureSlots: 4 },
+  { turns: [5, 7], availableTiers: [1, 2, 3], creatureSlots: 5 },
   { turns: [8, Infinity], availableTiers: [1, 2, 3, 4], creatureSlots: 5 },
 ];
 
