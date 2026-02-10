@@ -247,8 +247,8 @@ export interface TierConfig {
 
 export const TIER_SCHEDULE: TierConfig[] = [
   { turns: [1, 2], availableTiers: [1], creatureSlots: 3 },
-  { turns: [3, 4], availableTiers: [1, 2], creatureSlots: 3 },
-  { turns: [5, 7], availableTiers: [1, 2, 3], creatureSlots: 4 },
+  { turns: [3, 4], availableTiers: [1, 2], creatureSlots: 4 },
+  { turns: [5, 7], availableTiers: [1, 2, 3], creatureSlots: 5 },
   { turns: [8, Infinity], availableTiers: [1, 2, 3, 4], creatureSlots: 5 },
 ];
 

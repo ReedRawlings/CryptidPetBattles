@@ -179,16 +179,23 @@ function combineWithTemplate(existing: Creature, template: CreatureTemplate): Cr
   const starKey = String(newStar) as '1' | '2' | '3';
   const tierData = template.tiers[starKey];
 
+  // Carry over bonus stats accumulated from food/buffs (stats above old base)
+  const bonusAttack = existing.baseAttack - template.tiers[String(existing.star) as '1' | '2' | '3'].baseStats.attack;
+  const bonusHealth = existing.baseHealth - template.tiers[String(existing.star) as '1' | '2' | '3'].baseStats.health;
+
+  const newAttack = tierData.baseStats.attack + Math.max(0, bonusAttack);
+  const newHealth = tierData.baseStats.health + Math.max(0, bonusHealth);
+
   const combined: Creature = {
     ...existing,
     star: newStar,
-    baseAttack: tierData.baseStats.attack,
-    baseHealth: tierData.baseStats.health,
+    baseAttack: newAttack,
+    baseHealth: newHealth,
     baseSpeed: tierData.baseStats.speed,
-    currentAttack: tierData.baseStats.attack,
-    currentHealth: tierData.baseStats.health,
+    currentAttack: newAttack,
+    currentHealth: newHealth,
     currentSpeed: tierData.baseStats.speed,
-    maxHealth: tierData.baseStats.health,
+    maxHealth: newHealth,
     ability: {
       ...tierData.ability,
       effects: tierData.ability.effects.map((e) => ({ ...e })),
@@ -270,17 +277,31 @@ export function combineCreatures(
   const starKey = String(newStar) as '1' | '2' | '3';
   const tierData = template.tiers[starKey];
 
+  // Carry over bonus stats from both creatures (stats above their old base)
+  const oldStarKey = String(target.star) as '1' | '2' | '3';
+  const oldBase = template.tiers[oldStarKey].baseStats;
+  const targetBonusAttack = target.baseAttack - oldBase.attack;
+  const targetBonusHealth = target.baseHealth - oldBase.health;
+  const sourceBonusAttack = source.baseAttack - oldBase.attack;
+  const sourceBonusHealth = source.baseHealth - oldBase.health;
+
+  const bonusAttack = Math.max(0, targetBonusAttack) + Math.max(0, sourceBonusAttack);
+  const bonusHealth = Math.max(0, targetBonusHealth) + Math.max(0, sourceBonusHealth);
+
+  const newAttack = tierData.baseStats.attack + bonusAttack;
+  const newHealth = tierData.baseStats.health + bonusHealth;
+
   const updatedTeam = [...team];
   const combined: Creature = {
     ...target,
     star: newStar,
-    baseAttack: tierData.baseStats.attack,
-    baseHealth: tierData.baseStats.health,
+    baseAttack: newAttack,
+    baseHealth: newHealth,
     baseSpeed: tierData.baseStats.speed,
-    currentAttack: tierData.baseStats.attack,
-    currentHealth: tierData.baseStats.health,
+    currentAttack: newAttack,
+    currentHealth: newHealth,
     currentSpeed: tierData.baseStats.speed,
-    maxHealth: tierData.baseStats.health,
+    maxHealth: newHealth,
     ability: {
       ...tierData.ability,
       effects: tierData.ability.effects.map((e) => ({ ...e })),
