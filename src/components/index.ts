@@ -6,3 +6,4 @@ export { PetCard } from './PetCard';
 export { BattleView } from './BattleView';
 export { BattleResult } from './BattleResult';
 export { GameOver } from './GameOver';
+export { MainMenu } from './MainMenu';

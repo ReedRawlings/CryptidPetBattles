@@ -41,12 +41,13 @@ type GameAction =
   | { type: 'RESET_GAME' }
   | { type: 'SET_MULTIPLAYER_STATE'; state: Partial<MultiplayerState> }
   | { type: 'SET_MATCHED_OPPONENT'; opponent: Player; mmr: number; snapshotId: string | null; playerId: string | null; isReal: boolean }
-  | { type: 'RESTORE_GAME'; state: Partial<ExtendedGameState> };
+  | { type: 'RESTORE_GAME'; state: Partial<ExtendedGameState> }
+  | { type: 'GO_TO_MENU' };
 
 // Initial state
 function createInitialState(): ExtendedGameState {
   return {
-    phase: 'shop',
+    phase: 'menu',
     player: {
       id: 'player-1',
       username: 'Player',
@@ -295,6 +296,18 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
       };
     }
 
+    case 'GO_TO_MENU': {
+      const freshState = createInitialState();
+      return {
+        ...freshState,
+        multiplayer: {
+          ...freshState.multiplayer,
+          isAuthenticated: state.multiplayer.isAuthenticated,
+          isMultiplayerEnabled: state.multiplayer.isMultiplayerEnabled,
+        },
+      };
+    }
+
     case 'RESET_GAME': {
       return createInitialState();
     }
@@ -319,6 +332,7 @@ interface GameContextType {
   completeBattle: () => void;
   nextTurn: () => void;
   resetGame: () => void;
+  goToMenu: () => void;
   findAndSetOpponent: () => Promise<void>;
   isMultiplayerReady: boolean;
 }
@@ -475,6 +489,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     completeBattle: () => dispatch({ type: 'COMPLETE_BATTLE' }),
     nextTurn: () => dispatch({ type: 'NEXT_TURN' }),
     resetGame: () => dispatch({ type: 'RESET_GAME' }),
+    goToMenu: () => dispatch({ type: 'GO_TO_MENU' }),
     findAndSetOpponent,
     isMultiplayerReady: state.multiplayer.isMultiplayerEnabled,
   };

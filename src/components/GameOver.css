@@ -57,10 +57,27 @@
   color: var(--color-text);
 }
 
-.game-over__play-again {
-  background: var(--color-primary);
-  color: white;
-  padding: 16px 48px;
-  font-size: 20px;
-  border-radius: 12px;
+.game-over__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.game-over__menu-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: var(--color-text-dim);
+  padding: 10px 32px;
+  font-size: 16px;
+  font-family: inherit;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.game-over__menu-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #666;
+  color: var(--color-text);
 }

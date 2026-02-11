@@ -3,7 +3,7 @@ import { GAME_CONSTANTS } from '../types';
 import './GameOver.css';
 
 export function GameOver() {
-  const { state, resetGame } = useGame();
+  const { state, resetGame, goToMenu } = useGame();
   const { player } = state;
 
   const isWin = player.wins >= GAME_CONSTANTS.WINS_TO_WIN;
@@ -38,9 +38,14 @@ export function GameOver() {
           </div>
         </div>
 
-        <button className="pixel-btn pixel-btn--wide" onClick={resetGame}>
-          Play Again
-        </button>
+        <div className="game-over__actions">
+          <button className="pixel-btn pixel-btn--wide" onClick={resetGame}>
+            Play Again
+          </button>
+          <button className="game-over__menu-btn" onClick={goToMenu}>
+            Main Menu
+          </button>
+        </div>
       </div>
     </div>
   );

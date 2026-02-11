@@ -6,6 +6,7 @@ import { Team } from './Team';
 import { BattleView } from './BattleView';
 import { BattleResult } from './BattleResult';
 import { GameOver } from './GameOver';
+import { MainMenu } from './MainMenu';
 import './Game.css';
 
 export function Game() {
@@ -73,6 +74,14 @@ export function Game() {
     if (selectedTeamPet !== null) return 'Click another slot to swap, or same creature type to combine';
     return null;
   };
+
+  if (phase === 'menu') {
+    return (
+      <div className="game">
+        <MainMenu />
+      </div>
+    );
+  }
 
   if (phase === 'gameOver') {
     return (

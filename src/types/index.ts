@@ -227,7 +227,7 @@ export interface Shop {
 // ============================================================
 
 export interface GameState {
-  phase: 'shop' | 'battle' | 'waiting' | 'result' | 'gameOver';
+  phase: 'menu' | 'shop' | 'battle' | 'waiting' | 'result' | 'gameOver';
   player: Player;
   shop: Shop;
   currentOpponent: Player | null;
