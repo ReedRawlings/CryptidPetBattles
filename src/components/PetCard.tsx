@@ -116,7 +116,7 @@ export function PetCard({
   const attack = isInstance ? (pet as Creature).currentAttack : (pet as CreatureTemplate).tiers['1'].baseStats.attack;
   const health = isInstance ? (pet as Creature).currentHealth : (pet as CreatureTemplate).tiers['1'].baseStats.health;
   const speed = isInstance ? (pet as Creature).currentSpeed : (pet as CreatureTemplate).tiers['1'].baseStats.speed;
-  const star = isInstance ? (pet as Creature).star : 1;
+  const creatureTier = isInstance ? (pet as Creature).tier : 1;
   const tribe = isInstance ? (pet as Creature).type : (pet as CreatureTemplate).type;
   const shopTier = isInstance ? (pet as Creature).shopTier : (pet as CreatureTemplate).shopTier;
   const role = isInstance ? (pet as Creature).role : (pet as CreatureTemplate).role;
@@ -170,8 +170,8 @@ export function PetCard({
       onTouchEnd={handleTouchEnd}
     >
       {frozen && <div className="pet-card__frozen-badge">Frozen</div>}
-      {star > 1 && (
-        <div className="pet-card__star">{'★'.repeat(star)}</div>
+      {creatureTier > 1 && (
+        <div className="pet-card__star">T{creatureTier}</div>
       )}
       <div className="pet-card__tribe-icon">
         <img src={TRIBE_ICONS[tribe]} alt={tribe} className="pet-card__tribe-img" />

@@ -30,7 +30,7 @@ export interface UserProfile {
 export interface SerializedCreature {
   templateId: string;
   name: string;
-  star: number;
+  tier: number;
   experience: number;
   currentAttack: number;
   currentHealth: number;

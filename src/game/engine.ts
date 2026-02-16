@@ -15,6 +15,9 @@ import {
   swapCreatures,
   combineCreatures,
   toggleFreeze,
+  buyRelic,
+  unequipRelic,
+  toggleRelicFreeze,
 } from './shop';
 import { resolveBattle } from './battle';
 import { generateOpponent } from './opponent';
@@ -30,6 +33,9 @@ export type EngineAction =
   | { type: 'SWAP_CREATURES'; indexA: number; indexB: number }
   | { type: 'COMBINE_CREATURES'; sourceIndex: number; targetIndex: number }
   | { type: 'TOGGLE_FREEZE'; shopIndex: number }
+  | { type: 'BUY_RELIC'; relicIndex: number; teamIndex: number }
+  | { type: 'UNEQUIP_RELIC'; teamIndex: number }
+  | { type: 'TOGGLE_RELIC_FREEZE'; relicIndex: number }
   | { type: 'END_TURN' }
   | { type: 'END_SHOP' }
   | { type: 'NEXT_TURN' };
@@ -42,6 +48,9 @@ export type ActionName =
   | 'swap'
   | 'combine'
   | 'freeze'
+  | 'buy_relic'
+  | 'unequip_relic'
+  | 'freeze_relic'
   | 'end_turn'
   | 'end_shop'
   | 'next_turn';
@@ -128,6 +137,28 @@ export function parseAction(
         return { error: 'freeze requires shopIndex' };
       }
       return { type: 'TOGGLE_FREEZE', shopIndex };
+    }
+    case 'buy_relic': {
+      const relicIndex = params.relicIndex;
+      const teamIndex = params.teamIndex;
+      if (relicIndex === undefined || teamIndex === undefined) {
+        return { error: 'buy_relic requires relicIndex and teamIndex' };
+      }
+      return { type: 'BUY_RELIC', relicIndex, teamIndex };
+    }
+    case 'unequip_relic': {
+      const teamIndex = params.teamIndex;
+      if (teamIndex === undefined) {
+        return { error: 'unequip_relic requires teamIndex' };
+      }
+      return { type: 'UNEQUIP_RELIC', teamIndex };
+    }
+    case 'freeze_relic': {
+      const relicIndex = params.relicIndex;
+      if (relicIndex === undefined) {
+        return { error: 'freeze_relic requires relicIndex' };
+      }
+      return { type: 'TOGGLE_RELIC_FREEZE', relicIndex };
     }
     case 'end_turn':
       return { type: 'END_TURN' };
@@ -256,7 +287,7 @@ export function applyAction(state: GameState, action: EngineAction): EngineResul
       );
 
       if (!result.success) {
-        return { success: false, state, error: 'Cannot combine: creatures must be identical, source star ≤ target star, and target below max stars' };
+        return { success: false, state, error: 'Cannot combine: creatures must be identical, source tier ≤ target tier, and target below max tier' };
       }
 
       return {
@@ -281,6 +312,76 @@ export function applyAction(state: GameState, action: EngineAction): EngineResul
         state: {
           ...state,
           shop: toggleFreeze(state.shop, action.shopIndex),
+        },
+      };
+    }
+
+    case 'BUY_RELIC': {
+      if (state.phase !== 'shop') {
+        return { success: false, state, error: 'Can only buy relics during shop phase' };
+      }
+      const relicDef = state.shop.relics?.[action.relicIndex];
+      if (!relicDef) {
+        return { success: false, state, error: 'No relic at that shop index' };
+      }
+      if (state.player.gold < relicDef.shopCost) {
+        return { success: false, state, error: 'Not enough gold' };
+      }
+      if (action.teamIndex < 0 || action.teamIndex >= GAME_CONSTANTS.MAX_TEAM_SIZE) {
+        return { success: false, state, error: `teamIndex must be 0-${GAME_CONSTANTS.MAX_TEAM_SIZE - 1}` };
+      }
+
+      const result = buyRelic(state.shop, action.relicIndex, state.player.team, action.teamIndex);
+      if (!result.success) {
+        return { success: false, state, error: 'Cannot equip relic: no creature at that slot' };
+      }
+
+      return {
+        success: true,
+        state: {
+          ...state,
+          shop: result.updatedShop,
+          player: {
+            ...state.player,
+            team: result.updatedTeam,
+            gold: state.player.gold - relicDef.shopCost,
+          },
+        },
+      };
+    }
+
+    case 'UNEQUIP_RELIC': {
+      if (state.phase !== 'shop') {
+        return { success: false, state, error: 'Can only unequip relics during shop phase' };
+      }
+
+      const result = unequipRelic(state.player.team, action.teamIndex);
+      if (!result.success) {
+        return { success: false, state, error: 'No relic to unequip at that slot' };
+      }
+
+      return {
+        success: true,
+        state: {
+          ...state,
+          player: {
+            ...state.player,
+            team: result.updatedTeam,
+          },
+        },
+      };
+    }
+
+    case 'TOGGLE_RELIC_FREEZE': {
+      if (state.phase !== 'shop') {
+        return { success: false, state, error: 'Can only freeze during shop phase' };
+      }
+
+      return {
+        success: true,
+        state: {
+          ...state,
+          shop: toggleRelicFreeze(state.shop, action.relicIndex),
         },
       };
     }

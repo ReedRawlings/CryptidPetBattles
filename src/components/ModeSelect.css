@@ -1,0 +1,100 @@
+.mode-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 32px;
+}
+
+.mode-select__title {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mode-select__subtitle {
+  color: #888;
+  font-size: 18px;
+  margin-bottom: 48px;
+}
+
+.mode-select__options {
+  display: flex;
+  gap: 24px;
+  max-width: 700px;
+  width: 100%;
+}
+
+.mode-select__card {
+  flex: 1;
+  padding: 32px 24px;
+  border: 2px solid #333;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-select__card:hover {
+  border-color: #555;
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
+}
+
+.mode-select__card--arena:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.mode-select__card--roguelite:hover {
+  border-color: #8b5cf6;
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+}
+
+.mode-select__card-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #e5e5e5;
+}
+
+.mode-select__card-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+.mode-select__card-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mode-select__card--arena .mode-select__card-tag {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.mode-select__card--roguelite .mode-select__card-tag {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+}
+
+@media (max-width: 600px) {
+  .mode-select__options {
+    flex-direction: column;
+  }
+}

@@ -251,7 +251,7 @@ async function runShopPhase(
     player.state.player.wins
   );
 
-  console.log(`  [${player.name}] Actions: ${actionLog.length}, Gold spent: ${goldSpent}, Team: ${teamAfter.map((c) => `${c.name}★${c.star}`).join(', ') || 'empty'}`);
+  console.log(`  [${player.name}] Actions: ${actionLog.length}, Gold spent: ${goldSpent}, Team: ${teamAfter.map((c) => `${c.name} T${c.tier}`).join(', ') || 'empty'}`);
 }
 
 // ============================================================

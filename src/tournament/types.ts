@@ -70,7 +70,7 @@ export interface StandingEntry {
 export interface CreatureSnapshot {
   name: string;
   templateId: string;
-  star: number;
+  tier: number;
   attack: number;
   health: number;
   maxHealth: number;
@@ -87,7 +87,7 @@ export function snapshotTeam(team: (Creature | null)[]): CreatureSnapshot[] {
     .map((c) => ({
       name: c.name,
       templateId: c.templateId,
-      star: c.star,
+      tier: c.tier,
       attack: c.currentAttack,
       health: c.currentHealth,
       maxHealth: c.maxHealth,

@@ -10,7 +10,7 @@ export function serializeCreature(creature: Creature): SerializedCreature {
   return {
     templateId: creature.templateId,
     name: creature.name,
-    star: creature.star,
+    tier: creature.tier,
     experience: creature.experience,
     currentAttack: creature.currentAttack,
     currentHealth: creature.currentHealth,
@@ -42,8 +42,8 @@ export function deserializeCreature(data: SerializedCreature): Creature {
     throw new Error(`Unknown creature template: ${data.templateId}`);
   }
 
-  const starKey = String(data.star) as '1' | '2' | '3';
-  const tierData = template.tiers[starKey] || template.tiers['1'];
+  const tierKey = String(data.tier) as '1' | '2' | '3';
+  const tierData = template.tiers[tierKey] || template.tiers['1'];
   const { position, slotIndex } = getPositionFromTeamIndex(data.position);
 
   return {
@@ -53,7 +53,7 @@ export function deserializeCreature(data: SerializedCreature): Creature {
     type: template.type,
     role: template.role,
     shopTier: template.shopTier,
-    star: data.star,
+    tier: data.tier,
     experience: data.experience,
     baseAttack: tierData.baseStats.attack,
     baseHealth: tierData.baseStats.health,
@@ -110,8 +110,8 @@ export function calculateTeamPower(team: (Creature | null)[]): number {
     power += creature.currentAttack * 2;
     power += creature.maxHealth;
 
-    // Star level provides a multiplier
-    power += (creature.star - 1) * 10;
+    // Tier level provides a multiplier
+    power += (creature.tier - 1) * 10;
 
     // Shop tier indicates relative strength
     power += creature.shopTier * 3;

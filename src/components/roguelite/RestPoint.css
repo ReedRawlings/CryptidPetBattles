@@ -1,0 +1,124 @@
+.rest-point {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.rest-point__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #22c55e;
+  margin-bottom: 4px;
+}
+
+.rest-point__subtitle {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.rest-point__options {
+  display: flex;
+  gap: 16px;
+}
+
+.rest-point__option {
+  flex: 1;
+  padding: 20px;
+  border: 2px solid #333;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rest-point__option h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e5e5e5;
+  margin-bottom: 8px;
+}
+
+.rest-point__option-desc {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.rest-point__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.rest-point__creature-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.rest-point__creature-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: #ccc;
+}
+
+.rest-point__creature-hp {
+  font-size: 12px;
+  color: #777;
+}
+
+.rest-point__heal-amount {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.rest-point__action-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+}
+
+.rest-point__revive-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #662222;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.05);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.rest-point__revive-btn:hover {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.rest-point__train-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #3b3b22;
+  border-radius: 8px;
+  background: rgba(245, 158, 11, 0.05);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.rest-point__train-btn:hover {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.rest-point__creature-xp {
+  font-size: 12px;
+  color: #777;
+}

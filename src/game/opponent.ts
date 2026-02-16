@@ -27,19 +27,19 @@ export function generateOpponent(turn: number, playerWins: number): Player {
   for (let i = 0; i < teamSize && i < GAME_CONSTANTS.MAX_TEAM_SIZE; i++) {
     const template = pickTemplate(availableCreatures, config.availableTiers, buildTribe ? chosenTribe : null, turn);
 
-    // Determine star level
-    let star = 1;
+    // Determine tier level
+    let tier = 1;
     if (turn >= 8 && Math.random() < 0.15) {
-      star = 3;
+      tier = 3;
     } else if (turn >= 5 && Math.random() < 0.25) {
-      star = 2;
+      tier = 2;
     } else if (turn >= 3 && Math.random() < 0.2) {
-      star = 2;
+      tier = 2;
     }
 
     const position = getPositionFromIndex(i);
     const slotIndex = getSlotIndexFromTeamIndex(i);
-    const creature = createCreatureFromTemplate(template, star, position, slotIndex, i);
+    const creature = createCreatureFromTemplate(template, tier, position, slotIndex, i);
 
     applyPlacementBuffs(creature);
     team[i] = creature;

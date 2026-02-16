@@ -5,7 +5,7 @@
  * Used by both the REST API and MCP server.
  */
 
-import { GameState, Creature, CreatureTemplate, GAME_CONSTANTS } from '../types';
+import { GameState, Creature, CreatureTemplate, RelicDefinition, GAME_CONSTANTS } from '../types';
 import type { ActionName } from './engine';
 
 // ============================================================
@@ -19,7 +19,7 @@ export interface FilteredCreature {
   type: string;
   role: string;
   shopTier: number;
-  star: number;
+  tier: number;
   experience: number;
   currentAttack: number;
   currentHealth: number;
@@ -47,6 +47,18 @@ export interface FilteredShopSlot {
   frozen: boolean;
 }
 
+export interface FilteredRelicSlot {
+  index: number;
+  relic: {
+    id: string;
+    name: string;
+    description: string;
+    rarity: string;
+    shopCost: number;
+  } | null;
+  frozen: boolean;
+}
+
 export interface FilteredBattleResult {
   outcome: 'win' | 'loss' | 'draw';
   damageDealt: number;
@@ -68,6 +80,7 @@ export interface FilteredGameState {
   winsNeeded: number;
   team: (FilteredCreature | null)[];
   shop: FilteredShopSlot[] | null;
+  relicShop: FilteredRelicSlot[] | null;
   lastBattleResult: FilteredBattleResult | null;
   availableActions: AvailableAction[];
   gameOver: {
@@ -89,7 +102,7 @@ function filterCreature(creature: Creature): FilteredCreature {
     type: creature.type,
     role: creature.role,
     shopTier: creature.shopTier,
-    star: creature.star,
+    tier: creature.tier,
     experience: creature.experience,
     currentAttack: creature.currentAttack,
     currentHealth: creature.currentHealth,
@@ -128,6 +141,27 @@ function filterShopSlot(
         health: tier1.baseStats.health,
         speed: tier1.baseStats.speed,
       },
+    },
+    frozen,
+  };
+}
+
+function filterRelicSlot(
+  relic: RelicDefinition | null,
+  index: number,
+  frozen: boolean
+): FilteredRelicSlot {
+  if (!relic) {
+    return { index, relic: null, frozen };
+  }
+  return {
+    index,
+    relic: {
+      id: relic.id,
+      name: relic.name,
+      description: relic.description,
+      rarity: relic.rarity,
+      shopCost: relic.shopCost,
     },
     frozen,
   };
@@ -172,6 +206,26 @@ function getAvailableActions(state: GameState): AvailableAction[] {
       description: 'Toggle freeze on a shop slot (persists through rerolls)',
       params: { shopIndex: 'Index of shop slot to freeze/unfreeze' },
     });
+    if (state.shop.relics && state.shop.relics.some((r) => r !== null)) {
+      actions.push({
+        name: 'buy_relic',
+        description: 'Buy a relic and equip it on a team creature',
+        params: {
+          relicIndex: 'Index of relic shop slot (0-based)',
+          teamIndex: 'Team slot of creature to equip the relic on',
+        },
+      });
+      actions.push({
+        name: 'unequip_relic',
+        description: 'Remove a relic from a team creature (relic is lost)',
+        params: { teamIndex: 'Team slot of creature to unequip' },
+      });
+      actions.push({
+        name: 'freeze_relic',
+        description: 'Toggle freeze on a relic shop slot',
+        params: { relicIndex: 'Index of relic shop slot to freeze/unfreeze' },
+      });
+    }
     actions.push({
       name: 'end_turn',
       description: 'End shop phase and start battle',
@@ -196,6 +250,12 @@ export function filterGameState(state: GameState, gameId: string): FilteredGameS
   const shop = state.phase === 'shop'
     ? state.shop.creatures.map((template, i) =>
         filterShopSlot(template, i, state.shop.frozen[i])
+      )
+    : null;
+
+  const relicShop = state.phase === 'shop' && state.shop.relics
+    ? state.shop.relics.map((relic, i) =>
+        filterRelicSlot(relic, i, state.shop.relicFrozen?.[i] ?? false)
       )
     : null;
 
@@ -228,6 +288,7 @@ export function filterGameState(state: GameState, gameId: string): FilteredGameS
     winsNeeded: GAME_CONSTANTS.WINS_TO_WIN,
     team,
     shop,
+    relicShop,
     lastBattleResult,
     availableActions: getAvailableActions(state),
     gameOver,

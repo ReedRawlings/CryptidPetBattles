@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from 'react';
 import { GameState, Creature, Player, GAME_CONSTANTS } from '../types';
-import { generateShop, rollShop, buyCreature, sellCreature, swapCreatures, combineCreatures, toggleFreeze } from './shop';
+import { generateShop, rollShop, buyCreature, sellCreature, swapCreatures, combineCreatures, toggleFreeze, buyRelic, unequipRelic, toggleRelicFreeze } from './shop';
 import { resolveBattle, incrementBattlesParticipated } from './battle';
 import { generateOpponent } from './opponent';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,6 +34,9 @@ type GameAction =
   | { type: 'SWAP_CREATURES'; indexA: number; indexB: number }
   | { type: 'COMBINE_CREATURES'; sourceIndex: number; targetIndex: number }
   | { type: 'TOGGLE_FREEZE'; shopIndex: number }
+  | { type: 'BUY_RELIC'; relicIndex: number; teamIndex: number }
+  | { type: 'UNEQUIP_RELIC'; teamIndex: number }
+  | { type: 'TOGGLE_RELIC_FREEZE'; relicIndex: number }
   | { type: 'END_TURN' }
   | { type: 'START_BATTLE' }
   | { type: 'COMPLETE_BATTLE' }
@@ -216,6 +219,44 @@ function gameReducer(state: ExtendedGameState, action: GameAction): ExtendedGame
       };
     }
 
+    case 'BUY_RELIC': {
+      const relicDef = state.shop.relics?.[action.relicIndex];
+      if (!relicDef || state.player.gold < relicDef.shopCost) return state;
+
+      const result = buyRelic(state.shop, action.relicIndex, state.player.team, action.teamIndex);
+      if (!result.success) return state;
+
+      return {
+        ...state,
+        shop: result.updatedShop,
+        player: {
+          ...state.player,
+          team: result.updatedTeam,
+          gold: state.player.gold - relicDef.shopCost,
+        },
+      };
+    }
+
+    case 'UNEQUIP_RELIC': {
+      const result = unequipRelic(state.player.team, action.teamIndex);
+      if (!result.success) return state;
+
+      return {
+        ...state,
+        player: {
+          ...state.player,
+          team: result.updatedTeam,
+        },
+      };
+    }
+
+    case 'TOGGLE_RELIC_FREEZE': {
+      return {
+        ...state,
+        shop: toggleRelicFreeze(state.shop, action.relicIndex),
+      };
+    }
+
     case 'END_TURN':
     case 'START_BATTLE': {
       const opponent = state.currentOpponent ?? generateOpponent(state.player.currentTurn, state.player.wins);
@@ -315,6 +356,9 @@ interface GameContextType {
   swapCreatures: (indexA: number, indexB: number) => void;
   combineCreatures: (sourceIndex: number, targetIndex: number) => void;
   toggleFreeze: (shopIndex: number) => void;
+  buyRelic: (relicIndex: number, teamIndex: number) => void;
+  unequipRelic: (teamIndex: number) => void;
+  toggleRelicFreeze: (relicIndex: number) => void;
   endTurn: () => void;
   completeBattle: () => void;
   nextTurn: () => void;
@@ -471,6 +515,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     swapCreatures: (indexA, indexB) => dispatch({ type: 'SWAP_CREATURES', indexA, indexB }),
     combineCreatures: (sourceIndex, targetIndex) => dispatch({ type: 'COMBINE_CREATURES', sourceIndex, targetIndex }),
     toggleFreeze: (shopIndex) => dispatch({ type: 'TOGGLE_FREEZE', shopIndex }),
+    buyRelic: (relicIndex, teamIndex) => dispatch({ type: 'BUY_RELIC', relicIndex, teamIndex }),
+    unequipRelic: (teamIndex) => dispatch({ type: 'UNEQUIP_RELIC', teamIndex }),
+    toggleRelicFreeze: (relicIndex) => dispatch({ type: 'TOGGLE_RELIC_FREEZE', relicIndex }),
     endTurn: handleEndTurn,
     completeBattle: () => dispatch({ type: 'COMPLETE_BATTLE' }),
     nextTurn: () => dispatch({ type: 'NEXT_TURN' }),

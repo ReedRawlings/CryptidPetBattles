@@ -1,0 +1,361 @@
+.roguelite-battle {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Pre-battle */
+.roguelite-battle__pre {
+  text-align: center;
+  padding: 32px;
+}
+
+.roguelite-battle__pre-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ef4444;
+  margin-bottom: 8px;
+}
+
+.roguelite-battle__pre-info {
+  font-size: 16px;
+  color: #888;
+  margin-bottom: 24px;
+}
+
+.roguelite-battle__pre-team {
+  margin-bottom: 24px;
+}
+
+.roguelite-battle__pre-team h3 {
+  font-size: 16px;
+  color: #aaa;
+  margin-bottom: 12px;
+}
+
+.roguelite-battle__pre-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.roguelite-battle__pre-slot--empty {
+  color: #555;
+  justify-content: center;
+}
+
+.roguelite-battle__pre-slot--dead {
+  opacity: 0.3;
+  border-color: #662222;
+}
+
+.roguelite-battle__pre-name {
+  font-weight: 600;
+  color: #e5e5e5;
+  min-width: 100px;
+}
+
+.roguelite-battle__pre-stats {
+  font-size: 13px;
+  color: #888;
+}
+
+.roguelite-battle__fight-btn {
+  font-size: 18px;
+  padding: 12px 48px;
+}
+
+/* Battle Controls */
+.roguelite-battle__controls {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Attack Queue */
+.roguelite-battle__queue {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid #222;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.roguelite-battle__queue-label {
+  font-size: 10px;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.roguelite-battle__queue-list {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.roguelite-battle__queue-item {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.2s;
+  opacity: 0.35;
+}
+
+.roguelite-battle__queue-item--next {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.roguelite-battle__queue-item--player {
+  color: #22c55e;
+}
+
+.roguelite-battle__queue-item--enemy {
+  color: #ef4444;
+}
+
+.roguelite-battle__queue-item--next.roguelite-battle__queue-item--player {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.roguelite-battle__queue-item--next.roguelite-battle__queue-item--enemy {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Arena */
+.roguelite-battle__arena {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  justify-content: center;
+}
+
+.roguelite-battle__side {
+  flex: 1;
+  max-width: 350px;
+}
+
+.roguelite-battle__side h3 {
+  font-size: 16px;
+  color: #aaa;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.roguelite-battle__creatures {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roguelite-battle__creature {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #333;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  position: relative;
+  transition: all 0.2s;
+}
+
+.roguelite-battle__creature--fainted {
+  opacity: 0.25;
+  transform: scale(0.95);
+}
+
+.roguelite-battle__creature--attacking {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.roguelite-battle__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid #555;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #e5e5e5;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.roguelite-battle__creature-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #e5e5e5;
+  flex: 1;
+}
+
+.roguelite-battle__hp-bar {
+  width: 100%;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.roguelite-battle__hp-fill {
+  height: 100%;
+  background: #22c55e;
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.roguelite-battle__hp-fill--enemy {
+  background: #ef4444;
+}
+
+.roguelite-battle__creature-stats {
+  width: 100%;
+  font-size: 11px;
+  color: #777;
+}
+
+/* Buff icons */
+.roguelite-battle__buffs {
+  width: 100%;
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.roguelite-battle__buff-icon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(100, 255, 100, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.roguelite-battle__buff-icon--debuff {
+  border-color: rgba(255, 80, 80, 0.5);
+}
+
+.roguelite-battle__buff-img {
+  width: 14px;
+  height: 14px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.roguelite-battle__buff-text {
+  font-size: 6px;
+  font-weight: bold;
+  color: #e5e5e5;
+  line-height: 1;
+}
+
+.roguelite-battle__buff-stacks {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  font-size: 7px;
+  font-weight: bold;
+  min-width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.roguelite-battle__dmg-number {
+  position: absolute;
+  top: -8px;
+  right: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ef4444;
+  animation: float-up 0.6s ease-out forwards;
+}
+
+.roguelite-battle__buff-label {
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #22c55e;
+  animation: float-up 0.6s ease-out forwards;
+}
+
+.roguelite-battle__hit-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(239, 68, 68, 0.15);
+  border-radius: 10px;
+  animation: flash 0.3s ease-out forwards;
+}
+
+@keyframes float-up {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-16px); }
+}
+
+@keyframes flash {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* VS */
+.roguelite-battle__vs {
+  font-size: 28px;
+  font-weight: 700;
+  color: #555;
+  padding-top: 48px;
+}
+
+/* Result */
+.roguelite-battle__result {
+  text-align: center;
+  padding: 24px;
+}
+
+.roguelite-battle__result-text {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.roguelite-battle__result-text--player {
+  color: #22c55e;
+}
+
+.roguelite-battle__result-text--opponent {
+  color: #ef4444;
+}
+
+.roguelite-battle__result-text--draw {
+  color: #f59e0b;
+}

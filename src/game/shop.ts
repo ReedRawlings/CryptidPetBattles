@@ -1,6 +1,7 @@
-import { Creature, CreatureTemplate, Shop, Position, TIER_SCHEDULE, GAME_CONSTANTS } from '../types';
+import { Creature, CreatureTemplate, Shop, Position, TIER_SCHEDULE, GAME_CONSTANTS, RelicDefinition } from '../types';
 import { getAvailableCreatures, getCreatureTemplate } from '../data/creatures';
 import { applyPlacementBuffs } from './buffs';
+import { RELIC_DEFINITIONS } from '../data/relics';
 
 // Generate a unique ID
 function generateId(): string {
@@ -40,13 +41,13 @@ export function updateTeamPositions(team: (Creature | null)[]): (Creature | null
 // Create a creature instance from a template
 export function createCreatureFromTemplate(
   template: CreatureTemplate,
-  star: number,
+  tier: number,
   position: Position,
   slotIndex: number,
   teamIndex: number
 ): Creature {
-  const starKey = String(star) as '1' | '2' | '3';
-  const tierData = template.tiers[starKey];
+  const tierKey = String(tier) as '1' | '2' | '3';
+  const tierData = template.tiers[tierKey];
 
   return {
     id: generateId(),
@@ -55,7 +56,7 @@ export function createCreatureFromTemplate(
     type: template.type,
     role: template.role,
     shopTier: template.shopTier,
-    star,
+    tier,
     experience: 0,
     baseAttack: tierData.baseStats.attack,
     baseHealth: tierData.baseStats.health,
@@ -74,6 +75,42 @@ export function createCreatureFromTemplate(
     buffs: [],
     battlesParticipated: 0,
   };
+}
+
+// Pick a random relic weighted by rarity
+function randomRelic(): RelicDefinition {
+  const roll = Math.random();
+  let pool: RelicDefinition[];
+  if (roll < 0.1) {
+    pool = RELIC_DEFINITIONS.filter((r) => r.rarity === 'rare');
+  } else if (roll < 0.4) {
+    pool = RELIC_DEFINITIONS.filter((r) => r.rarity === 'uncommon');
+  } else {
+    pool = RELIC_DEFINITIONS.filter((r) => r.rarity === 'common');
+  }
+  if (pool.length === 0) pool = RELIC_DEFINITIONS;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// Generate relic slots for a shop (1-2 slots from turn 3+)
+function generateRelicSlots(turn: number, previousShop?: Shop): { relics: (RelicDefinition | null)[]; relicFrozen: boolean[] } {
+  if (turn < 3) return { relics: [], relicFrozen: [] };
+
+  const slotCount = turn >= 5 ? 2 : 1;
+  const relics: (RelicDefinition | null)[] = [];
+  const relicFrozen: boolean[] = [];
+
+  for (let i = 0; i < slotCount; i++) {
+    if (previousShop?.relicFrozen?.[i] && previousShop.relics?.[i]) {
+      relics.push(previousShop.relics[i]);
+      relicFrozen.push(true);
+    } else {
+      relics.push(randomRelic());
+      relicFrozen.push(false);
+    }
+  }
+
+  return { relics, relicFrozen };
 }
 
 // Generate a random shop based on turn, preserving frozen items
@@ -99,7 +136,9 @@ export function generateShop(turn: number, previousShop?: Shop): Shop {
     }
   }
 
-  return { creatures, frozen };
+  const { relics, relicFrozen } = generateRelicSlots(turn, previousShop);
+
+  return { creatures, frozen, relics, relicFrozen };
 }
 
 // Roll the shop (costs 1 gold)
@@ -116,9 +155,17 @@ export function rollShop(shop: Shop, turn: number): Shop {
     return null;
   });
 
+  // Re-roll unfrozen relic slots
+  const newRelics = (shop.relics ?? []).map((relic, index) => {
+    if (shop.relicFrozen?.[index]) return relic;
+    return turn >= 3 ? randomRelic() : null;
+  });
+
   return {
     creatures: newCreatures,
     frozen: shop.frozen,
+    relics: newRelics,
+    relicFrozen: shop.relicFrozen ?? [],
   };
 }
 
@@ -137,9 +184,9 @@ export function buyCreature(
 
   // Check if team slot is available
   if (team[teamIndex] !== null) {
-    // Try to combine if same creature (shop creatures are always star 1, feeds into any star)
+    // Try to combine if same creature (shop creatures are always tier 1, feeds into any tier)
     const existing = team[teamIndex]!;
-    if (existing.templateId === template.id && existing.star < GAME_CONSTANTS.MAX_STARS) {
+    if (existing.templateId === template.id && existing.tier < GAME_CONSTANTS.MAX_TIERS) {
       const updatedTeam = [...team];
       const combined = combineWithTemplate(existing, template);
       updatedTeam[teamIndex] = combined;
@@ -173,18 +220,18 @@ export function buyCreature(
   return { success: true, creature: newCreature, updatedShop, updatedTeam };
 }
 
-// XP needed to star up at a given star level
-function getXpThreshold(star: number): number {
-  return star === 1 ? 2 : 3;
+// XP needed to tier up at a given tier level
+function getXpThreshold(tier: number): number {
+  return tier === 1 ? 2 : 3;
 }
 
-// Apply incremental stat bonus for each XP point toward the next star
+// Apply incremental stat bonus for each XP point toward the next tier
 function applyXpBonus(creature: Creature, template: CreatureTemplate): Creature {
-  const currKey = String(creature.star) as '1' | '2' | '3';
-  const nextKey = String(creature.star + 1) as '1' | '2' | '3';
+  const currKey = String(creature.tier) as '1' | '2' | '3';
+  const nextKey = String(creature.tier + 1) as '1' | '2' | '3';
   const curr = template.tiers[currKey].baseStats;
   const next = template.tiers[nextKey].baseStats;
-  const threshold = getXpThreshold(creature.star);
+  const threshold = getXpThreshold(creature.tier);
   const atkBonus = Math.floor((next.attack - curr.attack) / threshold);
   const hpBonus = Math.floor((next.health - curr.health) / threshold);
   const spdBonus = Math.floor((next.speed - curr.speed) / threshold);
@@ -201,17 +248,17 @@ function applyXpBonus(creature: Creature, template: CreatureTemplate): Creature 
 }
 
 // Helper: combine a shop template into an existing creature
-// Each combine adds +1 experience; at threshold XP → star up (reset to 0)
+// Each combine adds +1 experience; at threshold XP → tier up (reset to 0)
 function combineWithTemplate(existing: Creature, template: CreatureTemplate): Creature {
   const newExp = existing.experience + 1;
 
-  if (newExp >= getXpThreshold(existing.star)) {
-    // Star up! Carry over bonus stats accumulated from food/buffs/XP
-    const newStar = Math.min(existing.star + 1, GAME_CONSTANTS.MAX_STARS);
-    const starKey = String(newStar) as '1' | '2' | '3';
-    const tierData = template.tiers[starKey];
+  if (newExp >= getXpThreshold(existing.tier)) {
+    // Tier up! Carry over bonus stats accumulated from food/buffs/XP
+    const newTier = Math.min(existing.tier + 1, GAME_CONSTANTS.MAX_TIERS);
+    const tierKey = String(newTier) as '1' | '2' | '3';
+    const tierData = template.tiers[tierKey];
 
-    const oldBase = template.tiers[String(existing.star) as '1' | '2' | '3'].baseStats;
+    const oldBase = template.tiers[String(existing.tier) as '1' | '2' | '3'].baseStats;
     const bonusAttack = Math.max(0, existing.baseAttack - oldBase.attack);
     const bonusHealth = Math.max(0, existing.baseHealth - oldBase.health);
 
@@ -220,7 +267,7 @@ function combineWithTemplate(existing: Creature, template: CreatureTemplate): Cr
 
     const combined: Creature = {
       ...existing,
-      star: newStar,
+      tier: newTier,
       experience: 0,
       baseAttack: newAttack,
       baseHealth: newHealth,
@@ -233,7 +280,7 @@ function combineWithTemplate(existing: Creature, template: CreatureTemplate): Cr
         ...tierData.ability,
         effects: tierData.ability.effects.map((e) => ({ ...e })),
       },
-      buffs: [], // Clear — ability may have changed at new star
+      buffs: [], // Clear — ability may have changed at new tier
     };
     applyPlacementBuffs(combined);
     return combined;
@@ -260,7 +307,7 @@ export function sellCreature(
   const updatedTeam = [...team];
   updatedTeam[teamIndex] = null;
 
-  const goldGained = GAME_CONSTANTS.CREATURE_SELL_VALUE * creature.star;
+  const goldGained = GAME_CONSTANTS.CREATURE_SELL_VALUE * creature.tier;
 
   return { success: true, goldGained, updatedTeam };
 }
@@ -287,50 +334,50 @@ export function swapCreatures(
 }
 
 // Combine two identical creatures on the team
-// Both must be the same templateId, source star ≤ target star.
-// Each combine adds +1 experience; at threshold XP the creature stars up.
+// Both must be the same templateId, source tier ≤ target tier.
+// Each combine adds +1 experience; at threshold XP the creature tiers up.
 export function combineCreatures(
   team: (Creature | null)[],
   sourceIndex: number,
   targetIndex: number
-): { success: boolean; updatedTeam: (Creature | null)[]; starredUp: boolean } {
+): { success: boolean; updatedTeam: (Creature | null)[]; tieredUp: boolean } {
   const source = team[sourceIndex];
   const target = team[targetIndex];
 
   if (!source || !target) {
-    return { success: false, updatedTeam: team, starredUp: false };
+    return { success: false, updatedTeam: team, tieredUp: false };
   }
 
   if (source.templateId !== target.templateId) {
-    return { success: false, updatedTeam: team, starredUp: false };
+    return { success: false, updatedTeam: team, tieredUp: false };
   }
 
-  // Source star must be ≤ target star (can't merge higher into lower)
-  if (source.star > target.star) {
-    return { success: false, updatedTeam: team, starredUp: false };
+  // Source tier must be ≤ target tier (can't merge higher into lower)
+  if (source.tier > target.tier) {
+    return { success: false, updatedTeam: team, tieredUp: false };
   }
 
-  if (target.star >= GAME_CONSTANTS.MAX_STARS) {
-    return { success: false, updatedTeam: team, starredUp: false };
+  if (target.tier >= GAME_CONSTANTS.MAX_TIERS) {
+    return { success: false, updatedTeam: team, tieredUp: false };
   }
 
   const newExp = target.experience + 1;
   const updatedTeam = [...team];
 
-  if (newExp >= getXpThreshold(target.star)) {
-    // Star up!
-    const newStar = Math.min(target.star + 1, GAME_CONSTANTS.MAX_STARS);
+  if (newExp >= getXpThreshold(target.tier)) {
+    // Tier up!
+    const newTier = Math.min(target.tier + 1, GAME_CONSTANTS.MAX_TIERS);
     const template = getCreatureTemplate(target.templateId);
 
     if (!template) {
-      return { success: false, updatedTeam: team, starredUp: false };
+      return { success: false, updatedTeam: team, tieredUp: false };
     }
 
-    const starKey = String(newStar) as '1' | '2' | '3';
-    const tierData = template.tiers[starKey];
+    const tierKey = String(newTier) as '1' | '2' | '3';
+    const tierData = template.tiers[tierKey];
 
     // Carry over bonus stats from both creatures (stats above their old base)
-    const oldBase = template.tiers[String(target.star) as '1' | '2' | '3'].baseStats;
+    const oldBase = template.tiers[String(target.tier) as '1' | '2' | '3'].baseStats;
     const targetBonusAttack = Math.max(0, target.baseAttack - oldBase.attack);
     const targetBonusHealth = Math.max(0, target.baseHealth - oldBase.health);
     const sourceBonusAttack = Math.max(0, source.baseAttack - oldBase.attack);
@@ -341,7 +388,7 @@ export function combineCreatures(
 
     const combined: Creature = {
       ...target,
-      star: newStar,
+      tier: newTier,
       experience: 0,
       baseAttack: newAttack,
       baseHealth: newHealth,
@@ -354,19 +401,19 @@ export function combineCreatures(
         ...tierData.ability,
         effects: tierData.ability.effects.map((e) => ({ ...e })),
       },
-      buffs: [], // Clear — ability may have changed at new star
+      buffs: [], // Clear — ability may have changed at new tier
     };
     applyPlacementBuffs(combined);
     updatedTeam[targetIndex] = combined;
     updatedTeam[sourceIndex] = null;
 
-    return { success: true, updatedTeam, starredUp: true };
+    return { success: true, updatedTeam, tieredUp: true };
   }
 
   // Not enough copies yet — absorb, increment experience, and apply stat bonus
   const template = getCreatureTemplate(target.templateId);
   if (!template) {
-    return { success: false, updatedTeam: team, starredUp: false };
+    return { success: false, updatedTeam: team, tieredUp: false };
   }
 
   updatedTeam[targetIndex] = applyXpBonus({
@@ -375,7 +422,7 @@ export function combineCreatures(
   }, template);
   updatedTeam[sourceIndex] = null;
 
-  return { success: true, updatedTeam, starredUp: false };
+  return { success: true, updatedTeam, tieredUp: false };
 }
 
 // Toggle freeze on a shop slot
@@ -387,4 +434,72 @@ export function toggleFreeze(shop: Shop, index: number): Shop {
     ...shop,
     frozen: updatedFrozen,
   };
+}
+
+// Toggle freeze on a relic shop slot
+export function toggleRelicFreeze(shop: Shop, index: number): Shop {
+  const relicFrozen = [...(shop.relicFrozen ?? [])];
+  relicFrozen[index] = !relicFrozen[index];
+
+  return {
+    ...shop,
+    relicFrozen,
+  };
+}
+
+// Buy a relic from the shop and equip it on a creature
+export function buyRelic(
+  shop: Shop,
+  relicIndex: number,
+  team: (Creature | null)[],
+  teamIndex: number
+): { success: boolean; updatedShop: Shop; updatedTeam: (Creature | null)[] } {
+  const relicDef = shop.relics?.[relicIndex];
+  if (!relicDef) {
+    return { success: false, updatedShop: shop, updatedTeam: team };
+  }
+
+  const creature = team[teamIndex];
+  if (!creature) {
+    return { success: false, updatedShop: shop, updatedTeam: team };
+  }
+
+  // Equip relic (replace existing if any)
+  const updatedTeam = [...team];
+  updatedTeam[teamIndex] = {
+    ...creature,
+    relic: {
+      definitionId: relicDef.id,
+      remainingUses: relicDef.consumable ? (relicDef.maxUses ?? 1) : null,
+    },
+  };
+
+  // Remove from shop
+  const updatedRelics = [...(shop.relics ?? [])];
+  updatedRelics[relicIndex] = null;
+  const updatedRelicFrozen = [...(shop.relicFrozen ?? [])];
+  updatedRelicFrozen[relicIndex] = false;
+
+  return {
+    success: true,
+    updatedShop: { ...shop, relics: updatedRelics, relicFrozen: updatedRelicFrozen },
+    updatedTeam,
+  };
+}
+
+// Unequip a relic from a creature (relic is lost)
+export function unequipRelic(
+  team: (Creature | null)[],
+  teamIndex: number
+): { success: boolean; updatedTeam: (Creature | null)[] } {
+  const creature = team[teamIndex];
+  if (!creature || !creature.relic) {
+    return { success: false, updatedTeam: team };
+  }
+
+  const updatedTeam = [...team];
+  const { relic: _removed, ...rest } = creature;
+  updatedTeam[teamIndex] = rest as Creature;
+
+  return { success: true, updatedTeam };
 }

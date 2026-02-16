@@ -80,7 +80,7 @@ export function Team({ selectedTeamPet, onSlotClick, isInteractive = true }: Tea
             className="pixel-btn"
             onClick={(e) => handleSell(index, e)}
           >
-            Sell +{GAME_CONSTANTS.CREATURE_SELL_VALUE * creature.star}g
+            Sell +{GAME_CONSTANTS.CREATURE_SELL_VALUE * creature.tier}g
           </button>
         )}
       </div>

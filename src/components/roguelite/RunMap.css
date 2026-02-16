@@ -1,0 +1,292 @@
+.run-map {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.run-map__team-summary h3,
+.run-map__path h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+
+.run-map__team-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.run-map__team-header h3 {
+  margin-bottom: 0;
+}
+
+.run-map__team-hint {
+  font-size: 12px;
+  color: #555;
+}
+
+.run-map__synergies {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.run-map__synergy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 12px;
+  color: #666;
+}
+
+.run-map__synergy--active {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.06);
+  color: #ccc;
+}
+
+.run-map__synergy-tribe {
+  font-weight: 600;
+}
+
+.run-map__synergy-count {
+  font-weight: 700;
+  min-width: 14px;
+  text-align: center;
+}
+
+.run-map__synergy-pips {
+  display: flex;
+  gap: 2px;
+}
+
+.run-map__synergy-pip {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #555;
+}
+
+.run-map__synergy-pip--filled {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.run-map__synergy-bonus {
+  font-size: 11px;
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.run-map__team-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.run-map__team-slot-wrapper {
+  position: relative;
+}
+
+.run-map__team-slot {
+  padding: 8px 12px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  min-width: 120px;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.run-map__team-slot:hover {
+  border-color: #555;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.run-map__team-slot--empty {
+  color: #555;
+  text-align: center;
+}
+
+.run-map__team-slot--dead {
+  opacity: 0.4;
+  border-color: #662222;
+}
+
+.run-map__team-slot--swap-source {
+  border-color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.1) !important;
+  opacity: 1 !important;
+}
+
+.run-map__team-slot--swap-target {
+  border-color: #555;
+  border-style: dashed;
+}
+
+.run-map__team-slot--swap-target:hover {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.run-map__slot-label {
+  display: block;
+  font-size: 10px;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.run-map__creature-name {
+  font-weight: 600;
+  color: #e5e5e5;
+  display: block;
+}
+
+.run-map__creature-stats {
+  font-size: 11px;
+  color: #888;
+}
+
+.run-map__hp-bar {
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  margin: 4px 0 2px;
+  overflow: hidden;
+}
+
+.run-map__hp-fill {
+  height: 100%;
+  background: #22c55e;
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.run-map__hp-text {
+  font-size: 11px;
+  color: #777;
+}
+
+/* ── Graph / Map ── */
+
+.run-map__graph-scroll {
+  overflow: auto;
+  max-height: 500px;
+  border: 1px solid #222;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.run-map__graph {
+  /* width/height set inline by JS */
+  position: relative;
+}
+
+/* SVG connection lines */
+.run-map__svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.run-map__line {
+  stroke: #2a2a2a;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.run-map__line--completed {
+  stroke: #444;
+}
+
+.run-map__line--reachable {
+  stroke: #8b5cf6;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 3px rgba(139, 92, 246, 0.4));
+}
+
+/* ── Nodes (absolutely positioned) ── */
+
+.run-map__node {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #333;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  cursor: default;
+  text-align: center;
+  transition: all 0.15s;
+  opacity: 0.35;
+  box-sizing: border-box;
+}
+
+.run-map__node--reachable {
+  opacity: 1;
+  cursor: pointer;
+  border-color: #555;
+}
+
+.run-map__node--reachable:hover {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.08);
+  transform: translateY(-1px);
+}
+
+.run-map__node--completed {
+  opacity: 0.3;
+  border-color: #2a2a2a;
+}
+
+.run-map__node--current {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.run-map__node--battle { border-left: 3px solid #ef4444; }
+.run-map__node--boss { border-left: 3px solid #dc2626; }
+.run-map__node--shop { border-left: 3px solid #f59e0b; }
+.run-map__node--rest { border-left: 3px solid #22c55e; }
+.run-map__node--event { border-left: 3px solid #8b5cf6; }
+
+.run-map__node-icon {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.run-map__node-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ccc;
+  margin-top: 2px;
+}
+
+.run-map__node-preview {
+  display: block;
+  font-size: 9px;
+  color: #666;
+  margin-top: 1px;
+}

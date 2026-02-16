@@ -18,6 +18,13 @@ import {
   cleanse,
 } from './buffs';
 import { SPIRIT_BONE_TEMPLATES } from '../data/creatures';
+import { getRelicDefinition } from '../data/relics';
+import {
+  processRelicBattleStart,
+  processRelicOnAttack,
+  processRelicOnKill,
+  processRelicOnFaint,
+} from './relicEffects';
 
 // ============================================================
 // Battle State
@@ -41,6 +48,7 @@ function cloneCreature(c: Creature): Creature {
     ability: { ...c.ability, effects: c.ability.effects.map((e) => ({ ...e })) },
     buffs: [], // Start fresh — placement triggers re-fire at battle start
     lowHealthTriggered: false,
+    relic: c.relic ? { ...c.relic } : undefined,
   };
 }
 
@@ -376,6 +384,9 @@ function processFaints(state: BattleState): void {
         hadFaints = true;
         addEvent(state, 'faint', creature.id, null, 0, `${creature.name} faints`);
 
+        // Relic on_faint effects (Spirit Anchor etc.)
+        processRelicOnFaint(creature, team, state.events, state.timestamp);
+
         // Spirit passive: summon Bone on faint (only for non-summoned Spirit creatures)
         if (creature.type === 'Spirit' && creature.templateId !== 'bone') {
           const spiritCount = team.filter((c) => c.type === 'Spirit' && isAlive(c)).length +
@@ -449,7 +460,7 @@ function createBoneSummon(
     type: 'Spirit',
     role: 'brawler',
     shopTier: 0,
-    star: 1,
+    tier: 1,
     experience: 0,
     baseAttack: stats.attack,
     baseHealth: stats.health,
@@ -477,16 +488,35 @@ function createBoneSummon(
 // Tribe Passives (battle start)
 // ============================================================
 
+function getThresholdReductions(team: Creature[]): Record<string, number> {
+  const reductions: Record<string, number> = {};
+  for (const c of team) {
+    if (!c.relic) continue;
+    const relicDef = getRelicDefinition(c.relic.definitionId);
+    if (!relicDef) continue;
+    for (const effect of relicDef.effects) {
+      if (effect.type === 'tribe_threshold_reduce' && effect.condition?.tribe) {
+        const tribe = effect.condition.tribe;
+        reductions[tribe] = (reductions[tribe] || 0) + (effect.value ?? 0);
+      }
+    }
+  }
+  return reductions;
+}
+
 function applyTribePassives(team: Creature[]): void {
   const tribeCounts: Record<string, number> = {};
   for (const c of team) {
     tribeCounts[c.type] = (tribeCounts[c.type] || 0) + 1;
   }
 
+  const reductions = getThresholdReductions(team);
+
   // Flora: +HP to Flora creatures
   const floraCount = tribeCounts['Flora'] || 0;
-  if (floraCount >= 2) {
-    const hpBonus = floraCount >= 3 ? 4 : 2;
+  const floraThreshold = Math.max(1, 2 - (reductions['Flora'] || 0));
+  if (floraCount >= floraThreshold) {
+    const hpBonus = floraCount >= (floraThreshold + 1) ? 4 : 2;
     for (const c of team) {
       if (c.type === 'Flora') {
         c.currentHealth += hpBonus;
@@ -497,7 +527,8 @@ function applyTribePassives(team: Creature[]): void {
 
   // Fauna: +ATK to Fauna creatures
   const faunaCount = tribeCounts['Fauna'] || 0;
-  if (faunaCount >= 2) {
+  const faunaThreshold = Math.max(1, 2 - (reductions['Fauna'] || 0));
+  if (faunaCount >= faunaThreshold) {
     const atkBonus = faunaCount >= 5 ? 3 : faunaCount >= 3 ? 2 : 1;
     for (const c of team) {
       if (c.type === 'Fauna') {
@@ -527,17 +558,24 @@ export function resolveBattle(playerTeam: Creature[], opponentTeam: Creature[]):
   applyTribePassives(state.playerTeam);
   applyTribePassives(state.opponentTeam);
 
+  // 2b. Apply relic battle-start effects
+  processRelicBattleStart(state.playerTeam, state.opponentTeam, state.events, state.timestamp);
+  processRelicBattleStart(state.opponentTeam, state.playerTeam, state.events, state.timestamp);
+
   // 3. Fire position triggers (all creatures sorted by speed)
   const allCreatures = [...state.playerTeam, ...state.opponentTeam]
     .sort((a, b) => getEffectiveSpeed(b) - getEffectiveSpeed(a));
 
   for (const creature of allCreatures) {
     if (!isAlive(creature)) continue;
+    // Fire position-based triggers
     if (creature.position === 'frontline') {
       checkAndFireTrigger(creature, 'frontline', state);
     } else {
       checkAndFireTrigger(creature, 'backline', state);
     }
+    // Fire on_placement trigger (works for any position)
+    checkAndFireTrigger(creature, 'on_placement', state);
   }
 
   // 4. Process faints from position triggers
@@ -615,9 +653,13 @@ export function resolveBattle(playerTeam: Creature[], opponentTeam: Creature[]):
 
       applyDamage(target, damage, state, attacker);
 
+      // Relic on_attack effects (Chain Lightning etc.)
+      processRelicOnAttack(attacker, target, enemyTeam, state.events, state.timestamp);
+
       // Check for kill
       if (!isAlive(target)) {
         checkAndFireTrigger(attacker, 'on_kill', state, target);
+        processRelicOnKill(attacker, state.events, state.timestamp);
       }
 
       // Process faints after each attack

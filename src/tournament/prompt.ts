@@ -17,31 +17,31 @@ Each creature has a tribe. Having multiple creatures of the same tribe grants bo
 - **Spirit**: Summon a Bone on faint (2 = 2/2, 3 = 3/3, 5 = 4/5)
 - **Dessert**: Damage enemies on faint (2 = 2, 3 = 3, 5 = 5 to all)
 
-## Stars
-Creatures have 1-3 stars. Higher stars = better stats and stronger abilities. Each XP point gives an incremental stat boost toward the next tier.
-- ★1 → ★2: 2 XP (3 copies total). Each XP adds ~1/2 of the stat difference.
-- ★2 → ★3: 3 XP (3 more ★1 copies, 6 total). Each XP adds ~1/3 of the stat difference.
-- Buy a duplicate onto an existing creature to add 1 XP. ★1 copies can feed into ★2 creatures.
-- You can also use the combine action on two identical creatures on your team (source star must be ≤ target star; source is consumed, target gains 1 XP).
+## Tiers
+Creatures have tiers 1-3. Higher tiers = better stats and stronger abilities. Each XP point gives an incremental stat boost toward the next tier.
+- T1 → T2: 2 XP (3 copies total). Each XP adds ~1/2 of the stat difference.
+- T2 → T3: 3 XP (3 more T1 copies, 6 total). Each XP adds ~1/3 of the stat difference.
+- Buy a duplicate onto an existing creature to add 1 XP. T1 copies can feed into T2 creatures.
+- You can also use the combine action on two identical creatures on your team (source tier must be ≤ target tier; source is consumed, target gains 1 XP).
 
 ## Actions
-- **buy**: Buy from shop. Params: shopIndex, teamIndex. Costs 3 gold. If the slot has the same creature (any star), they combine (adds 1 XP; at threshold → star up).
-- **sell**: Sell from team. Params: teamIndex. Gain gold = star level.
+- **buy**: Buy from shop. Params: shopIndex, teamIndex. Costs 3 gold. If the slot has the same creature (any tier), they combine (adds 1 XP; at threshold → tier up).
+- **sell**: Sell from team. Params: teamIndex. Gain gold = tier level.
 - **roll**: Reroll shop. Costs 1 gold.
 - **swap**: Swap two team slots. Params: indexA, indexB. Free.
 - **combine**: Combine two identical creatures. Params: sourceIndex, targetIndex. Free.
 - **freeze**: Toggle freeze on shop slot. Params: shopIndex. Free. Frozen creatures stay in the shop next turn.
 
 ## CRITICAL: Free Combine Action
-If you have two creatures with the same name on your team (source star ≤ target star), you MUST use the combine action BEFORE rolling. Combine is FREE — it costs 0 gold. The source creature is consumed and the target gains 1 XP plus an incremental stat boost. At the XP threshold (2 for ★1→★2, 3 for ★2→★3) the creature stars up with full next-tier stats. Do NOT keep duplicate creatures in separate slots — always combine them immediately.
-Example: If slot 0 has Sharkdog ★2 and slot 1 has Sharkdog ★1, use { "action": "combine", "params": { "sourceIndex": 1, "targetIndex": 0 } } to merge them.
+If you have two creatures with the same name on your team (source tier ≤ target tier), you MUST use the combine action BEFORE rolling. Combine is FREE — it costs 0 gold. The source creature is consumed and the target gains 1 XP plus an incremental stat boost. At the XP threshold (2 for T1→T2, 3 for T2→T3) the creature tiers up with full next-tier stats. Do NOT keep duplicate creatures in separate slots — always combine them immediately.
+Example: If slot 0 has Sharkdog T2 and slot 1 has Sharkdog T1, use { "action": "combine", "params": { "sourceIndex": 1, "targetIndex": 0 } } to merge them.
 
 ## Turn Priority (follow this order every turn)
-1. **Combine duplicates on your team first.** Check if any two team creatures share the same name (source star ≤ target star). If so, combine them immediately (free action). This is the most efficient way to star up.
+1. **Combine duplicates on your team first.** Check if any two team creatures share the same name (source tier ≤ target tier). If so, combine them immediately (free action). This is the most efficient way to tier up.
 2. **Fill your board.** If you have fewer than 5 creatures, buy creatures to fill empty slots (3g each). A full team of 5 beats a partial team almost every time.
-3. **Buy duplicates onto your team.** If the shop has a creature you already own, buy it onto that team slot to add XP toward a star-up. ★1 copies can feed into ★2 creatures. Higher stars are significantly stronger.
+3. **Buy duplicates onto your team.** If the shop has a creature you already own, buy it onto that team slot to add XP toward a tier-up. T1 copies can feed into T2 creatures. Higher tiers are significantly stronger.
 4. **Roll to find duplicates or upgrades.** Spending 1g to roll refreshes the shop with new creatures. Roll to find copies of creatures you already own, or stronger replacements.
-5. **Upgrade your weakest slot.** If you find a better creature after rolling, sell your weakest creature (gain gold = its star level), then buy the upgrade.
+5. **Upgrade your weakest slot.** If you find a better creature after rolling, sell your weakest creature (gain gold = its tier level), then buy the upgrade.
 6. **Never end your turn with unspent gold.** Keep rolling until you've spent everything. Freeze is only useful when you have 0 gold but want to save a shop creature for next turn.
 
 ## Positioning Tips
@@ -80,9 +80,9 @@ export function buildTurnPrompt(context: TurnContext): string {
     const c = filteredState.team[i];
     if (c) {
       const pos = i < 2 ? 'FRONT' : 'BACK';
-      const xpNeeded = c.star === 1 ? 2 : 3;
-      const expTag = c.star < 3 ? ` XP:${c.experience}/${xpNeeded}` : '';
-      prompt += `[${i}] ${c.name} ★${c.star}${expTag} (${c.type}) ATK:${c.currentAttack} HP:${c.currentHealth}/${c.maxHealth} SPD:${c.currentSpeed} — ${c.abilityName}: ${c.abilityDescription} [${pos}]\n`;
+      const xpNeeded = c.tier === 1 ? 2 : 3;
+      const expTag = c.tier < 3 ? ` XP:${c.experience}/${xpNeeded}` : '';
+      prompt += `[${i}] ${c.name} T${c.tier}${expTag} (${c.type}) ATK:${c.currentAttack} HP:${c.currentHealth}/${c.maxHealth} SPD:${c.currentSpeed} — ${c.abilityName}: ${c.abilityDescription} [${pos}]\n`;
     } else {
       const pos = i < 2 ? 'FRONT' : 'BACK';
       prompt += `[${i}] EMPTY [${pos}]\n`;

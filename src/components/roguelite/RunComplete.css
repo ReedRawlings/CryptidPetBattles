@@ -1,0 +1,112 @@
+.run-complete {
+  max-width: 550px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.run-complete__title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.run-complete__title--victory {
+  color: #22c55e;
+}
+
+.run-complete__title--defeat {
+  color: #ef4444;
+}
+
+.run-complete__stats {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.run-complete__stat {
+  padding: 12px 20px;
+  border: 1px solid #333;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  min-width: 100px;
+}
+
+.run-complete__stat-label {
+  display: block;
+  font-size: 11px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.run-complete__stat-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #e5e5e5;
+}
+
+.run-complete__team {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.run-complete__team h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #aaa;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+
+.run-complete__creature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.run-complete__creature {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.run-complete__creature--dead {
+  opacity: 0.4;
+  border-color: #662222;
+}
+
+.run-complete__creature-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #e5e5e5;
+}
+
+.run-complete__creature-info {
+  font-size: 13px;
+  color: #888;
+}
+
+.run-complete__none {
+  color: #555;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.run-complete__battle-summary {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.run-complete__continue {
+  padding: 14px;
+  font-size: 16px;
+}

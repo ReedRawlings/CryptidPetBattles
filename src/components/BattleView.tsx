@@ -325,7 +325,7 @@ export function BattleView() {
             type: 'Spirit',
             role: 'brawler',
             shopTier: 0,
-            star: 1,
+            tier: 1,
             experience: 0,
             baseAttack: summonAttack,
             baseHealth: summonHealth,
@@ -439,7 +439,7 @@ export function BattleView() {
         >
           {ROLE_LABELS[creature.role]}
         </div>
-        {creature.star > 1 && <div className="battle-pet__star">{'★'.repeat(creature.star)}</div>}
+        {creature.tier > 1 && <div className="battle-pet__star">T{creature.tier}</div>}
 
         {renderBuffIcons(creature.displayBuffs)}
 

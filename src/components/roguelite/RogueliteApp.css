@@ -1,0 +1,80 @@
+.roguelite {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #000;
+}
+
+.roguelite--battle {
+  background: transparent;
+}
+
+.roguelite__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  background: rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid #333;
+}
+
+.roguelite__back-btn {
+  padding: 6px 14px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: transparent;
+  color: #aaa;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.roguelite__back-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #666;
+  color: #ddd;
+}
+
+.roguelite__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #a78bfa;
+  flex: 1;
+}
+
+.roguelite__run-info {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #888;
+}
+
+.roguelite__run-info span {
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.roguelite__abandon-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid #662222;
+  background: transparent;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.roguelite__abandon-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+}
+
+.roguelite__content {
+  flex: 1;
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
